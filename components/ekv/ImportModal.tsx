@@ -98,7 +98,7 @@ export default function ImportModal() {
   const [fileName, setFileName] = useState("");
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<{ inserted: number; errors: number; errorMessages: string[] } | null>(null);
+  const [result, setResult] = useState<{ inserted: number; updated: number; errors: number; errorMessages: string[] } | null>(null);
   const [parseError, setParseError] = useState("");
 
   function reset() {
@@ -187,46 +187,76 @@ export default function ImportModal() {
     }
 
     let inserted = 0;
+    let updated = 0;
     let errors = 0;
     const errorMessages: string[] = [];
     const batchSize = 1000;
     const concurrency = 2; // keep low to avoid connection limits
 
-    const batches: ParsedRow[][] = [];
-    for (let i = 0; i < rows.length; i += batchSize) {
-      batches.push(rows.slice(i, i + batchSize));
+    // Separate rows with and without kvnr_noventi
+    const rowsWithKey = rows.filter((r) => r.kvnr_noventi);
+    const rowsWithoutKey = rows.filter((r) => !r.kvnr_noventi);
+
+    // For rows with kvnr_noventi: fetch existing ones to count updates vs inserts
+    const existingKeys = new Set<string>();
+    if (rowsWithKey.length > 0) {
+      const keys = rowsWithKey.map((r) => r.kvnr_noventi as string);
+      const { data } = await supabase
+        .from("ekv_records")
+        .select("kvnr_noventi")
+        .in("kvnr_noventi", keys);
+      (data ?? []).forEach((r) => existingKeys.add(r.kvnr_noventi));
     }
 
-    for (let i = 0; i < batches.length; i += concurrency) {
-      const chunk = batches.slice(i, i + concurrency);
+    const allBatches: { batch: ParsedRow[]; useUpsert: boolean }[] = [];
+    for (let i = 0; i < rowsWithKey.length; i += batchSize) {
+      allBatches.push({ batch: rowsWithKey.slice(i, i + batchSize), useUpsert: true });
+    }
+    for (let i = 0; i < rowsWithoutKey.length; i += batchSize) {
+      allBatches.push({ batch: rowsWithoutKey.slice(i, i + batchSize), useUpsert: false });
+    }
+
+    for (let i = 0; i < allBatches.length; i += concurrency) {
+      const chunk = allBatches.slice(i, i + concurrency);
 
       await Promise.all(
-        chunk.map(async (batch) => {
-          const { error } = await supabase.from("ekv_records").insert(batch);
+        chunk.map(async ({ batch, useUpsert }) => {
+          const query = useUpsert
+            ? supabase.from("ekv_records").upsert(batch, { onConflict: "kvnr_noventi" })
+            : supabase.from("ekv_records").insert(batch);
+
+          const { error } = await query;
           if (error) {
             // Batch failed — retry row by row to skip bad rows only
             await Promise.all(
               batch.map(async (row) => {
-                const { error: rowError } = await supabase.from("ekv_records").insert(row);
+                const rowQuery = useUpsert
+                  ? supabase.from("ekv_records").upsert(row, { onConflict: "kvnr_noventi" })
+                  : supabase.from("ekv_records").insert(row);
+                const { error: rowError } = await rowQuery;
                 if (rowError) {
                   errors++;
                   if (!errorMessages.includes(rowError.message)) {
                     errorMessages.push(rowError.message);
                   }
                 } else {
-                  inserted++;
+                  const key = row.kvnr_noventi as string | null;
+                  if (key && existingKeys.has(key)) { updated++; } else { inserted++; }
                 }
               })
             );
           } else {
-            inserted += batch.length;
+            batch.forEach((row) => {
+              const key = row.kvnr_noventi as string | null;
+              if (key && existingKeys.has(key)) { updated++; } else { inserted++; }
+            });
           }
           setProgress((prev) => Math.min(prev + batch.length, rows.length));
         })
       );
     }
 
-    setResult({ inserted, errors, errorMessages });
+    setResult({ inserted, updated, errors, errorMessages });
     setImporting(false);
     router.refresh();
   }
@@ -332,7 +362,13 @@ export default function ImportModal() {
                   {result.inserted > 0 && (
                     <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg">
                       <CheckCircle className="w-4 h-4" />
-                      {result.inserted} records imported successfully
+                      {result.inserted} new records imported
+                    </div>
+                  )}
+                  {result.updated > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-blue-700 bg-blue-50 px-3 py-2 rounded-lg">
+                      <CheckCircle className="w-4 h-4" />
+                      {result.updated} existing records updated
                     </div>
                   )}
                   {result.errors > 0 && (
