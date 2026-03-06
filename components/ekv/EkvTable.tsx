@@ -2,7 +2,6 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
-import RecordActions from "@/components/records/RecordActions";
 
 type EkvRecord = {
   id: string;
@@ -72,6 +71,7 @@ export default function EkvTable({
 
   const activeStatus = searchParams.get("status") ?? "";
   const searchQuery = searchParams.get("q") ?? "";
+  const kasseFilter = searchParams.get("kasse") ?? "";
   const angelegtFrom = searchParams.get("angelegt_from") ?? "";
   const angelegtTo = searchParams.get("angelegt_to") ?? "";
   const entschiedenFrom = searchParams.get("entschieden_from") ?? "";
@@ -96,12 +96,22 @@ export default function EkvTable({
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search by name, Versicherten-Nr, KVNr, Kasse..."
+          placeholder="Search by name, Versicherten-Nr, KVNr..."
           defaultValue={searchQuery}
           onKeyDown={(e) => {
             if (e.key === "Enter") setFilter("q", (e.target as HTMLInputElement).value);
           }}
-          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          suppressHydrationWarning
+        />
+        <input
+          type="text"
+          placeholder="Filter by Kassenname..."
+          defaultValue={kasseFilter}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") setFilter("kasse", (e.target as HTMLInputElement).value);
+          }}
+          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500"
           suppressHydrationWarning
         />
         <div className="flex flex-wrap gap-2">
@@ -192,7 +202,6 @@ export default function EkvTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr LE</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -208,14 +217,11 @@ export default function EkvTable({
                     {record.status}
                   </span>
                 </td>
-                <td className="px-4 py-3">
-                  <RecordActions recordId={record.id} module="ekv" status={record.status} />
-                </td>
               </tr>
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
                   No EKV records found
                 </td>
               </tr>

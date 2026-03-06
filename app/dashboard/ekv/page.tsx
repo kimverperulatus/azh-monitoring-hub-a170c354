@@ -5,10 +5,10 @@ import ImportModal from "@/components/ekv/ImportModal";
 export default async function EkvPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; q?: string; angelegt_from?: string; angelegt_to?: string; entschieden_from?: string; entschieden_to?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; kasse?: string; angelegt_from?: string; angelegt_to?: string; entschieden_from?: string; entschieden_to?: string }>;
 }) {
   const supabase = await createClient();
-  const { status, page: pageParam, q, angelegt_from, angelegt_to, entschieden_from, entschieden_to } = await searchParams;
+  const { status, page: pageParam, q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to } = await searchParams;
   const page = parseInt(pageParam ?? "1");
   const pageSize = 20;
   const from = (page - 1) * pageSize;
@@ -23,6 +23,7 @@ export default async function EkvPage({
     .range(from, from + pageSize - 1);
 
   if (status) query = query.eq("status", status);
+  if (kasse)  query = query.ilike("kassenname", `%${kasse}%`);
   if (q) query = query.or(
     `versichertenvorname.ilike.%${q}%,versichertennachname.ilike.%${q}%,versicherten_nr.ilike.%${q}%,kvnr_noventi.ilike.%${q}%,kassenname.ilike.%${q}%`
   );
