@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import Sidebar from "@/components/layout/Sidebar";
+import Navbar from "@/components/layout/Navbar";
 
 export default async function DashboardLayout({
   children,
@@ -13,8 +13,8 @@ export default async function DashboardLayout({
   if (!user) redirect("/login");
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar user={user} />
+    <div className="flex flex-col h-screen bg-gray-50">
+      <Navbar user={user} />
       <main className="flex-1 overflow-auto">
         {children}
       </main>
