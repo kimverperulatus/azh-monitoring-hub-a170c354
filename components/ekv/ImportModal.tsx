@@ -39,6 +39,8 @@ const HEADER_MAP: Record<string, string> = {
   "reason":             "reasons",
 };
 
+const VALID_STATUSES = new Set(["Pending", "Approved", "Rejected", "Error", "Closed Lost"]);
+
 const DATE_FIELDS = ["kv_angelegt", "kv_entschieden"];
 function parseDate(val: string): string | null {
   if (!val || val.trim() === "") return null;
@@ -61,7 +63,7 @@ function mapRow(rawRow: Record<string, string>): Record<string, string | null> {
     if (DATE_FIELDS.includes(dbCol)) {
       mapped[dbCol] = parseDate(val);
     } else if (dbCol === "status") {
-      mapped[dbCol] = val === "" ? "Pending" : val;
+      mapped[dbCol] = VALID_STATUSES.has(val) ? val : "Pending";
     } else {
       mapped[dbCol] = val === "" ? null : val;
     }
