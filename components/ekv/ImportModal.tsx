@@ -41,6 +41,21 @@ const HEADER_MAP: Record<string, string> = {
 
 const VALID_STATUSES = new Set(["Pending", "Approved", "Rejected", "Error", "Closed Lost"]);
 
+// Map German/alternative status values to canonical English values
+const STATUS_MAP: Record<string, string> = {
+  "genehmigt":    "Approved",
+  "abgelehnt":    "Rejected",
+  "ausstehend":   "Pending",
+  "fehler":       "Error",
+  "offen":        "Pending",
+  "geschlossen":  "Closed Lost",
+  "pending":      "Pending",
+  "approved":     "Approved",
+  "rejected":     "Rejected",
+  "error":        "Error",
+  "closed lost":  "Closed Lost",
+};
+
 const DATE_FIELDS = ["kv_angelegt", "kv_entschieden"];
 function parseDate(val: string): string | null {
   if (!val || val.trim() === "") return null;
@@ -63,7 +78,8 @@ function mapRow(rawRow: Record<string, string>): Record<string, string | null> {
     if (DATE_FIELDS.includes(dbCol)) {
       mapped[dbCol] = parseDate(val);
     } else if (dbCol === "status") {
-      mapped[dbCol] = VALID_STATUSES.has(val) ? val : "Pending";
+      const normalized = STATUS_MAP[val.toLowerCase()] ?? (VALID_STATUSES.has(val) ? val : "Pending");
+      mapped[dbCol] = normalized;
     } else {
       mapped[dbCol] = val === "" ? null : val;
     }
