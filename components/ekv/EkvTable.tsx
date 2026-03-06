@@ -72,7 +72,20 @@ export default function EkvTable({
 
   const activeStatus = searchParams.get("status") ?? "";
   const searchQuery = searchParams.get("q") ?? "";
+  const angelegtFrom = searchParams.get("angelegt_from") ?? "";
+  const angelegtTo = searchParams.get("angelegt_to") ?? "";
+  const entschiedenFrom = searchParams.get("entschieden_from") ?? "";
+  const entschiedenTo = searchParams.get("entschieden_to") ?? "";
   const totalPages = Math.ceil(total / pageSize);
+
+  const hasDateFilters = angelegtFrom || angelegtTo || entschiedenFrom || entschiedenTo;
+
+  function clearDateFilters() {
+    const params = new URLSearchParams(searchParams.toString());
+    ["angelegt_from", "angelegt_to", "entschieden_from", "entschieden_to"].forEach((k) => params.delete(k));
+    params.delete("page");
+    router.push(`${pathname}?${params.toString()}`);
+  }
 
   // Build unique status list from current records
   const uniqueStatuses = Array.from(new Set(records.map((r) => r.status))).filter(Boolean);
@@ -114,6 +127,58 @@ export default function EkvTable({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Date Filters */}
+      <div className="flex flex-wrap items-end gap-4 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-500">KV Angelegt</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              defaultValue={angelegtFrom}
+              onChange={(e) => setFilter("angelegt_from", e.target.value)}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              suppressHydrationWarning
+            />
+            <span className="text-xs text-gray-400">to</span>
+            <input
+              type="date"
+              defaultValue={angelegtTo}
+              onChange={(e) => setFilter("angelegt_to", e.target.value)}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              suppressHydrationWarning
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-500">KV Entschieden</span>
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              defaultValue={entschiedenFrom}
+              onChange={(e) => setFilter("entschieden_from", e.target.value)}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              suppressHydrationWarning
+            />
+            <span className="text-xs text-gray-400">to</span>
+            <input
+              type="date"
+              defaultValue={entschiedenTo}
+              onChange={(e) => setFilter("entschieden_to", e.target.value)}
+              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              suppressHydrationWarning
+            />
+          </div>
+        </div>
+        {hasDateFilters && (
+          <button
+            onClick={clearDateFilters}
+            className="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors"
+          >
+            Clear dates
+          </button>
+        )}
       </div>
 
       {/* Table */}
