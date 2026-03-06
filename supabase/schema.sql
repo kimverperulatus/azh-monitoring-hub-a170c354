@@ -45,10 +45,12 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists ekv_records_updated_at on ekv_records;
 create trigger ekv_records_updated_at
   before update on ekv_records
   for each row execute function update_updated_at();
 
+drop trigger if exists letter_records_updated_at on letter_records;
 create trigger letter_records_updated_at
   before update on letter_records
   for each row execute function update_updated_at();
@@ -71,24 +73,26 @@ alter table letter_records enable row level security;
 alter table activity_logs enable row level security;
 
 -- Authenticated users can read all records
-create policy "Authenticated read ekv" on ekv_records
-  for select to authenticated using (true);
-
-create policy "Authenticated read letters" on letter_records
-  for select to authenticated using (true);
-
-create policy "Authenticated read logs" on activity_logs
-  for select to authenticated using (true);
-
--- Authenticated users can insert/update/delete
-create policy "Authenticated write ekv" on ekv_records
-  for all to authenticated using (true) with check (true);
-
-create policy "Authenticated write letters" on letter_records
-  for all to authenticated using (true) with check (true);
-
-create policy "Authenticated write logs" on activity_logs
-  for all to authenticated using (true) with check (true);
+do $$ begin
+  if not exists (select 1 from pg_policies where tablename = 'ekv_records' and policyname = 'Authenticated read ekv') then
+    create policy "Authenticated read ekv" on ekv_records for select to authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'letter_records' and policyname = 'Authenticated read letters') then
+    create policy "Authenticated read letters" on letter_records for select to authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'activity_logs' and policyname = 'Authenticated read logs') then
+    create policy "Authenticated read logs" on activity_logs for select to authenticated using (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'ekv_records' and policyname = 'Authenticated write ekv') then
+    create policy "Authenticated write ekv" on ekv_records for all to authenticated using (true) with check (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'letter_records' and policyname = 'Authenticated write letters') then
+    create policy "Authenticated write letters" on letter_records for all to authenticated using (true) with check (true);
+  end if;
+  if not exists (select 1 from pg_policies where tablename = 'activity_logs' and policyname = 'Authenticated write logs') then
+    create policy "Authenticated write logs" on activity_logs for all to authenticated using (true) with check (true);
+  end if;
+end $$;
 
 -- ============================================
 -- Seed sample data for testing
