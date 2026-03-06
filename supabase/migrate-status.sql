@@ -3,6 +3,10 @@
 -- Run this in Supabase SQL Editor
 -- ============================================
 
+-- Add status column if it doesn't exist yet
+alter table ekv_records add column if not exists status text not null default 'Pending';
+alter table letter_records add column if not exists status text not null default 'Pending';
+
 -- Drop old check constraints
 alter table ekv_records drop constraint if exists ekv_records_status_check;
 alter table letter_records drop constraint if exists letter_records_status_check;
