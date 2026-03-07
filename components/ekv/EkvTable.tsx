@@ -42,11 +42,13 @@ export default function EkvTable({
   total,
   page,
   pageSize,
+  statusCounts = [],
 }: {
   records: EkvRecord[];
   total: number;
   page: number;
   pageSize: number;
+  statusCounts?: { status: string; count: number }[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -87,8 +89,8 @@ export default function EkvTable({
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  // Build unique status list from current records
-  const uniqueStatuses = Array.from(new Set(records.map((r) => r.status))).filter(Boolean);
+  const activeStatusCounts = statusCounts.filter((s) => s.count > 0);
+  const grandTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <div className="space-y-4">
@@ -117,23 +119,33 @@ export default function EkvTable({
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("status", "")}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               activeStatus === "" ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
             suppressHydrationWarning
           >
             All
+            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+              activeStatus === "" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+            }`}>
+              {grandTotal}
+            </span>
           </button>
-          {uniqueStatuses.map((s) => (
+          {activeStatusCounts.map(({ status: s, count: c }) => (
             <button
               key={s}
               onClick={() => setFilter("status", s)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 activeStatus === s ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
               }`}
               suppressHydrationWarning
             >
               {s}
+              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+                activeStatus === s ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+              }`}>
+                {c}
+              </span>
             </button>
           ))}
         </div>

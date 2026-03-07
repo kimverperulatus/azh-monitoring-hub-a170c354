@@ -2,6 +2,33 @@ import { createClient } from "@/lib/supabase/server";
 import EkvTable from "@/components/ekv/EkvTable";
 import ImportModal from "@/components/ekv/ImportModal";
 
+export const dynamic = "force-dynamic";
+
+const KNOWN_STATUSES = ["Pending", "Approved", "Rejected", "Error", "Closed Lost"];
+
+type Filters = {
+  q?: string;
+  kasse?: string;
+  angelegt_from?: string;
+  angelegt_to?: string;
+  entschieden_from?: string;
+  entschieden_to?: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyFilters(query: any, filters: Filters) {
+  const { q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to } = filters;
+  if (kasse)            query = query.ilike("kassenname", `%${kasse}%`);
+  if (q)                query = query.or(
+    `versichertenvorname.ilike.%${q}%,versichertennachname.ilike.%${q}%,versicherten_nr.ilike.%${q}%,kvnr_noventi.ilike.%${q}%,kassenname.ilike.%${q}%`
+  );
+  if (angelegt_from)    query = query.gte("kv_angelegt", angelegt_from);
+  if (angelegt_to)      query = query.lte("kv_angelegt", angelegt_to);
+  if (entschieden_from) query = query.gte("kv_entschieden", entschieden_from);
+  if (entschieden_to)   query = query.lte("kv_entschieden", entschieden_to);
+  return query;
+}
+
 export default async function EkvPage({
   searchParams,
 }: {
@@ -12,8 +39,10 @@ export default async function EkvPage({
   const page = parseInt(pageParam ?? "1");
   const pageSize = 20;
   const from = (page - 1) * pageSize;
+  const filters: Filters = { q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to };
 
-  let query = supabase
+  // Main records query (with status filter + pagination)
+  let recordsQuery = supabase
     .from("ekv_records")
     .select(
       "id, kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, status, reasons",
@@ -22,17 +51,26 @@ export default async function EkvPage({
     .order("kv_angelegt", { ascending: false })
     .range(from, from + pageSize - 1);
 
-  if (status) query = query.eq("status", status);
-  if (kasse)  query = query.ilike("kassenname", `%${kasse}%`);
-  if (q) query = query.or(
-    `versichertenvorname.ilike.%${q}%,versichertennachname.ilike.%${q}%,versicherten_nr.ilike.%${q}%,kvnr_noventi.ilike.%${q}%,kassenname.ilike.%${q}%`
-  );
-  if (angelegt_from)    query = query.gte("kv_angelegt", angelegt_from);
-  if (angelegt_to)      query = query.lte("kv_angelegt", angelegt_to);
-  if (entschieden_from) query = query.gte("kv_entschieden", entschieden_from);
-  if (entschieden_to)   query = query.lte("kv_entschieden", entschieden_to);
+  recordsQuery = applyFilters(recordsQuery, filters);
+  if (status) recordsQuery = recordsQuery.eq("status", status);
 
-  const { data: records, count } = await query;
+  // Per-status counts using same filters but WITHOUT status filter
+  const statusCountsPromise = Promise.all(
+    KNOWN_STATUSES.map(async (s) => {
+      let q2 = supabase
+        .from("ekv_records")
+        .select("*", { count: "exact", head: true })
+        .eq("status", s);
+      q2 = applyFilters(q2, filters);
+      const { count: c } = await q2;
+      return { status: s, count: c ?? 0 };
+    })
+  );
+
+  const [{ data: records, count }, statusCounts] = await Promise.all([
+    recordsQuery,
+    statusCountsPromise,
+  ]);
 
   return (
     <div className="p-6 space-y-4">
@@ -48,6 +86,7 @@ export default async function EkvPage({
         total={count ?? 0}
         page={page}
         pageSize={pageSize}
+        statusCounts={statusCounts}
       />
     </div>
   );
