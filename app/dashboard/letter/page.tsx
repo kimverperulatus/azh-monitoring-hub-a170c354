@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import LetterTable from "@/components/letter/LetterTable";
+import { getUserRole } from "@/lib/auth/role";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,8 @@ export default async function LetterPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = user ? await getUserRole(user.id) : "support";
   const { page: pageParam } = await searchParams;
   const page = parseInt(pageParam ?? "1");
   const pageSize = 50;
@@ -34,6 +37,7 @@ export default async function LetterPage({
         total={count ?? 0}
         page={page}
         pageSize={pageSize}
+        isAdmin={role === "admin"}
       />
     </div>
   );
