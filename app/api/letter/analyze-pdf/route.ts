@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { createAdminClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { AzureOpenAI } from "openai";
 import pdfParse from "pdf-parse";
+
+export const maxDuration = 60;
 
 const EXTRACTION_PROMPT = `You are analyzing a German health insurance letter/document. Extract the following fields from the PDF and return ONLY a valid JSON object with no additional text or explanation.
 
