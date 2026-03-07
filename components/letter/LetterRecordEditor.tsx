@@ -173,13 +173,42 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
       payload[k] = v === "" ? null : v;
     }
     const { error: err } = await supabase.from("letter_records").update(payload).eq("id", record.id);
-    setSaving(false);
     if (err) {
+      setSaving(false);
       setError(err.message);
-    } else {
-      setEditing(false);
-      router.refresh();
+      return;
     }
+
+    // Rename the PDF in storage to match the updated record fields
+    if (record.pdf_url) {
+      try {
+        const urlObj = new URL(record.pdf_url);
+        const match = urlObj.pathname.match(/\/storage\/v1\/object\/public\/letter-pdfs\/(.+)/);
+        if (match) {
+          const oldPath = decodeURIComponent(match[1]);
+          const newScanDate = record.created_at ? record.created_at.slice(0, 10) : "";
+          const newFullName = [form.first_name, form.last_name].filter(Boolean).join(" ");
+          const newFileName = [
+            newScanDate,
+            newFullName || null,
+            form.insurance_number || null,
+            form.category || null,
+            form.type || null,
+          ].filter(Boolean).join("-") + ".pdf";
+          await fetch("/api/letter/rename-storage", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ record_id: record.id, old_path: oldPath, new_name: newFileName }),
+          });
+        }
+      } catch {
+        // rename is best-effort; don't block save
+      }
+    }
+
+    setSaving(false);
+    setEditing(false);
+    router.refresh();
   }
 
   if (!editing) {
