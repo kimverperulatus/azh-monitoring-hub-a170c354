@@ -50,12 +50,12 @@ export default async function EkvAuditPage() {
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
 
-  // Resolve carebox_status through the mapping before comparing
-  // e.g. "VERSCHICKT" → "Pending", so Pending == VERSCHICKT is NOT a mismatch
+  // Resolve carebox_status through the mapping before comparing.
+  // e.g. "VERSCHICKT" → "Pending", "PENDING" → "Pending" (case-insensitive fallback)
   const mismatches = (mismatchRecords ?? []).filter((r) => {
     if (!r.carebox_status) return false;
     const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
-    return r.status !== resolved;
+    return r.status?.toLowerCase() !== resolved.toLowerCase();
   });
 
   const exportIds = mismatches.map((r) => r.id).join(",");
@@ -113,7 +113,7 @@ export default async function EkvAuditPage() {
             {(mismatchRecords ?? []).filter(r => {
               if (!r.carebox_status) return false;
               const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
-              return r.status === resolved;
+              return r.status?.toLowerCase() === resolved.toLowerCase();
             }).length}
           </p>
         </div>
