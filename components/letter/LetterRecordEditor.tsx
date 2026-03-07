@@ -43,6 +43,15 @@ function Field({ label, value }: { label: string; value: string | null | undefin
   );
 }
 
+function Row({ label, value }: { label: string; value: string | null | undefined }) {
+  return (
+    <div className="flex gap-2 py-1 border-b border-gray-50 last:border-0">
+      <span className="text-[11px] text-gray-400 w-28 shrink-0 pt-px leading-tight">{label}</span>
+      <span className="text-[11px] text-gray-800 flex-1 break-words leading-tight">{value || "-"}</span>
+    </div>
+  );
+}
+
 function InputField({
   label, name, value, onChange, type = "text",
 }: {
@@ -186,149 +195,118 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
           </button>
         </div>
 
-        <div className="space-y-5">
-          {record.ai_summary && (
-            <section className="bg-blue-50 rounded-xl border border-blue-200 p-5 space-y-2">
-              <h2 className="text-sm font-semibold text-blue-700">AI Summary</h2>
-              <p className="text-sm text-blue-900 leading-relaxed">{record.ai_summary}</p>
-            </section>
-          )}
-
-          {record.pdf_url && (
-            <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
-              <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-700">PDF Preview</h2>
-                <a
-                  href={record.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-                >
-                  Open PDF ↗
-                </a>
-              </div>
-              {pdfBlobUrl ? (
-                <iframe
-                  src={pdfBlobUrl}
-                  className="w-full rounded-lg border border-gray-200"
-                  style={{ height: "700px" }}
-                  title="PDF Preview"
-                />
-              ) : pdfLoadError ? (
-                <div className="flex flex-col items-center justify-center gap-3 py-12 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-500">Could not load PDF preview.</p>
-                  <a href={record.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline font-medium">
-                    Open PDF in new tab ↗
+        <div className="flex gap-4 items-start">
+          {/* Left 70% — PDF preview */}
+          <div className="flex-none sticky top-4" style={{ width: "70%" }}>
+            {record.pdf_url ? (
+              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                  <span className="text-xs font-medium text-gray-500">PDF Preview</span>
+                  <a href={record.pdf_url} target="_blank" rel="noopener noreferrer"
+                    className="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                    Open ↗
                   </a>
                 </div>
-              ) : (
-                <div className="flex items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-200">
-                  <span className="text-sm text-gray-400">Loading PDF...</span>
-                </div>
-              )}
-            </section>
-          )}
-
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Classification</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Category</span>
-                {record.category ? (
-                  <div className="flex flex-wrap gap-1">
-                    {record.category.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (
-                      <span key={c} className={`px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[c] ?? "bg-gray-100 text-gray-700"}`}>
-                        {c}
-                      </span>
-                    ))}
+                {pdfBlobUrl ? (
+                  <iframe src={pdfBlobUrl} className="w-full" style={{ height: "calc(100vh - 140px)" }} title="PDF Preview" />
+                ) : pdfLoadError ? (
+                  <div className="flex flex-col items-center justify-center gap-2 py-16 bg-gray-50">
+                    <p className="text-xs text-gray-400">Could not load PDF preview.</p>
+                    <a href={record.pdf_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Open PDF in new tab ↗</a>
                   </div>
-                ) : <span className="text-sm text-gray-800">-</span>}
+                ) : (
+                  <div className="flex items-center justify-center py-16 bg-gray-50">
+                    <span className="text-xs text-gray-400">Loading PDF...</span>
+                  </div>
+                )}
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Type</span>
-                {record.type ? (
-                  <span className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>
-                    {record.type}
-                  </span>
-                ) : <span className="text-sm text-gray-800">-</span>}
+            ) : (
+              <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50" style={{ height: "calc(100vh - 140px)" }}>
+                <span className="text-xs text-gray-400">No PDF attached</span>
               </div>
-              <Field label="Date of Letter" value={record.date_of_letter} />
-              <Field label="Valid Until" value={record.valid_until} />
-            </div>
-          </section>
+            )}
+          </div>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Patient</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <Field label="First Name" value={record.first_name} />
-              <Field label="Last Name" value={record.last_name} />
-              <Field label="Insurance Number" value={record.insurance_number} />
-            </div>
-          </section>
+          {/* Right 30% — compact data */}
+          <div className="flex-none space-y-2" style={{ width: "30%" }}>
+            {record.ai_summary && (
+              <div className="bg-blue-50 rounded-lg border border-blue-200 p-3">
+                <p className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide mb-1">AI Summary</p>
+                <p className="text-xs text-blue-900 leading-relaxed">{record.ai_summary}</p>
+              </div>
+            )}
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Address</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <Field label="Street" value={record.street} />
-              <Field label="House Number" value={record.house_number} />
-              <Field label="Post Code" value={record.post_code} />
-              <Field label="City" value={record.city} />
+            <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-0.5">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Classification</p>
+              <div className="flex gap-2 py-1 border-b border-gray-50">
+                <span className="text-[11px] text-gray-400 w-28 shrink-0">Category</span>
+                <div className="flex flex-wrap gap-1 flex-1">
+                  {record.category
+                    ? record.category.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (
+                        <span key={c} className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${CATEGORY_STYLES[c] ?? "bg-gray-100 text-gray-700"}`}>{c}</span>
+                      ))
+                    : <span className="text-[11px] text-gray-800">-</span>}
+                </div>
+              </div>
+              <div className="flex gap-2 py-1 border-b border-gray-50">
+                <span className="text-[11px] text-gray-400 w-28 shrink-0">Type</span>
+                {record.type
+                  ? <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>{record.type}</span>
+                  : <span className="text-[11px] text-gray-800">-</span>}
+              </div>
+              <Row label="Date of Letter" value={record.date_of_letter} />
+              <Row label="Valid Until" value={record.valid_until} />
             </div>
-          </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Insurance</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <Field label="Health Insurance Provider" value={record.health_insurance_provider} />
-              <Field label="Approval ID" value={record.approval_id} />
-              <Field label="Co Payment" value={record.co_payment} />
-              <Field label="Insurance Covered Amount" value={record.insurance_covered_amount} />
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Patient</p>
+              <Row label="First Name" value={record.first_name} />
+              <Row label="Last Name" value={record.last_name} />
+              <Row label="Insurance No." value={record.insurance_number} />
             </div>
-          </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Letter Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Product List" value={record.product_list} />
-              <Field label="Reason" value={record.reason} />
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Address</p>
+              <Row label="Street" value={record.street} />
+              <Row label="House No." value={record.house_number} />
+              <Row label="Post Code" value={record.post_code} />
+              <Row label="City" value={record.city} />
             </div>
-          </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Scan Info</h2>
-            <div className="grid grid-cols-4 gap-4">
-              <Field label="File Name" value={record.file_name} />
-              <div className="col-span-2 flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Renamed File Name</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-800 break-all">{renamedFileName}</span>
-                  <button
-                    onClick={copyRenamedFileName}
-                    className="shrink-0 p-1 rounded hover:bg-gray-100 transition-colors"
-                    title="Copy renamed file name"
-                  >
-                    {copiedRenamedFile
-                      ? <Check className="w-3.5 h-3.5 text-green-600" />
-                      : <Copy className="w-3.5 h-3.5 text-gray-400" />}
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Insurance</p>
+              <Row label="Provider" value={record.health_insurance_provider} />
+              <Row label="Approval ID" value={record.approval_id} />
+              <Row label="Co Payment" value={record.co_payment} />
+              <Row label="Covered Amount" value={record.insurance_covered_amount} />
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Letter Details</p>
+              <Row label="Product List" value={record.product_list} />
+              <Row label="Reason" value={record.reason} />
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 p-3">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Scan Info</p>
+              <Row label="File Name" value={record.file_name} />
+              <div className="flex gap-2 py-1 border-b border-gray-50">
+                <span className="text-[11px] text-gray-400 w-28 shrink-0 pt-px">Renamed Name</span>
+                <div className="flex items-start gap-1 flex-1 min-w-0">
+                  <span className="text-[11px] text-gray-800 break-all flex-1">{renamedFileName}</span>
+                  <button onClick={copyRenamedFileName} className="shrink-0 p-0.5 rounded hover:bg-gray-100" title="Copy">
+                    {copiedRenamedFile ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3 text-gray-400" />}
                   </button>
                 </div>
               </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Scan Status</span>
-                {record.scan_status === "success" && (
-                  <span className="flex items-center gap-1 text-sm font-medium text-green-700">
-                    <CheckCircle2 className="w-4 h-4" /> Success
-                  </span>
-                )}
-                {record.scan_status === "error" && (
-                  <span className="flex items-center gap-1 text-sm font-medium text-red-600">
-                    <AlertCircle className="w-4 h-4" /> Error
-                  </span>
-                )}
-                {!record.scan_status && <span className="text-sm text-gray-800">-</span>}
+              <div className="flex gap-2 py-1">
+                <span className="text-[11px] text-gray-400 w-28 shrink-0 pt-px">Scan Status</span>
+                {record.scan_status === "success" && <span className="flex items-center gap-1 text-[11px] font-medium text-green-700"><CheckCircle2 className="w-3 h-3" /> Success</span>}
+                {record.scan_status === "error" && <span className="flex items-center gap-1 text-[11px] font-medium text-red-600"><AlertCircle className="w-3 h-3" /> Error</span>}
+                {!record.scan_status && <span className="text-[11px] text-gray-800">-</span>}
               </div>
             </div>
-          </section>
+          </div>
         </div>
       </>
     );
