@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
       method: "POST",
       headers: { "Content-Type": "application/json", "api-key": apiKey },
       body: JSON.stringify({
-        max_tokens: 1024,
+        max_completion_tokens: 1024,
         messages: [{ role: "user", content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}` }],
       }),
     });
