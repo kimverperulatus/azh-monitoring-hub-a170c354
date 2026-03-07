@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { AzureOpenAI } from "openai";
-import pdfParse from "pdf-parse";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
 
 export const maxDuration = 60;
 
@@ -70,8 +71,9 @@ export async function POST(request: NextRequest) {
     if (!pdfText) {
       return NextResponse.json({ error: "Could not extract text from PDF. The file may be scanned/image-only." }, { status: 400 });
     }
-  } catch {
-    return NextResponse.json({ error: "Failed to parse PDF." }, { status: 400 });
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: `Failed to parse PDF: ${msg}` }, { status: 400 });
   }
 
   try {
