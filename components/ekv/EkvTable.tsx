@@ -423,6 +423,17 @@ export default function EkvTable({
               </button>
             </div>
           </div>
+          {lookupLoading && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-blue-700 font-medium">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                Looking up {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} in Zoho CRM...
+              </div>
+              <div className="w-full bg-blue-200 rounded-full h-1.5 overflow-hidden relative">
+                <div className="absolute inset-y-0 left-0 w-1/3 bg-blue-500 rounded-full animate-pulse" />
+              </div>
+            </div>
+          )}
           {lookupError && (
             <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
               {lookupError}
