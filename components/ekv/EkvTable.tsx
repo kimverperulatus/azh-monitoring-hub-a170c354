@@ -18,6 +18,7 @@ const EXPORT_FIELDS = [
   { key: "kassen_ik",            label: "Kassen IK" },
   { key: "kassenname",           label: "Kassenname" },
   { key: "status",               label: "Status" },
+  { key: "carebox_status",       label: "Carebox Status" },
   { key: "reasons",              label: "Reasons" },
   { key: "notes",                label: "Notes" },
 ];
@@ -37,6 +38,7 @@ type EkvRecord = {
   kassenname: string | null;
   notes: string | null;
   status: string;
+  carebox_status: string | null;
   reasons: string | null;
 };
 
@@ -279,6 +281,7 @@ export default function EkvTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Carebox Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -303,6 +306,7 @@ export default function EkvTable({
                     {record.status}
                   </span>
                 </td>
+                <td className="px-4 py-3 text-gray-600 text-xs">{record.carebox_status ?? "-"}</td>
               </tr>
             ))}
             {!records.length && (

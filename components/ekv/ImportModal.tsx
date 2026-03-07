@@ -35,6 +35,8 @@ const HEADER_MAP: Record<string, string> = {
   "kassen-ik":          "kassen_ik",
   "kassenname":         "kassenname",
   "status":             "status",
+  "carebox status":     "carebox_status",
+  "carebox_status":     "carebox_status",
   "reasons":            "reasons",
   "reason":             "reasons",
 };
@@ -408,7 +410,7 @@ export default function ImportModal() {
                   <span>Versichertenvorname</span><span>Versichertennachname</span>
                   <span>Versicherten-Nr</span><span>Kassen - IK</span>
                   <span>Kassenname</span><span>Status</span>
-                  <span>Reasons</span>
+                  <span>Carebox Status</span><span>Reasons</span>
                 </div>
               </details>
             </div>

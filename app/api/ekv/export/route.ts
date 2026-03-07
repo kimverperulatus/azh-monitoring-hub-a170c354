@@ -14,6 +14,7 @@ const ALL_FIELDS: { key: string; label: string; col: string }[] = [
   { key: "kassen_ik",            label: "Kassen IK",       col: "kassen_ik" },
   { key: "kassenname",           label: "Kassenname",      col: "kassenname" },
   { key: "status",               label: "Status",          col: "status" },
+  { key: "carebox_status",       label: "Carebox Status",  col: "carebox_status" },
   { key: "reasons",              label: "Reasons",         col: "reasons" },
   { key: "notes",                label: "Notes",           col: "notes" },
 ];

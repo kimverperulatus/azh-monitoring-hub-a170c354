@@ -92,6 +92,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
             <h2 className="text-sm font-semibold text-gray-700">Status & Reasons</h2>
             <div className="grid grid-cols-1 gap-4">
               <Field label="Status" value={record.status} />
+              <Field label="Carebox Status" value={record.carebox_status} />
               <Field label="Reasons" value={record.reasons} />
             </div>
           </section>
