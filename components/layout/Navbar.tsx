@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useState, useRef, useEffect } from "react";
@@ -25,6 +25,12 @@ export default function Navbar({ user }: { user: User }) {
   const [pwError, setPwError] = useState("");
   const [pwSuccess, setPwSuccess] = useState("");
   const [pwLoading, setPwLoading] = useState(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserPassword, setNewUserPassword] = useState("");
+  const [cuError, setCuError] = useState("");
+  const [cuSuccess, setCuSuccess] = useState("");
+  const [cuLoading, setCuLoading] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
@@ -64,6 +70,35 @@ export default function Navbar({ user }: { user: User }) {
     setPwSuccess("");
     setNewPassword("");
     setConfirmPassword("");
+  }
+
+  async function handleCreateUser(e: React.FormEvent) {
+    e.preventDefault();
+    setCuError("");
+    setCuSuccess("");
+    setCuLoading(true);
+    const res = await fetch("/api/admin/create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: newUserEmail, password: newUserPassword }),
+    });
+    const json = await res.json();
+    setCuLoading(false);
+    if (!res.ok) {
+      setCuError(json.error ?? "Failed to create user.");
+    } else {
+      setCuSuccess(`User ${newUserEmail} created successfully.`);
+      setNewUserEmail("");
+      setNewUserPassword("");
+    }
+  }
+
+  function closeCreateUserModal() {
+    setShowCreateUserModal(false);
+    setCuError("");
+    setCuSuccess("");
+    setNewUserEmail("");
+    setNewUserPassword("");
   }
 
   useEffect(() => {
@@ -140,6 +175,14 @@ export default function Navbar({ user }: { user: User }) {
               <p className="text-sm font-medium text-gray-800 truncate">{user.email}</p>
             </div>
             <button
+              onClick={() => { setDropdownOpen(false); setShowCreateUserModal(true); }}
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              suppressHydrationWarning
+            >
+              <UserPlus className="w-4 h-4" />
+              Create User
+            </button>
+            <button
               onClick={() => { setDropdownOpen(false); setShowPasswordModal(true); }}
               className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
               suppressHydrationWarning
@@ -202,6 +245,58 @@ export default function Navbar({ user }: { user: User }) {
               <button
                 type="button"
                 onClick={closeModal}
+                className="flex-1 border border-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {showCreateUserModal && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Create New User</h2>
+          <form onSubmit={handleCreateUser} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                required
+                value={newUserEmail}
+                onChange={(e) => setNewUserEmail(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="user@example.com"
+                suppressHydrationWarning
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <input
+                type="password"
+                required
+                value={newUserPassword}
+                onChange={(e) => setNewUserPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+                suppressHydrationWarning
+              />
+            </div>
+            {cuError && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{cuError}</p>}
+            {cuSuccess && <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">{cuSuccess}</p>}
+            <div className="flex gap-2 pt-1">
+              <button
+                type="submit"
+                disabled={cuLoading}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                {cuLoading ? "Creating..." : "Create User"}
+              </button>
+              <button
+                type="button"
+                onClick={closeCreateUserModal}
                 className="flex-1 border border-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
               >
                 Cancel
