@@ -197,6 +197,7 @@ export default function EkvTable({
         setLookupError(errMsg.includes("Unexpected end of JSON") ? "No Record Found." : errMsg);
       } else {
         setLookupResult({ updated: json.updated, notFound: json.notFound, statusChanged: json.statusChanged ?? 0 });
+        setSelectedIds(new Set());
         router.refresh();
       }
     } catch (err) {
