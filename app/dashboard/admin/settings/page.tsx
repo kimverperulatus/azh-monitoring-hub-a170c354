@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink, List, Plus, Trash2 } from "lucide-react";
+import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink, List, Plus, Trash2, Eye, EyeOff } from "lucide-react";
 
 const FIELDS = [
   {
@@ -51,6 +51,7 @@ type SettingsMap = Record<string, string>;
 
 export default function AdminSettingsPage() {
   const [values, setValues] = useState<SettingsMap>({});
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -214,6 +215,23 @@ export default function AdminSettingsPage() {
                         <option key={o} value={o}>{o.toUpperCase()}</option>
                       ))}
                     </select>
+                  ) : field.type === "password" ? (
+                    <div className="relative">
+                      <input
+                        type={revealed.has(field.key) ? "text" : "password"}
+                        value={values[field.key] ?? ""}
+                        onChange={(e) => setValues((v) => ({ ...v, [field.key]: e.target.value }))}
+                        placeholder={field.placeholder}
+                        className="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setRevealed((r) => { const n = new Set(r); n.has(field.key) ? n.delete(field.key) : n.add(field.key); return n; })}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {revealed.has(field.key) ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
                   ) : (
                     <input
                       type={field.type}
