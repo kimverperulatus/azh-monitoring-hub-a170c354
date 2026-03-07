@@ -194,8 +194,8 @@ export default function EkvTable({
         setLookupResult({ updated: json.updated, notFound: json.notFound });
         router.refresh();
       }
-    } catch {
-      setLookupError("Network error. Please try again.");
+    } catch (err) {
+      setLookupError(`Error: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setLookupLoading(false);
     }

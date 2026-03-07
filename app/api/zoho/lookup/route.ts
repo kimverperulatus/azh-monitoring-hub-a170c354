@@ -52,7 +52,10 @@ export async function POST(request: NextRequest) {
 
   // Load settings
   const admin = createAdminClient();
-  const { data: settingsRows } = await admin.from("app_settings").select("key, value");
+  const { data: settingsRows, error: settingsErr } = await admin.from("app_settings").select("key, value");
+  if (settingsErr) {
+    return NextResponse.json({ error: `Settings table error: ${settingsErr.message}. Make sure you have run the app_settings SQL migration in Supabase.` }, { status: 500 });
+  }
   const settings: Record<string, string> = {};
   for (const row of settingsRows ?? []) settings[row.key] = row.value ?? "";
 
