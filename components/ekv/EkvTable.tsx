@@ -2,8 +2,8 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
-import { Download } from "lucide-react";
-import { useState } from "react";
+import { Download, Search, RefreshCw } from "lucide-react";
+import { useState, useCallback } from "react";
 
 const EXPORT_FIELDS = [
   { key: "kv_angelegt",          label: "KV Angelegt" },
@@ -79,6 +79,9 @@ export default function EkvTable({
   const [selectedFields, setSelectedFields] = useState<string[]>(EXPORT_FIELDS.map((f) => f.key));
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const MAX_SELECTION = 200;
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupResult, setLookupResult] = useState<{ updated: number; notFound: number } | null>(null);
+  const [lookupError, setLookupError] = useState("");
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -172,6 +175,31 @@ export default function EkvTable({
       return next;
     });
   }
+
+  const lookupCarebox = useCallback(async () => {
+    if (!selectedIds.size) return;
+    setLookupLoading(true);
+    setLookupError("");
+    setLookupResult(null);
+    try {
+      const res = await fetch("/api/zoho/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setLookupError(json.error ?? "Lookup failed.");
+      } else {
+        setLookupResult({ updated: json.updated, notFound: json.notFound });
+        router.refresh();
+      }
+    } catch {
+      setLookupError("Network error. Please try again.");
+    } finally {
+      setLookupLoading(false);
+    }
+  }, [selectedIds, router]);
 
   function exportSelected() {
     const params = new URLSearchParams();
@@ -316,30 +344,54 @@ export default function EkvTable({
 
       {/* Selection bar */}
       {selectedIds.size > 0 && (
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
-          <span className="text-sm text-blue-700 font-medium">
-            {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} selected
-            {selectedIds.size >= MAX_SELECTION && (
-              <span className="ml-2 text-xs text-blue-500">(max {MAX_SELECTION})</span>
-            )}
-          </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowExportModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-              suppressHydrationWarning
-            >
-              <Download className="w-3.5 h-3.5" />
-              Export Selected
-            </button>
-            <button
-              onClick={() => setSelectedIds(new Set())}
-              className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-              suppressHydrationWarning
-            >
-              Clear
-            </button>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
+            <span className="text-sm text-blue-700 font-medium">
+              {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} selected
+              {selectedIds.size >= MAX_SELECTION && (
+                <span className="ml-2 text-xs text-blue-500">(max {MAX_SELECTION})</span>
+              )}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={lookupCarebox}
+                disabled={lookupLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+                suppressHydrationWarning
+              >
+                {lookupLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                {lookupLoading ? "Looking up..." : "Lookup Carebox Status"}
+              </button>
+              <button
+                onClick={() => setShowExportModal(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                suppressHydrationWarning
+              >
+                <Download className="w-3.5 h-3.5" />
+                Export Selected
+              </button>
+              <button
+                onClick={() => { setSelectedIds(new Set()); setLookupResult(null); setLookupError(""); }}
+                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                suppressHydrationWarning
+              >
+                Clear
+              </button>
+            </div>
           </div>
+          {lookupError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
+              {lookupError}
+            </div>
+          )}
+          {lookupResult && (
+            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 text-sm text-green-700">
+              Lookup complete: <strong>{lookupResult.updated}</strong> record{lookupResult.updated !== 1 ? "s" : ""} updated
+              {lookupResult.notFound > 0 && (
+                <span className="ml-2 text-green-600">({lookupResult.notFound} not found in Zoho)</span>
+              )}
+            </div>
+          )}
         </div>
       )}
 

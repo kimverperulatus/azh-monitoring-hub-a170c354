@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useState, useRef, useEffect } from "react";
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/dashboard/ekv", label: "EKV", icon: FileText },
   { href: "/dashboard/letter", label: "Letter", icon: Mail },
   { href: "/dashboard/logs", label: "Logs", icon: ScrollText },
+  { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ];
 
 export default function Navbar({ user }: { user: User }) {
