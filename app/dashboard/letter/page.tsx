@@ -55,7 +55,7 @@ export default async function LetterPage({
     <div className="p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Letter Records</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Scan Letter</h1>
           <p className="text-sm text-gray-500">{count ?? 0} total records</p>
         </div>
         <PdfUploadModal />
