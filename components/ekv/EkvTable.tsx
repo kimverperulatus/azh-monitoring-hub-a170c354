@@ -223,7 +223,6 @@ export default function EkvTable({
   const pagePartialSelected = records.some((r) => selectedIds.has(r.id)) && !pageAllSelected;
 
   const activeStatusCounts = statusCounts.filter((s) => s.count > 0);
-  const grandTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <div className="space-y-3">
@@ -265,33 +264,23 @@ export default function EkvTable({
       <div className="flex flex-wrap gap-1.5">
         <button
           onClick={() => setFilter("status", "")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
+          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
             activeStatus === "" ? "bg-brand-red-800 text-white shadow-sm shadow-brand-red-200" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
           suppressHydrationWarning
         >
           All
-          <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-bold ${
-            activeStatus === "" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
-          }`}>
-            {grandTotal}
-          </span>
         </button>
         {activeStatusCounts.map(({ status: s, count: c }) => (
           <button
             key={s}
             onClick={() => setFilter("status", s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
               activeStatus === s ? "bg-brand-red-800 text-white shadow-sm shadow-brand-red-200" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
             suppressHydrationWarning
           >
             {s}
-            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-bold ${
-              activeStatus === s ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
-            }`}>
-              {c}
-            </span>
           </button>
         ))}
       </div>
@@ -306,19 +295,12 @@ export default function EkvTable({
               <button
                 key={value}
                 onClick={() => setFilter("carebox_filter", value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                   careboxFilter === value ? "bg-brand-navy-800 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
                 suppressHydrationWarning
               >
                 {label}
-                {count != null && count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${
-                    careboxFilter === value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
-                  }`}>
-                    {count}
-                  </span>
-                )}
               </button>
             ))}
           </div>
@@ -332,19 +314,12 @@ export default function EkvTable({
               <button
                 key={value}
                 onClick={() => setFilter("audit_filter", value)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                   auditFilter === value ? "bg-brand-navy-800 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
                 suppressHydrationWarning
               >
                 {label}
-                {count != null && count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${
-                    auditFilter === value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
-                  }`}>
-                    {count}
-                  </span>
-                )}
               </button>
             ))}
           </div>
