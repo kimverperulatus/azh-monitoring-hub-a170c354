@@ -34,10 +34,10 @@ function applyFilters(query: any, filters: Filters) {
 export default async function EkvPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; q?: string; kasse?: string; angelegt_from?: string; angelegt_to?: string; entschieden_from?: string; entschieden_to?: string; audit_filter?: string; page_size?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; kasse?: string; angelegt_from?: string; angelegt_to?: string; entschieden_from?: string; entschieden_to?: string; audit_filter?: string; carebox_filter?: string; page_size?: string }>;
 }) {
   const supabase = await createClient();
-  const { status, page: pageParam, q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to, audit_filter, page_size } = await searchParams;
+  const { status, page: pageParam, q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to, audit_filter, carebox_filter, page_size } = await searchParams;
   const page = parseInt(pageParam ?? "1");
   const allowedSizes = [10, 50, 100, 200];
   const pageSize = allowedSizes.includes(Number(page_size)) ? Number(page_size) : 50;
@@ -61,6 +61,7 @@ export default async function EkvPage({
     const today = new Date().toISOString().slice(0, 10);
     recordsQuery = recordsQuery.gte("audit_date", `${today}T00:00:00`).lte("audit_date", `${today}T23:59:59`);
   }
+  if (carebox_filter === "empty") recordsQuery = recordsQuery.is("carebox_status", null);
 
   // Per-status counts using same filters but WITHOUT status filter
   const statusCountsPromise = Promise.all(

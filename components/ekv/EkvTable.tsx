@@ -109,10 +109,11 @@ export default function EkvTable({
   const entschiedenFrom = searchParams.get("entschieden_from") ?? "";
   const entschiedenTo = searchParams.get("entschieden_to") ?? "";
   const auditFilter = searchParams.get("audit_filter") ?? "";
+  const careboxFilter = searchParams.get("carebox_filter") ?? "";
   const totalPages = Math.ceil(total / pageSize);
 
   const hasDateFilters = angelegtFrom || angelegtTo || entschiedenFrom || entschiedenTo;
-  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters || auditFilter;
+  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters || auditFilter || careboxFilter;
 
   function clearAllFilters() {
     router.push(pathname);
@@ -294,6 +295,28 @@ export default function EkvTable({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Carebox Status Filter */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Carebox Status:</span>
+        {[
+          { value: "", label: "All" },
+          { value: "empty", label: "Empty" },
+        ].map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setFilter("carebox_filter", value)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              careboxFilter === value
+                ? "bg-blue-600 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+            suppressHydrationWarning
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Audit Date Filter */}
