@@ -42,10 +42,14 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
 
   if (!record) notFound();
 
+  const createdAt = record.created_at ? format(new Date(record.created_at), "dd.MM.yyyy HH:mm") : null;
+  const updatedAt = record.updated_at ? format(new Date(record.updated_at), "dd.MM.yyyy HH:mm") : null;
+  const auditDate = record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null;
+
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4 max-w-6xl">
       {/* Back + header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between">
         <Link
           href="/dashboard/ekv"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
@@ -53,36 +57,32 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
           <ArrowLeft className="w-4 h-4" />
           Back to EKV Records
         </Link>
-      </div>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">EKV Record</h1>
-          <p className="text-xs text-gray-400 font-mono mt-0.5">{record.id}</p>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400 font-mono">{record.id}</span>
+          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[record.status] ?? "bg-brand-navy-50 text-brand-navy-700"}`}>
+            {record.status}
+          </span>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusStyles[record.status] ?? "bg-brand-navy-50 text-brand-navy-700"}`}>
-          {record.status}
-        </span>
       </div>
 
       {/* Editable fields */}
       <EkvRecordEditor record={record} />
 
-      {/* Timestamps — read only */}
-      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Timestamps</h2>
-        <div className="grid grid-cols-3 gap-4">
-          <Field label="Created At" value={record.created_at ? format(new Date(record.created_at), "dd.MM.yyyy HH:mm") : null} />
-          <Field label="Updated At" value={record.updated_at ? format(new Date(record.updated_at), "dd.MM.yyyy HH:mm") : null} />
-          <Field label="Audit Date" value={record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null} />
+      {/* Timestamps + Notes side by side */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Timestamps</p>
+          <div className="space-y-1.5">
+            <Field label="Created At" value={createdAt} />
+            <Field label="Updated At" value={updatedAt} />
+            <Field label="Audit Date" value={auditDate} />
+          </div>
         </div>
-      </section>
-
-      {/* Notes — full width */}
-      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-        <h2 className="text-sm font-semibold text-gray-700">Notes</h2>
-        <NoteEditor recordId={record.id} initialNote={record.notes ?? null} />
-      </section>
+        <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-3 space-y-2">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Notes</p>
+          <NoteEditor recordId={record.id} initialNote={record.notes ?? null} />
+        </div>
+      </div>
     </div>
   );
 }

@@ -18,26 +18,20 @@ function getColor(status: string): "yellow" | "green" | "red" | "orange" | "gray
   return STATUS_COLORS[status] ?? "navy";
 }
 
-const KNOWN_STATUSES = ["Pending", "Approved", "Rejected", "Error", "Closed Lost"];
-
-async function getStatusCounts(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
-  const results = await Promise.all(
-    KNOWN_STATUSES.map(async (status) => {
-      const { count } = await supabase
-        .from(table)
-        .select("*", { count: "exact", head: true })
-        .eq("status", status);
-      return { status, count: count ?? 0 };
-    })
-  );
-  return results.filter((r) => r.count > 0);
-}
-
-async function getTotal(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
-  const { count } = await supabase
-    .from(table)
-    .select("*", { count: "exact", head: true });
-  return count ?? 0;
+// Fetch just the status column — one query instead of 5+1 per table
+async function getStatusData(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
+  const { data } = await supabase.from(table).select("status");
+  const counts: Record<string, number> = {};
+  let total = 0;
+  for (const r of data ?? []) {
+    counts[r.status] = (counts[r.status] ?? 0) + 1;
+    total++;
+  }
+  const statusCounts = Object.entries(counts)
+    .map(([status, count]) => ({ status, count }))
+    .filter((r) => r.count > 0)
+    .sort((a, b) => a.status.localeCompare(b.status));
+  return { statusCounts, total };
 }
 
 function aggregateByMonth(dates: (string | null)[], year: number): number[] {
@@ -66,19 +60,18 @@ export default async function DashboardPage({
 
   const supabase = await createClient();
 
+  const yearStart = `${selectedYear}-01-01`;
+  const yearEnd   = `${selectedYear}-12-31`;
+
   const [
-    ekvCounts,
-    letterCounts,
-    ekvTotal,
-    letterTotal,
+    ekvData,
+    letterData,
     recentActivity,
     ekvDatesRes,
     letterDatesRes,
   ] = await Promise.all([
-    getStatusCounts(supabase, "ekv_records"),
-    getStatusCounts(supabase, "letter_records"),
-    getTotal(supabase, "ekv_records"),
-    getTotal(supabase, "letter_records"),
+    getStatusData(supabase, "ekv_records"),
+    getStatusData(supabase, "letter_records"),
     supabase
       .from("activity_logs")
       .select("*")
@@ -88,12 +81,19 @@ export default async function DashboardPage({
     supabase
       .from("ekv_records")
       .select("kv_angelegt")
-      .not("kv_angelegt", "is", null),
+      .not("kv_angelegt", "is", null)
+      .gte("kv_angelegt", yearStart)
+      .lte("kv_angelegt", yearEnd),
     supabase
       .from("letter_records")
       .select("date_of_letter")
-      .not("date_of_letter", "is", null),
+      .not("date_of_letter", "is", null)
+      .gte("date_of_letter", yearStart)
+      .lte("date_of_letter", yearEnd),
   ]);
+
+  const { statusCounts: ekvCounts, total: ekvTotal } = ekvData;
+  const { statusCounts: letterCounts, total: letterTotal } = letterData;
 
   const ekvDates = (ekvDatesRes.data ?? []).map((r) => r.kv_angelegt as string | null);
   const letterDates = (letterDatesRes.data ?? []).map((r) => r.date_of_letter as string | null);
