@@ -312,124 +312,176 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
     );
   }
 
+  const cx = "w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500";
+
   return (
     <>
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">Editing record — make changes and save.</p>
-        <div className="flex gap-2">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors"
-          >
-            <Check className="w-3.5 h-3.5" />
-            {saving ? "Saving..." : "Save"}
-          </button>
-          <button
-            onClick={() => { setEditing(false); setError(""); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <X className="w-3.5 h-3.5" />
-            Cancel
-          </button>
-        </div>
+      <div className="flex justify-end gap-2">
+        <button onClick={handleSave} disabled={saving}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors">
+          <Check className="w-3.5 h-3.5" />
+          {saving ? "Saving..." : "Save"}
+        </button>
+        <button onClick={() => { setEditing(false); setError(""); }}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+          <X className="w-3.5 h-3.5" />
+          Cancel
+        </button>
       </div>
 
-      {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
 
-      <div className="grid grid-cols-2 gap-5">
-        <div className="space-y-5">
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Classification</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Category</label>
-                <div className="flex flex-wrap gap-2">
-                  {CATEGORY_OPTIONS.map((opt) => {
-                    const selected = form.category.split(",").map((c) => c.trim()).includes(opt);
-                    return (
-                      <label key={opt} className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={selected}
-                          onChange={() => {
-                            const current = form.category.split(",").map((c) => c.trim()).filter(Boolean);
-                            const next = selected ? current.filter((c) => c !== opt) : [...current, opt];
-                            handleChange("category", next.join(", "));
-                          }}
-                          className="rounded border-gray-300"
-                        />
-                        <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[opt] ?? "bg-gray-100 text-gray-700"}`}>{opt}</span>
-                      </label>
-                    );
-                  })}
-                </div>
+      <div className="flex gap-4 items-start">
+        {/* Left 70% — PDF preview */}
+        <div className="flex-none sticky top-4" style={{ width: "70%" }}>
+          {record.pdf_url ? (
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                <span className="text-xs font-medium text-gray-500">PDF Preview</span>
+                <a href={record.pdf_url} target="_blank" rel="noopener noreferrer"
+                  className="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                  Open ↗
+                </a>
               </div>
-              <SelectField label="Type" name="type" value={form.type} options={TYPE_OPTIONS} onChange={handleChange} />
+              {pdfBlobUrl ? (
+                <iframe src={pdfBlobUrl} className="w-full" style={{ height: "calc(100vh - 140px)" }} title="PDF Preview" />
+              ) : pdfLoadError ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-16 bg-gray-50">
+                  <p className="text-xs text-gray-400">Could not load PDF preview.</p>
+                  <a href={record.pdf_url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">Open PDF in new tab ↗</a>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-16 bg-gray-50">
+                  <span className="text-xs text-gray-400">Loading PDF...</span>
+                </div>
+              )}
             </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Patient</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <InputField label="First Name" name="first_name" value={form.first_name} onChange={handleChange} />
-              <InputField label="Last Name" name="last_name" value={form.last_name} onChange={handleChange} />
-              <InputField label="Insurance Number" name="insurance_number" value={form.insurance_number} onChange={handleChange} />
+          ) : (
+            <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50" style={{ height: "calc(100vh - 140px)" }}>
+              <span className="text-xs text-gray-400">No PDF attached</span>
             </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Address</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <InputField label="Street" name="street" value={form.street} onChange={handleChange} />
-              <InputField label="House Number" name="house_number" value={form.house_number} onChange={handleChange} />
-              <InputField label="Post Code" name="post_code" value={form.post_code} onChange={handleChange} />
-              <InputField label="City" name="city" value={form.city} onChange={handleChange} />
-            </div>
-          </section>
+          )}
         </div>
 
-        <div className="space-y-5">
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Insurance</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <InputField label="Health Insurance Provider" name="health_insurance_provider" value={form.health_insurance_provider} onChange={handleChange} />
-              <InputField label="Approval ID" name="approval_id" value={form.approval_id} onChange={handleChange} />
-              <InputField label="Co Payment" name="co_payment" value={form.co_payment} onChange={handleChange} />
-              <InputField label="Insurance Covered Amount" name="insurance_covered_amount" value={form.insurance_covered_amount} onChange={handleChange} />
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Letter Details</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <InputField label="Date of Letter" name="date_of_letter" value={form.date_of_letter} onChange={handleChange} type="date" />
-              <InputField label="Valid Until" name="valid_until" value={form.valid_until} onChange={handleChange} type="date" />
+        {/* Right 30% — compact edit form */}
+        <div className="flex-none space-y-2" style={{ width: "30%" }}>
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Classification</p>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Category</label>
+              <div className="flex flex-wrap gap-1.5">
+                {CATEGORY_OPTIONS.map((opt) => {
+                  const selected = form.category.split(",").map((c) => c.trim()).includes(opt);
+                  return (
+                    <label key={opt} className="flex items-center gap-1 cursor-pointer">
+                      <input type="checkbox" checked={selected} onChange={() => {
+                        const current = form.category.split(",").map((c) => c.trim()).filter(Boolean);
+                        const next = selected ? current.filter((c) => c !== opt) : [...current, opt];
+                        handleChange("category", next.join(", "));
+                      }} className="rounded border-gray-300 w-3 h-3" />
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${CATEGORY_STYLES[opt] ?? "bg-gray-100 text-gray-700"}`}>{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="flex flex-col gap-0.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Product List</label>
-              <textarea
-                value={form.product_list}
-                onChange={(e) => handleChange("product_list", e.target.value)}
-                rows={3}
-                className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Type</label>
+              <select value={form.type} onChange={(e) => handleChange("type", e.target.value)} className={cx}>
+                <option value="">— select —</option>
+                {TYPE_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Date of Letter</label>
+                <input type="date" value={form.date_of_letter} onChange={(e) => handleChange("date_of_letter", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Valid Until</label>
+                <input type="date" value={form.valid_until} onChange={(e) => handleChange("valid_until", e.target.value)} className={cx} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Patient</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">First Name</label>
+                <input value={form.first_name} onChange={(e) => handleChange("first_name", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Last Name</label>
+                <input value={form.last_name} onChange={(e) => handleChange("last_name", e.target.value)} className={cx} />
+              </div>
             </div>
             <div className="flex flex-col gap-0.5">
-              <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Reason</label>
-              <textarea
-                value={form.reason}
-                onChange={(e) => handleChange("reason", e.target.value)}
-                rows={3}
-                className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Insurance Number</label>
+              <input value={form.insurance_number} onChange={(e) => handleChange("insurance_number", e.target.value)} className={cx} />
             </div>
-          </section>
+          </div>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">PDF Link</h2>
-            <InputField label="PDF URL" name="pdf_url" value={form.pdf_url} onChange={handleChange} />
-          </section>
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Address</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Street</label>
+                <input value={form.street} onChange={(e) => handleChange("street", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">House No.</label>
+                <input value={form.house_number} onChange={(e) => handleChange("house_number", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Post Code</label>
+                <input value={form.post_code} onChange={(e) => handleChange("post_code", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">City</label>
+                <input value={form.city} onChange={(e) => handleChange("city", e.target.value)} className={cx} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Insurance</p>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Provider</label>
+              <input value={form.health_insurance_provider} onChange={(e) => handleChange("health_insurance_provider", e.target.value)} className={cx} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Approval ID</label>
+              <input value={form.approval_id} onChange={(e) => handleChange("approval_id", e.target.value)} className={cx} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Co Payment</label>
+                <input value={form.co_payment} onChange={(e) => handleChange("co_payment", e.target.value)} className={cx} />
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 uppercase tracking-wide">Covered Amount</label>
+                <input value={form.insurance_covered_amount} onChange={(e) => handleChange("insurance_covered_amount", e.target.value)} className={cx} />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Letter Details</p>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Product List</label>
+              <textarea value={form.product_list} onChange={(e) => handleChange("product_list", e.target.value)} rows={2} className={`${cx} resize-none`} />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 uppercase tracking-wide">Reason</label>
+              <textarea value={form.reason} onChange={(e) => handleChange("reason", e.target.value)} rows={2} className={`${cx} resize-none`} />
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2">
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">PDF Link</p>
+            <input value={form.pdf_url} onChange={(e) => handleChange("pdf_url", e.target.value)} className={cx} placeholder="https://..." />
+          </div>
         </div>
       </div>
     </>
