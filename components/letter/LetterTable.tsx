@@ -31,6 +31,8 @@ function formatDate(val: string | null) {
 const CATEGORY_STYLES: Record<string, string> = {
   "Carebox":       "bg-blue-50 text-blue-700",
   "Reusable Pads": "bg-purple-50 text-purple-700",
+  "Invoice":       "bg-amber-50 text-amber-700",
+  "Other":         "bg-gray-100 text-gray-600",
 };
 
 const TYPE_STYLES: Record<string, string> = {
