@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink } from "lucide-react";
+import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink, List } from "lucide-react";
 
 const FIELDS = [
   {
@@ -46,6 +46,11 @@ export default function AdminSettingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Browse fields
+  const [browseLoading, setBrowseLoading] = useState(false);
+  const [browseError, setBrowseError] = useState("");
+  const [browseFields, setBrowseFields] = useState<{ api_name: string; label: string; type: string }[] | null>(null);
+
   // Grant code exchange
   const [grantCode, setGrantCode] = useState("");
   const [exchangeLoading, setExchangeLoading] = useState(false);
@@ -81,6 +86,20 @@ export default function AdminSettingsPage() {
       setError(json.error ?? "Failed to save settings.");
     } else {
       setSuccess("Settings saved successfully.");
+    }
+  }
+
+  async function handleBrowseFields() {
+    setBrowseLoading(true);
+    setBrowseError("");
+    setBrowseFields(null);
+    const res = await fetch("/api/zoho/fields");
+    const json = await res.json();
+    setBrowseLoading(false);
+    if (!res.ok) {
+      setBrowseError(json.error ?? "Failed to fetch fields.");
+    } else {
+      setBrowseFields(json.fields);
     }
   }
 
@@ -197,6 +216,51 @@ export default function AdminSettingsPage() {
           {saving ? "Saving..." : "Save Settings"}
         </button>
       </form>
+
+      {/* Browse module fields */}
+      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <List className="w-4 h-4 text-gray-500" />
+            <h2 className="text-sm font-semibold text-gray-700">Browse Zoho Module Fields</h2>
+          </div>
+          <button
+            type="button"
+            onClick={handleBrowseFields}
+            disabled={browseLoading}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+          >
+            {browseLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <List className="w-3.5 h-3.5" />}
+            {browseLoading ? "Loading..." : "Load Fields"}
+          </button>
+        </div>
+        <p className="text-xs text-gray-500">
+          Shows all API field names in your configured Zoho module. Use these exact names in the field mapping above.
+        </p>
+        {browseError && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{browseError}</p>}
+        {browseFields && (
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            <table className="w-full text-xs">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left px-3 py-2 font-medium text-gray-600">API Name</th>
+                  <th className="text-left px-3 py-2 font-medium text-gray-600">Label</th>
+                  <th className="text-left px-3 py-2 font-medium text-gray-600">Type</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 max-h-64 overflow-y-auto">
+                {browseFields.map((f) => (
+                  <tr key={f.api_name} className="hover:bg-gray-50">
+                    <td className="px-3 py-2 font-mono text-blue-700">{f.api_name}</td>
+                    <td className="px-3 py-2 text-gray-700">{f.label}</td>
+                    <td className="px-3 py-2 text-gray-400">{f.type}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       {/* Grant code exchange — no redirect URI needed */}
       <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
