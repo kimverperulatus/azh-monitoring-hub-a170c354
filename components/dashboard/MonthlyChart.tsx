@@ -68,7 +68,7 @@ export default function MonthlyChart({
       {/* Header */}
       <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-navy-800 to-brand-red-800 flex items-center justify-center shadow-sm">
             <TrendingUp className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -89,17 +89,17 @@ export default function MonthlyChart({
 
       {/* Summary Pills */}
       <div className="px-6 pt-4 flex items-center gap-3">
-        <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1.5 border border-blue-100">
-          <FileText className="w-3.5 h-3.5 text-blue-600" />
-          <span className="text-xs font-medium text-blue-700">EKV {selectedYear}</span>
-          <span className="text-xs font-bold text-blue-900">{ekvTotal}</span>
-          {ekvPeak > 0 && <span className="text-xs text-blue-500">· peak {ekvPeak}/mo</span>}
+        <div className="flex items-center gap-2 bg-brand-red-50 rounded-lg px-3 py-1.5 border border-brand-red-100">
+          <FileText className="w-3.5 h-3.5 text-brand-red-700" />
+          <span className="text-xs font-medium text-brand-red-800">EKV {selectedYear}</span>
+          <span className="text-xs font-bold text-brand-red-900">{ekvTotal}</span>
+          {ekvPeak > 0 && <span className="text-xs text-brand-red-500">· peak {ekvPeak}/mo</span>}
         </div>
-        <div className="flex items-center gap-2 bg-violet-50 rounded-lg px-3 py-1.5 border border-violet-100">
-          <Mail className="w-3.5 h-3.5 text-violet-600" />
-          <span className="text-xs font-medium text-violet-700">Letter {selectedYear}</span>
-          <span className="text-xs font-bold text-violet-900">{letterTotal}</span>
-          {letterPeak > 0 && <span className="text-xs text-violet-500">· peak {letterPeak}/mo</span>}
+        <div className="flex items-center gap-2 bg-brand-gold-50 rounded-lg px-3 py-1.5 border border-brand-gold-100">
+          <Mail className="w-3.5 h-3.5 text-brand-gold-600" />
+          <span className="text-xs font-medium text-brand-gold-700">Letter {selectedYear}</span>
+          <span className="text-xs font-bold text-brand-gold-900">{letterTotal}</span>
+          {letterPeak > 0 && <span className="text-xs text-brand-gold-500">· peak {letterPeak}/mo</span>}
         </div>
       </div>
 
@@ -129,18 +129,18 @@ export default function MonthlyChart({
             <Line
               type="monotone"
               dataKey="EKV"
-              stroke="#3b82f6"
+              stroke="#7a1c2a"
               strokeWidth={2.5}
-              dot={{ r: 4, fill: "#3b82f6", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, fill: "#3b82f6", stroke: "#fff", strokeWidth: 2 }}
+              dot={{ r: 4, fill: "#7a1c2a", strokeWidth: 2, stroke: "#fff" }}
+              activeDot={{ r: 6, fill: "#7a1c2a", stroke: "#fff", strokeWidth: 2 }}
             />
             <Line
               type="monotone"
               dataKey="Letter"
-              stroke="#8b5cf6"
+              stroke="#c2a040"
               strokeWidth={2.5}
-              dot={{ r: 4, fill: "#8b5cf6", strokeWidth: 2, stroke: "#fff" }}
-              activeDot={{ r: 6, fill: "#8b5cf6", stroke: "#fff", strokeWidth: 2 }}
+              dot={{ r: 4, fill: "#c2a040", strokeWidth: 2, stroke: "#fff" }}
+              activeDot={{ r: 6, fill: "#c2a040", stroke: "#fff", strokeWidth: 2 }}
             />
           </LineChart>
         </ResponsiveContainer>

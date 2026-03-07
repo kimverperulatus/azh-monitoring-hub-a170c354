@@ -36,10 +36,10 @@ export default function ActivityFeed({ activities }: { activities: Activity[] })
             className="flex items-center gap-3.5 px-5 py-3 hover:bg-slate-50 transition-colors duration-150"
             style={{ animationDelay: `${idx * 30}ms` }}
           >
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isEkv ? "bg-blue-50" : "bg-violet-50"}`}>
-              <ModuleIcon className={`w-3.5 h-3.5 ${isEkv ? "text-blue-500" : "text-violet-500"}`} />
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isEkv ? "bg-brand-red-50" : "bg-brand-gold-50"}`}>
+              <ModuleIcon className={`w-3.5 h-3.5 ${isEkv ? "text-brand-red-700" : "text-brand-gold-600"}`} />
             </div>
-            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider shrink-0 ${isEkv ? "bg-blue-100 text-blue-700" : "bg-violet-100 text-violet-700"}`}>
+            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider shrink-0 ${isEkv ? "bg-brand-red-100 text-brand-red-800" : "bg-brand-gold-100 text-brand-gold-700"}`}>
               {activity.module?.toUpperCase()}
             </span>
             {isImport(activity.action) ? (

@@ -29,7 +29,7 @@ function formatDate(val: string | null) {
 }
 
 const CATEGORY_STYLES: Record<string, string> = {
-  "Carebox":       "bg-blue-50 text-blue-700",
+  "Carebox":       "bg-brand-navy-50 text-brand-navy-700",
   "Reusable Pads": "bg-purple-50 text-purple-700",
   "Invoice":       "bg-amber-50 text-amber-700",
   "Other":         "bg-gray-100 text-gray-600",
@@ -170,7 +170,7 @@ export default function LetterTable({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch(searchInput)}
-              className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
+              className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy-500 focus:border-transparent transition-shadow"
             />
             {searchInput && (
               <button
@@ -183,7 +183,7 @@ export default function LetterTable({
           </div>
           <button
             onClick={() => submitSearch(searchInput)}
-            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all duration-150 shadow-sm shadow-blue-200"
+            className="px-4 py-2 text-sm font-medium bg-brand-red-800 text-white rounded-xl hover:bg-brand-red-700 active:scale-95 transition-all duration-150 shadow-sm shadow-brand-red-200"
           >
             Search
           </button>
@@ -200,7 +200,7 @@ export default function LetterTable({
           <select
             value={filterCategory}
             onChange={(e) => applyFilter("category", e.target.value)}
-            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy-500 bg-white transition-shadow"
           >
             <option value="">All Categories</option>
             {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -210,7 +210,7 @@ export default function LetterTable({
           <select
             value={filterType}
             onChange={(e) => applyFilter("type", e.target.value)}
-            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy-500 bg-white transition-shadow"
           >
             <option value="">All Types</option>
             {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -222,7 +222,7 @@ export default function LetterTable({
             placeholder="Insurance provider…"
             value={filterProvider}
             onChange={(e) => applyFilter("provider", e.target.value)}
-            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-44 transition-shadow"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-navy-500 w-44 transition-shadow"
           />
 
           <div className="h-5 border-l border-gray-200" />
@@ -236,7 +236,7 @@ export default function LetterTable({
           />
           <button
             onClick={setScanToday}
-            className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-150 active:scale-95 ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-150 active:scale-95 ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-brand-red-800 text-white border-brand-red-800 shadow-sm shadow-brand-red-200" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
           >
             Today
           </button>
@@ -374,7 +374,7 @@ export default function LetterTable({
                   <td className="px-3 py-2.5">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
-                      className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 active:scale-95 rounded-lg transition-all duration-100 whitespace-nowrap"
+                      className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-brand-gold-700 bg-brand-gold-50 hover:bg-brand-gold-100 active:scale-95 rounded-lg transition-all duration-100 whitespace-nowrap"
                     >
                       <Eye className="w-3 h-3" />
                       View

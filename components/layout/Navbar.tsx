@@ -120,20 +120,20 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
 
   return (
     <>
-    <header className="h-14 bg-white/95 backdrop-blur border-b border-gray-100 flex items-center px-6 gap-8 shrink-0 shadow-sm">
+    <header className="h-14 bg-brand-navy-800 border-b border-brand-navy-900 flex items-center px-6 gap-8 shrink-0 shadow-lg">
       {/* Brand */}
       <div className="flex items-center gap-2.5 mr-2">
-        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-sm">
+        <div className="w-7 h-7 rounded-lg bg-brand-red-800 flex items-center justify-center shadow-sm">
           <span className="text-white text-xs font-bold tracking-tight">AZ</span>
         </div>
         <div className="leading-none">
-          <p className="text-sm font-semibold text-gray-900 tracking-tight">Application Status Audits</p>
-          <p className="text-[10px] text-gray-400">Carebox Dashboard</p>
+          <p className="text-sm font-semibold text-white tracking-tight">Application Status Audits</p>
+          <p className="text-[10px] text-brand-navy-300">Carebox Dashboard</p>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="w-px h-5 bg-gray-200" />
+      <div className="w-px h-5 bg-brand-navy-600" />
 
       {/* Nav Links */}
       <nav className="flex items-center gap-0.5">
@@ -145,8 +145,8 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
               href={href}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 active
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-200"
-                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                  ? "bg-brand-red-800 text-white shadow-sm shadow-brand-red-950"
+                  : "text-brand-navy-200 hover:bg-brand-navy-700 hover:text-white"
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -163,18 +163,18 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen((o) => !o)}
-          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm text-gray-700 hover:bg-gray-100 transition-all duration-150"
+          className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm hover:bg-brand-navy-700 transition-all duration-150"
           suppressHydrationWarning
         >
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-semibold shadow-sm">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-brand-gold-500 to-brand-gold-700 flex items-center justify-center text-white text-xs font-semibold shadow-sm">
             {initials}
           </div>
-          <span className="max-w-[140px] truncate text-sm font-medium text-gray-700">{user.email}</span>
-          <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
+          <span className="max-w-[140px] truncate text-sm font-medium text-brand-navy-100">{user.email}</span>
+          <ChevronDown className={`w-3.5 h-3.5 text-brand-navy-300 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`} />
         </button>
 
         {dropdownOpen && (
-          <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-xl py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
             <div className="px-3 py-2.5 border-b border-gray-100">
               <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">Signed in as</p>
               <p className="text-sm font-semibold text-gray-800 truncate mt-0.5">{user.email}</p>
@@ -200,7 +200,7 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
             <div className="my-1 border-t border-gray-100" />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors duration-100 group"
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-brand-red-700 hover:bg-brand-red-50 hover:text-brand-red-800 transition-colors duration-100"
               suppressHydrationWarning
             >
               <LogOut className="w-4 h-4" />
@@ -246,7 +246,7 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
               <button
                 type="submit"
                 disabled={pwLoading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-2 rounded-lg text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-blue-200"
+                className="flex-1 bg-brand-red-800 hover:bg-brand-red-700 active:scale-95 text-white font-medium py-2 rounded-lg text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-brand-red-200"
               >
                 {pwLoading ? "Saving..." : "Save Password"}
               </button>
@@ -310,7 +310,7 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
               <button
                 type="submit"
                 disabled={cuLoading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-2 rounded-lg text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-blue-200"
+                className="flex-1 bg-brand-red-800 hover:bg-brand-red-700 active:scale-95 text-white font-medium py-2 rounded-lg text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm shadow-brand-red-200"
               >
                 {cuLoading ? "Creating..." : "Create User"}
               </button>

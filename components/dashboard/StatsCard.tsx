@@ -1,15 +1,15 @@
 import { FileText, CheckCircle2, XCircle, AlertTriangle, Clock, MinusCircle, Hash } from "lucide-react";
 
-type Color = "blue" | "yellow" | "green" | "red" | "orange" | "gray";
+type Color = "navy" | "yellow" | "green" | "red" | "orange" | "gray";
 type Icon = "total" | undefined;
 
 const colorConfig: Record<Color, { card: string; icon: string; value: string; iconBg: string }> = {
-  blue:   { card: "bg-white border-blue-100",   iconBg: "bg-blue-50",   icon: "text-blue-500",   value: "text-blue-900" },
-  yellow: { card: "bg-white border-yellow-100", iconBg: "bg-yellow-50", icon: "text-yellow-500", value: "text-yellow-900" },
-  green:  { card: "bg-white border-green-100",  iconBg: "bg-green-50",  icon: "text-green-500",  value: "text-green-900" },
-  red:    { card: "bg-white border-red-100",    iconBg: "bg-red-50",    icon: "text-red-500",    value: "text-red-900" },
-  orange: { card: "bg-white border-orange-100", iconBg: "bg-orange-50", icon: "text-orange-500", value: "text-orange-900" },
-  gray:   { card: "bg-white border-gray-200",   iconBg: "bg-gray-50",   icon: "text-gray-400",   value: "text-gray-700" },
+  navy:   { card: "bg-white border-brand-navy-100",  iconBg: "bg-brand-navy-50",  icon: "text-brand-navy-700", value: "text-brand-navy-900" },
+  yellow: { card: "bg-white border-yellow-100",      iconBg: "bg-yellow-50",      icon: "text-yellow-600",     value: "text-yellow-900" },
+  green:  { card: "bg-white border-green-100",       iconBg: "bg-green-50",       icon: "text-green-600",      value: "text-green-900" },
+  red:    { card: "bg-white border-brand-red-100",   iconBg: "bg-brand-red-50",   icon: "text-brand-red-700",  value: "text-brand-red-900" },
+  orange: { card: "bg-white border-orange-100",      iconBg: "bg-orange-50",      icon: "text-orange-500",     value: "text-orange-900" },
+  gray:   { card: "bg-white border-gray-200",        iconBg: "bg-gray-50",        icon: "text-gray-400",       value: "text-gray-700" },
 };
 
 const labelIconMap: Record<string, React.ElementType> = {

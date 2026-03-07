@@ -6,7 +6,7 @@ import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
-const STATUS_COLORS: Record<string, "yellow" | "green" | "red" | "orange" | "gray" | "blue"> = {
+const STATUS_COLORS: Record<string, "yellow" | "green" | "red" | "orange" | "gray" | "navy"> = {
   Pending:       "yellow",
   Approved:      "green",
   Rejected:      "red",
@@ -14,8 +14,8 @@ const STATUS_COLORS: Record<string, "yellow" | "green" | "red" | "orange" | "gra
   "Closed Lost": "gray",
 };
 
-function getColor(status: string): "yellow" | "green" | "red" | "orange" | "gray" | "blue" {
-  return STATUS_COLORS[status] ?? "blue";
+function getColor(status: string): "yellow" | "green" | "red" | "orange" | "gray" | "navy" {
+  return STATUS_COLORS[status] ?? "navy";
 }
 
 const KNOWN_STATUSES = ["Pending", "Approved", "Rejected", "Error", "Closed Lost"];
@@ -121,11 +121,11 @@ export default async function DashboardPage({
       {/* EKV Stats */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-1.5 h-4 rounded-full bg-blue-500 inline-block" />
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">EKV Module</h2>
+          <span className="w-1.5 h-4 rounded-full bg-brand-red-800 inline-block" />
+          <h2 className="text-sm font-semibold text-brand-navy-800 uppercase tracking-wide">EKV Module</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatsCard label="Total Records" value={ekvTotal} color="blue" icon="total" />
+          <StatsCard label="Total Records" value={ekvTotal} color="navy" icon="total" />
           {ekvCounts.map(({ status, count }) => (
             <StatsCard key={status} label={status} value={count} color={getColor(status)} />
           ))}
@@ -135,11 +135,11 @@ export default async function DashboardPage({
       {/* Letter Stats */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-1.5 h-4 rounded-full bg-violet-500 inline-block" />
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Letter Module</h2>
+          <span className="w-1.5 h-4 rounded-full bg-brand-gold-500 inline-block" />
+          <h2 className="text-sm font-semibold text-brand-navy-800 uppercase tracking-wide">Letter Module</h2>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          <StatsCard label="Total Records" value={letterTotal} color="blue" icon="total" />
+          <StatsCard label="Total Records" value={letterTotal} color="navy" icon="total" />
           {letterCounts.map(({ status, count }) => (
             <StatsCard key={status} label={status} value={count} color={getColor(status)} />
           ))}
@@ -162,8 +162,8 @@ export default async function DashboardPage({
       {/* Recent Activity */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <span className="w-1.5 h-4 rounded-full bg-gray-400 inline-block" />
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Recent Activity</h2>
+          <span className="w-1.5 h-4 rounded-full bg-brand-navy-300 inline-block" />
+          <h2 className="text-sm font-semibold text-brand-navy-800 uppercase tracking-wide">Recent Activity</h2>
         </div>
         <ActivityFeed activities={recentActivity} />
       </section>
