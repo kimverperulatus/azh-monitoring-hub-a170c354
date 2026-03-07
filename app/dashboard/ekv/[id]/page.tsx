@@ -92,7 +92,16 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
             <h2 className="text-sm font-semibold text-gray-700">Status & Reasons</h2>
             <div className="grid grid-cols-1 gap-4">
               <Field label="Status" value={record.status} />
-              <Field label="Carebox Status" value={record.carebox_status} />
+              <div className="flex flex-col gap-0.5">
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Carebox Status</span>
+                {record.carebox_status ? (
+                  <span className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[record.carebox_status] ?? "bg-blue-50 text-blue-700"}`}>
+                    {record.carebox_status}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-800">-</span>
+                )}
+              </div>
               <Field label="Reasons" value={record.reasons} />
             </div>
           </section>

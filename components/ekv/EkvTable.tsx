@@ -452,7 +452,15 @@ export default function EkvTable({
                     {record.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-gray-600 text-xs">{record.carebox_status ?? "-"}</td>
+                <td className="px-4 py-3">
+                  {record.carebox_status ? (
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(record.carebox_status)}`}>
+                      {record.carebox_status}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">-</span>
+                  )}
+                </td>
               </tr>
             ))}
             {!records.length && (
