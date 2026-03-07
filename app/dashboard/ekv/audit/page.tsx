@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
@@ -30,6 +30,16 @@ function formatDate(val: string | null) {
 
 export default async function EkvAuditPage() {
   const supabase = await createClient();
+  const admin = createAdminClient();
+
+  // Load status mapping from app_settings
+  const { data: settingsRows } = await admin.from("app_settings").select("key, value");
+  const settings: Record<string, string> = {};
+  for (const row of settingsRows ?? []) settings[row.key] = row.value ?? "";
+  let statusMap: Record<string, string> = {};
+  if (settings.zoho_status_map) {
+    try { statusMap = JSON.parse(settings.zoho_status_map); } catch { /* ignore */ }
+  }
 
   // Column-to-column comparison must be done in-memory (PostgREST can't do WHERE col1 != col2)
   const { data: mismatchRecords } = await supabase
@@ -40,10 +50,13 @@ export default async function EkvAuditPage() {
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
 
-  // Column-to-column comparison must be done in-memory
-  const mismatches = (mismatchRecords ?? []).filter(
-    (r) => r.carebox_status !== null && r.status !== r.carebox_status
-  );
+  // Resolve carebox_status through the mapping before comparing
+  // e.g. "VERSCHICKT" → "Pending", so Pending == VERSCHICKT is NOT a mismatch
+  const mismatches = (mismatchRecords ?? []).filter((r) => {
+    if (!r.carebox_status) return false;
+    const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
+    return r.status !== resolved;
+  });
 
   const exportIds = mismatches.map((r) => r.id).join(",");
   const exportUrl = `/api/ekv/export?ids=${exportIds}&fields=kv_angelegt,kv_entschieden,kvnr_noventi,versichertenvorname,versichertennachname,versicherten_nr,kassenname,status,carebox_status,reasons`;
@@ -97,7 +110,11 @@ export default async function EkvAuditPage() {
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Matching</p>
           <p className="text-3xl font-bold text-green-600 mt-1">
-            {(mismatchRecords ?? []).filter(r => r.carebox_status && r.status === r.carebox_status).length}
+            {(mismatchRecords ?? []).filter(r => {
+              if (!r.carebox_status) return false;
+              const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
+              return r.status === resolved;
+            }).length}
           </p>
         </div>
       </div>
