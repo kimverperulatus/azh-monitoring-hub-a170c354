@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
-import { AzureOpenAI } from "openai";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
 
@@ -57,7 +56,7 @@ export async function POST(request: NextRequest) {
   const endpoint = settings.azure_ai_endpoint?.trim();
   const apiKey = settings.azure_ai_key?.trim();
   const deployment = settings.azure_ai_deployment?.trim();
-  const apiVersion = settings.azure_ai_version?.trim() || "2025-04-14";
+  const apiVersion = settings.azure_ai_version?.trim() || "2024-12-01-preview";
 
   if (!endpoint || !apiKey || !deployment) {
     return NextResponse.json({ error: "Azure AI credentials are not configured. Set them in Admin → Settings." }, { status: 500 });
@@ -78,20 +77,25 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
-
-    const response = await client.chat.completions.create({
-      model: deployment,
-      max_tokens: 1024,
-      messages: [
-        {
-          role: "user",
-          content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}`,
-        },
-      ],
+    // Azure AI Foundry (services.ai.azure.com) uses a direct REST call
+    const url = `${endpoint.replace(/\/$/, "")}/chat/completions?api-version=${apiVersion}`;
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "api-key": apiKey },
+      body: JSON.stringify({
+        model: deployment,
+        max_tokens: 1024,
+        messages: [{ role: "user", content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}` }],
+      }),
     });
 
-    const text = response.choices[0]?.message?.content ?? "";
+    if (!res.ok) {
+      const errBody = await res.text();
+      throw new Error(`${res.status} ${res.statusText}: ${errBody}`);
+    }
+
+    const json = await res.json() as { choices: { message: { content: string } }[] };
+    const text = json.choices[0]?.message?.content ?? "";
     const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/, "").trim();
 
     let extracted: Record<string, string | null>;
