@@ -75,6 +75,10 @@ async function handleLookup(request: NextRequest) {
   const module        = settings.zoho_module || "Carebox_Orders";
   const versichertField = settings.zoho_field_versicherten_nr || "Versicherten_Nr";
   const statusField   = settings.zoho_field_status || "Carebox_Status";
+  let statusMap: Record<string, string> = {};
+  if (settings.zoho_status_map) {
+    try { statusMap = JSON.parse(settings.zoho_status_map); } catch { /* ignore */ }
+  }
 
   if (!clientId || !clientSecret || !refreshToken) {
     return NextResponse.json({ error: "Zoho credentials not configured. Please configure them in Settings." }, { status: 422 });
@@ -132,31 +136,53 @@ async function handleLookup(request: NextRequest) {
     if (vNr) zohoData[vNr] = status;
   }
 
+  // Fetch current status values for mismatch detection
+  const { data: currentRecords } = await admin
+    .from("ekv_records")
+    .select("id, status")
+    .in("id", ids);
+  const currentStatusMap: Record<string, string> = {};
+  for (const r of currentRecords ?? []) currentStatusMap[r.id] = r.status;
+
   // Update our DB records
-  const results: { id: string; versicherten_nr: string | null; carebox_status: string | null; found: boolean }[] = [];
+  const results: {
+    id: string;
+    versicherten_nr: string | null;
+    carebox_status: string | null;
+    mapped_status: string | null;
+    previous_status: string | null;
+    status_changed: boolean;
+    found: boolean;
+  }[] = [];
 
   for (const record of records) {
-    const status = record.versicherten_nr ? (zohoData[record.versicherten_nr] ?? null) : null;
+    const careboxStatus = record.versicherten_nr ? (zohoData[record.versicherten_nr] ?? null) : null;
     const found = record.versicherten_nr ? (record.versicherten_nr in zohoData) : false;
+    const mappedStatus = careboxStatus ? (statusMap[careboxStatus] ?? null) : null;
+    const previousStatus = currentStatusMap[record.id] ?? null;
+    const statusChanged = !!mappedStatus && mappedStatus !== previousStatus;
 
     if (found) {
-      await admin
-        .from("ekv_records")
-        .update({ carebox_status: status })
-        .eq("id", record.id);
+      const updatePayload: Record<string, string | null> = { carebox_status: careboxStatus };
+      if (mappedStatus) updatePayload.status = mappedStatus;
+      await admin.from("ekv_records").update(updatePayload).eq("id", record.id);
     }
 
     results.push({
       id: record.id,
       versicherten_nr: record.versicherten_nr,
-      carebox_status: status,
+      carebox_status: careboxStatus,
+      mapped_status: mappedStatus,
+      previous_status: previousStatus,
+      status_changed: statusChanged,
       found,
     });
   }
 
   const updated = results.filter((r) => r.found).length;
   const notFound = results.filter((r) => !r.found).length;
+  const statusChanged = results.filter((r) => r.status_changed).length;
 
-  return NextResponse.json({ ok: true, updated, notFound, results });
+  return NextResponse.json({ ok: true, updated, notFound, statusChanged, results });
 }
 

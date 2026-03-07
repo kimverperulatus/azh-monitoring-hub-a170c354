@@ -80,7 +80,7 @@ export default function EkvTable({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const MAX_SELECTION = 200;
   const [lookupLoading, setLookupLoading] = useState(false);
-  const [lookupResult, setLookupResult] = useState<{ updated: number; notFound: number } | null>(null);
+  const [lookupResult, setLookupResult] = useState<{ updated: number; notFound: number; statusChanged: number } | null>(null);
   const [lookupError, setLookupError] = useState("");
 
   function setFilter(key: string, value: string) {
@@ -191,7 +191,7 @@ export default function EkvTable({
       if (!res.ok) {
         setLookupError(json.error ?? "Lookup failed.");
       } else {
-        setLookupResult({ updated: json.updated, notFound: json.notFound });
+        setLookupResult({ updated: json.updated, notFound: json.notFound, statusChanged: json.statusChanged ?? 0 });
         router.refresh();
       }
     } catch (err) {
@@ -385,10 +385,20 @@ export default function EkvTable({
             </div>
           )}
           {lookupResult && (
-            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 text-sm text-green-700">
-              Lookup complete: <strong>{lookupResult.updated}</strong> record{lookupResult.updated !== 1 ? "s" : ""} updated
-              {lookupResult.notFound > 0 && (
-                <span className="ml-2 text-green-600">({lookupResult.notFound} not found in Zoho)</span>
+            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 text-sm text-green-700 space-y-1">
+              <div>
+                Lookup complete: <strong>{lookupResult.updated}</strong> record{lookupResult.updated !== 1 ? "s" : ""} found in Zoho
+                {lookupResult.notFound > 0 && (
+                  <span className="ml-2 text-green-600">({lookupResult.notFound} not found)</span>
+                )}
+              </div>
+              {lookupResult.statusChanged > 0 && (
+                <div className="text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 text-xs inline-block">
+                  ⚠ <strong>{lookupResult.statusChanged}</strong> record{lookupResult.statusChanged !== 1 ? "s" : ""} had mismatched status — Status field auto-corrected via mapping
+                </div>
+              )}
+              {lookupResult.statusChanged === 0 && lookupResult.updated > 0 && (
+                <div className="text-green-600 text-xs">All statuses match — no corrections needed</div>
               )}
             </div>
           )}

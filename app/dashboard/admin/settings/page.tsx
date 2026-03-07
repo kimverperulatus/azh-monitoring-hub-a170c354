@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink, List } from "lucide-react";
+import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink, List, Plus, Trash2 } from "lucide-react";
 
 const FIELDS = [
   {
@@ -46,6 +46,9 @@ export default function AdminSettingsPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // Status mapping: zoho value → our status
+  const [statusMapping, setStatusMapping] = useState<{ zoho: string; local: string }[]>([]);
+
   // Browse fields
   const [browseLoading, setBrowseLoading] = useState(false);
   const [browseError, setBrowseError] = useState("");
@@ -60,8 +63,14 @@ export default function AdminSettingsPage() {
   useEffect(() => {
     fetch("/api/admin/settings")
       .then((r) => r.json())
-      .then((data) => {
+      .then((data: SettingsMap) => {
         setValues(data);
+        if (data.zoho_status_map) {
+          try {
+            const parsed = JSON.parse(data.zoho_status_map) as Record<string, string>;
+            setStatusMapping(Object.entries(parsed).map(([zoho, local]) => ({ zoho, local })));
+          } catch { /* ignore */ }
+        }
         setLoading(false);
       })
       .catch(() => {
@@ -75,10 +84,14 @@ export default function AdminSettingsPage() {
     setSaving(true);
     setError("");
     setSuccess("");
+    const mapObj: Record<string, string> = {};
+    for (const row of statusMapping) {
+      if (row.zoho.trim() && row.local.trim()) mapObj[row.zoho.trim()] = row.local.trim();
+    }
     const res = await fetch("/api/admin/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ ...values, zoho_status_map: JSON.stringify(mapObj) }),
     });
     const json = await res.json();
     setSaving(false);
@@ -203,6 +216,55 @@ export default function AdminSettingsPage() {
             </div>
           </section>
         ))}
+
+        {/* Status Mapping */}
+        <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-700">Status Mapping</h2>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Map Zoho Carebox Status values to your local Status values. Used to auto-update Status during lookup and flag mismatches for audit.
+            </p>
+          </div>
+          <div className="space-y-2">
+            {statusMapping.map((row, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={row.zoho}
+                  onChange={(e) => setStatusMapping((m) => m.map((r, j) => j === i ? { ...r, zoho: e.target.value } : r))}
+                  placeholder="Zoho value (e.g. VERSCHICKT)"
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-gray-400 text-sm">→</span>
+                <select
+                  value={row.local}
+                  onChange={(e) => setStatusMapping((m) => m.map((r, j) => j === i ? { ...r, local: e.target.value } : r))}
+                  className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select status...</option>
+                  {["Pending", "Approved", "Rejected", "Error", "Closed Lost"].map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setStatusMapping((m) => m.filter((_, j) => j !== i))}
+                  className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setStatusMapping((m) => [...m, { zoho: "", local: "" }])}
+              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1.5 rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Add mapping
+            </button>
+          </div>
+        </section>
 
         {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-3 rounded-lg">{error}</p>}
         {success && <p className="text-sm text-green-600 bg-green-50 px-4 py-3 rounded-lg">{success}</p>}
