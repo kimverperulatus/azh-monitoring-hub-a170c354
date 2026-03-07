@@ -77,6 +77,8 @@ export default function EkvTable({
   const searchParams = useSearchParams();
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedFields, setSelectedFields] = useState<string[]>(EXPORT_FIELDS.map((f) => f.key));
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const MAX_SELECTION = 200;
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -120,13 +122,17 @@ export default function EkvTable({
 
   function doExport() {
     const params = new URLSearchParams();
-    if (activeStatus)    params.set("status", activeStatus);
-    if (searchQuery)     params.set("q", searchQuery);
-    if (kasseFilter)     params.set("kasse", kasseFilter);
-    if (angelegtFrom)    params.set("angelegt_from", angelegtFrom);
-    if (angelegtTo)      params.set("angelegt_to", angelegtTo);
-    if (entschiedenFrom) params.set("entschieden_from", entschiedenFrom);
-    if (entschiedenTo)   params.set("entschieden_to", entschiedenTo);
+    if (selectedIds.size > 0) {
+      params.set("ids", Array.from(selectedIds).join(","));
+    } else {
+      if (activeStatus)    params.set("status", activeStatus);
+      if (searchQuery)     params.set("q", searchQuery);
+      if (kasseFilter)     params.set("kasse", kasseFilter);
+      if (angelegtFrom)    params.set("angelegt_from", angelegtFrom);
+      if (angelegtTo)      params.set("angelegt_to", angelegtTo);
+      if (entschiedenFrom) params.set("entschieden_from", entschiedenFrom);
+      if (entschiedenTo)   params.set("entschieden_to", entschiedenTo);
+    }
     params.set("fields", selectedFields.join(","));
     window.location.href = `/api/ekv/export?${params.toString()}`;
     setShowExportModal(false);
@@ -137,6 +143,45 @@ export default function EkvTable({
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     );
   }
+
+  function toggleRow(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else if (next.size < MAX_SELECTION) {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  function togglePageAll() {
+    const pageIds = records.map((r) => r.id);
+    const allSelected = pageIds.every((id) => selectedIds.has(id));
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allSelected) {
+        pageIds.forEach((id) => next.delete(id));
+      } else {
+        for (const id of pageIds) {
+          if (next.size >= MAX_SELECTION) break;
+          next.add(id);
+        }
+      }
+      return next;
+    });
+  }
+
+  function exportSelected() {
+    const params = new URLSearchParams();
+    params.set("ids", Array.from(selectedIds).join(","));
+    params.set("fields", selectedFields.join(","));
+    window.location.href = `/api/ekv/export?${params.toString()}`;
+  }
+
+  const pageAllSelected = records.length > 0 && records.every((r) => selectedIds.has(r.id));
+  const pagePartialSelected = records.some((r) => selectedIds.has(r.id)) && !pageAllSelected;
 
   const activeStatusCounts = statusCounts.filter((s) => s.count > 0);
   const grandTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
@@ -269,11 +314,50 @@ export default function EkvTable({
         )}
       </div>
 
+      {/* Selection bar */}
+      {selectedIds.size > 0 && (
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
+          <span className="text-sm text-blue-700 font-medium">
+            {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} selected
+            {selectedIds.size >= MAX_SELECTION && (
+              <span className="ml-2 text-xs text-blue-500">(max {MAX_SELECTION})</span>
+            )}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowExportModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              suppressHydrationWarning
+            >
+              <Download className="w-3.5 h-3.5" />
+              Export Selected
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+              suppressHydrationWarning
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
         <table className="w-full text-sm whitespace-nowrap">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
+              <th className="px-4 py-3 w-10">
+                <input
+                  type="checkbox"
+                  checked={pageAllSelected}
+                  ref={(el) => { if (el) el.indeterminate = pagePartialSelected; }}
+                  onChange={togglePageAll}
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  suppressHydrationWarning
+                />
+              </th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">KV angelegt</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">KV entschieden</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr NOVENTI</th>
@@ -288,9 +372,19 @@ export default function EkvTable({
             {records.map((record) => (
               <tr
                 key={record.id}
-                className="hover:bg-blue-50 cursor-pointer"
+                className={`hover:bg-blue-50 cursor-pointer ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
                 onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
               >
+                <td className="px-4 py-3" onClick={(e) => { e.stopPropagation(); toggleRow(record.id); }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(record.id)}
+                    onChange={() => toggleRow(record.id)}
+                    disabled={!selectedIds.has(record.id) && selectedIds.size >= MAX_SELECTION}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-40"
+                    suppressHydrationWarning
+                  />
+                </td>
                 <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_angelegt)}</td>
                 <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_entschieden)}</td>
                 <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_noventi ?? "-"}</td>
@@ -311,7 +405,7 @@ export default function EkvTable({
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
                   No EKV records found
                 </td>
               </tr>

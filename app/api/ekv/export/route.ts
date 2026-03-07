@@ -46,6 +46,9 @@ export async function GET(request: NextRequest) {
   const supabase = await createClient();
   const sp = request.nextUrl.searchParams;
 
+  const idsParam = sp.get("ids");
+  const ids = idsParam ? idsParam.split(",").filter(Boolean) : null;
+
   const filters = {
     q: sp.get("q") ?? "",
     kasse: sp.get("kasse") ?? "",
@@ -70,7 +73,11 @@ export async function GET(request: NextRequest) {
     .select(selectCols)
     .order("kv_angelegt", { ascending: false });
 
-  query = applyFilters(query, filters);
+  if (ids) {
+    query = query.in("id", ids);
+  } else {
+    query = applyFilters(query, filters);
+  }
 
   const { data, error } = await query;
 
