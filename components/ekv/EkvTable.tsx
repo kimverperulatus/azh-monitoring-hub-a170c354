@@ -300,7 +300,7 @@ export default function EkvTable({
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Carebox Status</span>
           <div className="flex gap-1.5">
-            {[{ value: "", label: "All" }, { value: "empty", label: "Empty" }].map(({ value, label }) => (
+            {[{ value: "", label: "All" }, { value: "empty", label: "Empty" }, { value: "empty_audited", label: "Empty after Audit" }].map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => setFilter("carebox_filter", value)}

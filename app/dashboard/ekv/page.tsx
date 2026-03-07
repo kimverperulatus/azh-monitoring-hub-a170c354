@@ -61,6 +61,7 @@ export default async function EkvPage({
     recordsQuery = recordsQuery.gte("audit_date", `${today}T00:00:00`).lte("audit_date", `${today}T23:59:59`);
   }
   if (carebox_filter === "empty") recordsQuery = recordsQuery.is("carebox_status", null);
+  if (carebox_filter === "empty_audited") recordsQuery = recordsQuery.is("carebox_status", null).not("audit_date", "is", null);
 
   // Per-status counts using same filters but WITHOUT status filter
   const statusCountsPromise = Promise.all(
