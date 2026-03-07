@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import LetterTable from "@/components/letter/LetterTable";
+import PdfUploadModal from "@/components/letter/PdfUploadModal";
 import { getUserRole } from "@/lib/auth/role";
 
 export const dynamic = "force-dynamic";
@@ -28,9 +29,12 @@ export default async function LetterPage({
 
   return (
     <div className="p-6 space-y-4">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Letter Records</h1>
-        <p className="text-sm text-gray-500">{count ?? 0} total records</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Letter Records</h1>
+          <p className="text-sm text-gray-500">{count ?? 0} total records</p>
+        </div>
+        <PdfUploadModal />
       </div>
       <LetterTable
         records={records ?? []}
