@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Pencil, X, Check, CheckCircle2, AlertCircle, Copy } from "lucide-react";
@@ -99,6 +99,20 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [copiedRenamedFile, setCopiedRenamedFile] = useState(false);
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
+  const [pdfLoadError, setPdfLoadError] = useState(false);
+
+  useEffect(() => {
+    if (!record.pdf_url) return;
+    let objectUrl: string | null = null;
+    setPdfBlobUrl(null);
+    setPdfLoadError(false);
+    fetch(record.pdf_url)
+      .then((res) => { if (!res.ok) throw new Error(); return res.blob(); })
+      .then((blob) => { objectUrl = URL.createObjectURL(blob); setPdfBlobUrl(objectUrl); })
+      .catch(() => setPdfLoadError(true));
+    return () => { if (objectUrl) URL.revokeObjectURL(objectUrl); };
+  }, [record.pdf_url]);
 
   const scanDate = record.created_at ? record.created_at.slice(0, 10) : "";
   const fullName = [record.first_name, record.last_name].filter(Boolean).join(" ");
@@ -193,24 +207,25 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
                   Open PDF ↗
                 </a>
               </div>
-              <object
-                data={record.pdf_url}
-                type="application/pdf"
-                className="w-full rounded-lg border border-gray-200"
-                style={{ height: "700px" }}
-              >
+              {pdfBlobUrl ? (
+                <iframe
+                  src={pdfBlobUrl}
+                  className="w-full rounded-lg border border-gray-200"
+                  style={{ height: "700px" }}
+                  title="PDF Preview"
+                />
+              ) : pdfLoadError ? (
                 <div className="flex flex-col items-center justify-center gap-3 py-12 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm text-gray-500">Your browser cannot display the PDF inline.</p>
-                  <a
-                    href={record.pdf_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline font-medium"
-                  >
+                  <p className="text-sm text-gray-500">Could not load PDF preview.</p>
+                  <a href={record.pdf_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline font-medium">
                     Open PDF in new tab ↗
                   </a>
                 </div>
-              </object>
+              ) : (
+                <div className="flex items-center justify-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                  <span className="text-sm text-gray-400">Loading PDF...</span>
+                </div>
+              )}
             </section>
           )}
 
