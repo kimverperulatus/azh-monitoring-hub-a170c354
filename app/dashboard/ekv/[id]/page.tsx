@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowLeft } from "lucide-react";
+import NoteEditor from "@/components/ekv/NoteEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -109,6 +110,12 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
           <Field label="Status" value={record.status} />
           <Field label="Reasons" value={record.reasons} />
         </div>
+      </section>
+
+      {/* Notes */}
+      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700">Notes</h2>
+        <NoteEditor recordId={record.id} initialNote={record.notes ?? null} />
       </section>
 
       {/* Timestamps */}
