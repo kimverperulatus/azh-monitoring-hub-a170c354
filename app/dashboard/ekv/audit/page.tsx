@@ -55,6 +55,9 @@ export default async function EkvAuditPage() {
     VERSCHICKT: "Pending",
     PENDING: "Pending",
     "VERSCHICKT/PENDING": "Pending",
+    ABGELEHNT: "Rejected",
+    REJECTED: "Rejected",
+    "ABGELEHNT/REJECTED": "Rejected",
   };
 
   function resolveCarebox(careboxStatus: string): string {
