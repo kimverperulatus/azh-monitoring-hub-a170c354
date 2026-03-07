@@ -172,6 +172,9 @@ async function handleLookup(request: NextRequest) {
       };
       if (mappedStatus) updatePayload.status = mappedStatus;
       await admin.from("ekv_records").update(updatePayload).eq("id", record.id);
+    } else {
+      // Still stamp audit_date even when not found in Zoho
+      await admin.from("ekv_records").update({ audit_date: new Date().toISOString() }).eq("id", record.id);
     }
 
     results.push({
