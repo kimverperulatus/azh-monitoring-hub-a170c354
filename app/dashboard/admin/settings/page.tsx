@@ -110,7 +110,12 @@ export default function AdminSettingsPage() {
     setExchangeLoading(false);
 
     if (!res.ok) {
-      setExchangeError(json.error ?? "Token exchange failed.");
+      const msg = json.error ?? "Token exchange failed.";
+      if (msg.includes("invalid_code")) {
+        setExchangeError("Grant code is invalid or already used. Grant codes are single-use and expire quickly — go back to Zoho Self Client and generate a brand new code, then paste it here immediately.");
+      } else {
+        setExchangeError(msg);
+      }
     } else {
       const refreshToken = json.refresh_token as string;
       setValues((v) => ({ ...v, zoho_refresh_token: refreshToken }));
@@ -211,15 +216,18 @@ export default function AdminSettingsPage() {
               {consoleUrl} <ExternalLink className="w-3 h-3" />
             </a>
           </li>
-          <li>Go to <strong>Self Client</strong> → <strong>Generate Code</strong></li>
+          <li>Go to <strong>Self Client</strong> → <strong>Generate Code</strong> tab</li>
           <li>
             Set scope to:{" "}
             <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">ZohoCRM.modules.ALL</code>
           </li>
-          <li>Set time duration (10 minutes is fine)</li>
-          <li>Copy the generated <strong>Grant Code</strong> and paste it below</li>
-          <li>Click <strong>Exchange for Refresh Token</strong> — the token will be filled in above automatically</li>
+          <li>Set time duration to <strong>10 minutes</strong></li>
+          <li>Click <strong>Create</strong> — copy the code <em>immediately</em></li>
+          <li>Paste it below and click <strong>Exchange</strong> right away</li>
         </ol>
+        <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          <strong>Important:</strong> Grant codes are <strong>single-use and expire in 10 minutes</strong>. If you get &quot;invalid_code&quot;, generate a fresh code and try again immediately — do not reuse the same code.
+        </p>
 
         <div className="space-y-3 pt-1">
           <div>
