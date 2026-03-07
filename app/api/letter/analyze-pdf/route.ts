@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   const endpoint = settings.azure_ai_endpoint?.trim();
   const apiKey = settings.azure_ai_key?.trim();
   const deployment = settings.azure_ai_deployment?.trim();
-  const apiVersion = settings.azure_ai_version?.trim() || "2024-12-01-preview";
+  const apiVersion = settings.azure_ai_version?.trim() || "2024-10-21";
 
   if (!endpoint || !apiKey || !deployment) {
     return NextResponse.json({ error: "Azure AI credentials are not configured. Set them in Admin → Settings." }, { status: 500 });
@@ -77,13 +77,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Azure AI Foundry (services.ai.azure.com) uses a direct REST call
-    const url = `${endpoint.replace(/\/$/, "")}/chat/completions?api-version=${apiVersion}`;
+    // Azure OpenAI REST API
+    const url = `${endpoint.replace(/\/$/, "")}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", "api-key": apiKey },
       body: JSON.stringify({
-        model: deployment,
         max_tokens: 1024,
         messages: [{ role: "user", content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}` }],
       }),

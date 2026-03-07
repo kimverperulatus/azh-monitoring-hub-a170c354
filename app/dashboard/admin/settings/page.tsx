@@ -25,7 +25,7 @@ const FIELDS = [
       { key: "azure_ai_endpoint",   label: "Endpoint",        type: "text",     placeholder: "https://your-resource.openai.azure.com/" },
       { key: "azure_ai_key",        label: "API Key",         type: "password", placeholder: "••••••••••••••••" },
       { key: "azure_ai_deployment", label: "Deployment Name", type: "text",     placeholder: "gpt-4o" },
-      { key: "azure_ai_version",    label: "API Version",     type: "text",     placeholder: "2025-04-14" },
+      { key: "azure_ai_version",    label: "API Version",     type: "text",     placeholder: "2024-10-21" },
     ],
   },
   {
