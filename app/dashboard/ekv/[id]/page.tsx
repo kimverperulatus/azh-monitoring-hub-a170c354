@@ -47,7 +47,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
   const auditDate = record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null;
 
   return (
-    <div className="p-4 space-y-4 max-w-6xl">
+    <div className="p-3 md:p-6 space-y-4 w-full">
       {/* Back + header */}
       <div className="flex items-center justify-between">
         <Link
