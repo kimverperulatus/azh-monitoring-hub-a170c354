@@ -12,7 +12,7 @@ const allNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, adminOnly: false },
   { href: "/dashboard/ekv", label: "EKV", icon: FileText, adminOnly: false },
   { href: "/dashboard/letter", label: "Letter", icon: Mail, adminOnly: false },
-  { href: "/dashboard/logs", label: "Logs", icon: ScrollText, adminOnly: false },
+  { href: "/dashboard/logs", label: "Logs", icon: ScrollText, adminOnly: true },
   { href: "/dashboard/admin/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
