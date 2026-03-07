@@ -30,7 +30,7 @@
     "next": "^15.2.2",
     "openai": "^6.27.0",
     "papaparse": "^5.5.3",
-    "pdf-parse": "^2.4.5",
+    "pdf-parse": "^1.1.1",
     "react": "^18",
     "react-dom": "^18",
     "recharts": "^2.13.3",
