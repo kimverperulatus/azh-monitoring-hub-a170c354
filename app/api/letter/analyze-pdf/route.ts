@@ -104,6 +104,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, data: extracted });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ error: `AI error: ${msg}` }, { status: 500 });
+    // Include which endpoint+version was used to help diagnose
+    const detail = `[endpoint=${endpoint} version=${apiVersion} deployment=${deployment}]`;
+    return NextResponse.json({ error: `AI error: ${msg} ${detail}` }, { status: 500 });
   }
 }
