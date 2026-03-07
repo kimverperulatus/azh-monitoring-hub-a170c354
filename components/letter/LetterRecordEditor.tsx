@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Pencil, X, Check, CheckCircle2, AlertCircle } from "lucide-react";
+import { Pencil, X, Check, CheckCircle2, AlertCircle, Copy } from "lucide-react";
 
 type LetterRecord = {
   id: string;
@@ -27,6 +27,7 @@ type LetterRecord = {
   file_name: string | null;
   scan_status: string | null;
   ai_summary: string | null;
+  created_at: string | null;
 };
 
 const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads", "Invoice", "Other"];
@@ -96,6 +97,24 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [copiedRenamedFile, setCopiedRenamedFile] = useState(false);
+
+  const scanDate = record.created_at ? record.created_at.slice(0, 10) : "";
+  const fullName = [record.first_name, record.last_name].filter(Boolean).join(" ");
+  const renamedFileName = [
+    scanDate,
+    fullName || null,
+    record.insurance_number,
+    record.category,
+    record.type,
+  ].filter(Boolean).join("-") + ".pdf";
+
+  function copyRenamedFileName() {
+    navigator.clipboard.writeText(renamedFileName).then(() => {
+      setCopiedRenamedFile(true);
+      setTimeout(() => setCopiedRenamedFile(false), 2000);
+    });
+  }
   const [form, setForm] = useState({
     category:                   record.category ?? "",
     type:                       record.type ?? "",
@@ -228,6 +247,21 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
             <h2 className="text-sm font-semibold text-gray-700">Scan Info</h2>
             <div className="grid grid-cols-4 gap-4">
               <Field label="File Name" value={record.file_name} />
+              <div className="col-span-2 flex flex-col gap-0.5">
+                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Renamed File Name</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-800 break-all">{renamedFileName}</span>
+                  <button
+                    onClick={copyRenamedFileName}
+                    className="shrink-0 p-1 rounded hover:bg-gray-100 transition-colors"
+                    title="Copy renamed file name"
+                  >
+                    {copiedRenamedFile
+                      ? <Check className="w-3.5 h-3.5 text-green-600" />
+                      : <Copy className="w-3.5 h-3.5 text-gray-400" />}
+                  </button>
+                </div>
+              </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Scan Status</span>
                 {record.scan_status === "success" && (
