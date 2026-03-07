@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
   const { data: settingsRows } = await admin
     .from("app_settings")
     .select("key, value")
-    .in("key", ["azure_ai_endpoint", "azure_ai_key", "azure_ai_deployment"]);
+    .in("key", ["azure_ai_endpoint", "azure_ai_key", "azure_ai_deployment", "azure_ai_version"]);
 
   const settings: Record<string, string> = {};
   for (const row of settingsRows ?? []) {
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
   const endpoint = settings.azure_ai_endpoint?.trim();
   const apiKey = settings.azure_ai_key?.trim();
   const deployment = settings.azure_ai_deployment?.trim();
+  const apiVersion = settings.azure_ai_version?.trim() || "2024-10-21";
 
   if (!endpoint || !apiKey || !deployment) {
     return NextResponse.json({ error: "Azure AI credentials are not configured. Set them in Admin → Settings." }, { status: 500 });
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion: "2024-10-21" });
+    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion });
 
     const response = await client.chat.completions.create({
       model: deployment,
