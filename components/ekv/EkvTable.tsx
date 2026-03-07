@@ -436,10 +436,10 @@ export default function EkvTable({
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-        <table className="w-full text-sm whitespace-nowrap">
+        <table className="w-full text-xs">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="px-4 py-3 w-10">
+              <th className="px-2 py-2 w-8">
                 <input
                   type="checkbox"
                   checked={pageAllSelected}
@@ -449,15 +449,15 @@ export default function EkvTable({
                   suppressHydrationWarning
                 />
               </th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">KV angelegt</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">KV entschieden</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr NOVENTI</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr LE</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Carebox Status</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Audit Date</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KV angelegt</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KV entschieden</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KVNr NOVENTI</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KVNr LE</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600">Kassenname</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600">Reason</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Carebox Status</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Audit Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -467,7 +467,7 @@ export default function EkvTable({
                 className={`hover:bg-blue-50 cursor-pointer ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
                 onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
               >
-                <td className="px-4 py-3" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
+                <td className="px-2 py-2" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
                   <input
                     type="checkbox"
                     checked={selectedIds.has(record.id)}
@@ -477,31 +477,31 @@ export default function EkvTable({
                     suppressHydrationWarning
                   />
                 </td>
-                <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_angelegt)}</td>
-                <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_entschieden)}</td>
-                <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_noventi ?? "-"}</td>
-                <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_le ?? "-"}</td>
-                <td className="px-4 py-3 text-gray-700">{record.kassenname ?? "-"}</td>
-                <td className="px-4 py-3 text-gray-500 max-w-[200px]">
+                <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.kv_angelegt)}</td>
+                <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.kv_entschieden)}</td>
+                <td className="px-2 py-2 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_noventi ?? "-"}</td>
+                <td className="px-2 py-2 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_le ?? "-"}</td>
+                <td className="px-2 py-2 text-gray-700">{record.kassenname ?? "-"}</td>
+                <td className="px-2 py-2 text-gray-500 max-w-[160px]">
                   {record.reasons ? (
-                    <span className="block truncate text-xs" title={record.reasons}>{record.reasons}</span>
+                    <span className="block truncate" title={record.reasons}>{record.reasons}</span>
                   ) : "-"}
                 </td>
-                <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(record.status)}`}>
+                <td className="px-2 py-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(record.status)}`}>
                     {record.status}
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2 py-2">
                   {record.carebox_status ? (
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(record.carebox_status)}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(record.carebox_status)}`}>
                       {record.carebox_status}
                     </span>
                   ) : (
-                    <span className="text-gray-400 text-xs">-</span>
+                    <span className="text-gray-400">-</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-gray-600 text-xs">{formatDate(record.audit_date)}</td>
+                <td className="px-2 py-2 text-gray-600 whitespace-nowrap">{formatDate(record.audit_date)}</td>
               </tr>
             ))}
             {!records.length && (
