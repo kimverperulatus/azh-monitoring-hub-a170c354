@@ -375,7 +375,7 @@ export default function EkvTable({
                 className={`hover:bg-blue-50 cursor-pointer ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
                 onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
               >
-                <td className="px-4 py-3" onClick={(e) => { e.stopPropagation(); toggleRow(record.id); }}>
+                <td className="px-4 py-3" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
                   <input
                     type="checkbox"
                     checked={selectedIds.has(record.id)}
