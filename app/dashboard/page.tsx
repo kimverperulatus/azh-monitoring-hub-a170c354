@@ -16,28 +16,36 @@ function getColor(status: string): "yellow" | "green" | "red" | "orange" | "gray
   return STATUS_COLORS[status] ?? "blue";
 }
 
+const KNOWN_STATUSES = ["Pending", "Approved", "Rejected", "Error", "Closed Lost"];
+
 async function getStatusCounts(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
-  const { data } = await supabase
+  const results = await Promise.all(
+    KNOWN_STATUSES.map(async (status) => {
+      const { count } = await supabase
+        .from(table)
+        .select("*", { count: "exact", head: true })
+        .eq("status", status);
+      return { status, count: count ?? 0 };
+    })
+  );
+  return results.filter((r) => r.count > 0);
+}
+
+async function getTotal(supabase: Awaited<ReturnType<typeof createClient>>, table: string) {
+  const { count } = await supabase
     .from(table)
-    .select("status");
-
-  if (!data) return [];
-
-  const counts: Record<string, number> = {};
-  for (const row of data) {
-    const s = row.status ?? "Unknown";
-    counts[s] = (counts[s] ?? 0) + 1;
-  }
-
-  return Object.entries(counts).map(([status, count]) => ({ status, count }));
+    .select("*", { count: "exact", head: true });
+  return count ?? 0;
 }
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [ekvCounts, letterCounts, recentActivity] = await Promise.all([
+  const [ekvCounts, letterCounts, ekvTotal, letterTotal, recentActivity] = await Promise.all([
     getStatusCounts(supabase, "ekv_records"),
     getStatusCounts(supabase, "letter_records"),
+    getTotal(supabase, "ekv_records"),
+    getTotal(supabase, "letter_records"),
     supabase
       .from("activity_logs")
       .select("*")
@@ -45,9 +53,6 @@ export default async function DashboardPage() {
       .limit(10)
       .then(({ data }) => data ?? []),
   ]);
-
-  const ekvTotal = ekvCounts.reduce((sum, r) => sum + r.count, 0);
-  const letterTotal = letterCounts.reduce((sum, r) => sum + r.count, 0);
 
   return (
     <div className="p-6 space-y-6">
