@@ -290,7 +290,10 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
               </div>
             ) : (
               <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50" style={{ height: "calc(100vh - 140px)" }}>
-                <span className="text-xs text-gray-400">No PDF attached</span>
+                <div className="text-center space-y-1">
+                <p className="text-sm font-medium text-gray-400">No PDF Available</p>
+                <p className="text-xs text-gray-300">Already processed or no PDF was added during upload.</p>
+              </div>
               </div>
             )}
           </div>
@@ -426,7 +429,10 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
             </div>
           ) : (
             <div className="flex items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50" style={{ height: "calc(100vh - 140px)" }}>
-              <span className="text-xs text-gray-400">No PDF attached</span>
+              <div className="text-center space-y-1">
+                <p className="text-sm font-medium text-gray-400">No PDF Available</p>
+                <p className="text-xs text-gray-300">Already processed or no PDF was added during upload.</p>
+              </div>
             </div>
           )}
         </div>
