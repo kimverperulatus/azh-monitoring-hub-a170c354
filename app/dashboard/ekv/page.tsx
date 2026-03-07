@@ -63,18 +63,13 @@ export default async function EkvPage({
   if (carebox_filter === "empty") recordsQuery = recordsQuery.is("carebox_status", null);
   if (carebox_filter === "empty_audited") recordsQuery = recordsQuery.is("carebox_status", null).not("audit_date", "is", null);
 
-  // Per-status counts using same filters but WITHOUT status filter
-  const statusCountsPromise = Promise.all(
-    KNOWN_STATUSES.map(async (s) => {
-      let q2 = supabase
-        .from("ekv_records")
-        .select("*", { count: "exact", head: true })
-        .eq("status", s);
-      q2 = applyFilters(q2, filters);
-      const { count: c } = await q2;
-      return { status: s, count: c ?? 0 };
-    })
-  );
+  // Single query for status tab counts — fetch only status column (filtered, no status filter applied)
+  // replaces 5 separate COUNT queries
+  let statusColQuery = supabase
+    .from("ekv_records")
+    .select("status")
+    .range(0, 49999);
+  statusColQuery = applyFilters(statusColQuery, filters);
 
   const notAuditedQuery = supabase
     .from("ekv_records")
@@ -87,12 +82,17 @@ export default async function EkvPage({
     .is("carebox_status", null)
     .not("audit_date", "is", null);
 
-  const [{ data: records, count }, statusCounts, { count: notAuditedCount }, { count: emptyAfterAuditCount }] = await Promise.all([
+  const [{ data: records, count }, { data: statusRows }, { count: notAuditedCount }, { count: emptyAfterAuditCount }] = await Promise.all([
     recordsQuery,
-    statusCountsPromise,
+    statusColQuery,
     notAuditedQuery,
     emptyAfterAuditQuery,
   ]);
+
+  const statusCounts = KNOWN_STATUSES.map((s) => ({
+    status: s,
+    count: statusRows?.filter((r) => r.status === s).length ?? 0,
+  }));
 
   return (
     <div className="p-3 md:p-6 space-y-4">
