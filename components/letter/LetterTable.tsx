@@ -45,12 +45,16 @@ export default function LetterTable({
   page,
   pageSize,
   isAdmin = false,
+  scanDate = "",
+  scanStatus = "",
 }: {
   records: LetterRecord[];
   total: number;
   page: number;
   pageSize: number;
   isAdmin?: boolean;
+  scanDate?: string;
+  scanStatus?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -65,6 +69,25 @@ export default function LetterTable({
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", String(p));
     router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function applyFilter(key: string, value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set(key, value); else params.delete(key);
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  }
+
+  function setScanToday() {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    applyFilter("scan_date", `${yyyy}-${mm}-${dd}`);
+  }
+
+  function clearFilters() {
+    router.push(pathname);
   }
 
   function toggleSelect(id: string) {
@@ -105,8 +128,49 @@ export default function LetterTable({
 
   const allSelected = records.length > 0 && selectedIds.size === records.length;
 
+  const hasFilters = scanDate || scanStatus;
+
   return (
     <div className="space-y-4">
+      {/* Filter bar */}
+      <div className="flex flex-wrap items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl">
+        <div className="flex items-center gap-2">
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Scan Date</label>
+          <input
+            type="date"
+            value={scanDate}
+            onChange={(e) => applyFilter("scan_date", e.target.value)}
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <button
+          onClick={setScanToday}
+          className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
+        >
+          Today
+        </button>
+        <div className="flex items-center gap-1.5 ml-2">
+          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Status</label>
+          {(["", "success", "error"] as const).map((s) => (
+            <button
+              key={s}
+              onClick={() => applyFilter("scan_status", s)}
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanStatus === s ? (s === "success" ? "bg-green-600 text-white border-green-600" : s === "error" ? "bg-red-600 text-white border-red-600" : "bg-gray-800 text-white border-gray-800") : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
+            >
+              {s === "" ? "All" : s === "success" ? "Success" : "Error"}
+            </button>
+          ))}
+        </div>
+        {hasFilters && (
+          <button
+            onClick={clearFilters}
+            className="ml-auto text-xs text-gray-400 hover:text-gray-700 underline transition-colors"
+          >
+            Clear filters
+          </button>
+        )}
+      </div>
+
       {isAdmin && selectedIds.size > 0 && (
         <div className="flex items-center gap-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl">
           <span className="text-sm text-red-700 font-medium">

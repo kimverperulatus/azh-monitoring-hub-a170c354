@@ -8,24 +8,32 @@ export const dynamic = "force-dynamic";
 export default async function LetterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; scan_date?: string; scan_status?: string }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user ? await getUserRole(user.id) : "support";
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, scan_date, scan_status } = await searchParams;
   const page = parseInt(pageParam ?? "1");
   const pageSize = 50;
   const from = (page - 1) * pageSize;
 
-  const { data: records, count } = await supabase
+  let query = supabase
     .from("letter_records")
     .select(
       "id, created_at, category, type, health_insurance_provider, date_of_letter, insurance_number, first_name, last_name, approval_id, valid_until, file_name, scan_status, ai_summary",
       { count: "exact" }
     )
-    .order("created_at", { ascending: false })
-    .range(from, from + pageSize - 1);
+    .order("created_at", { ascending: false });
+
+  if (scan_date) {
+    query = query.gte("created_at", `${scan_date}T00:00:00`).lt("created_at", `${scan_date}T23:59:59.999`);
+  }
+  if (scan_status === "success" || scan_status === "error") {
+    query = query.eq("scan_status", scan_status);
+  }
+
+  const { data: records, count } = await query.range(from, from + pageSize - 1);
 
   return (
     <div className="p-6 space-y-4">
@@ -42,6 +50,8 @@ export default async function LetterPage({
         page={page}
         pageSize={pageSize}
         isAdmin={role === "admin"}
+        scanDate={scan_date ?? ""}
+        scanStatus={scan_status ?? ""}
       />
     </div>
   );
