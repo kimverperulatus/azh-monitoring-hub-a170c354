@@ -50,11 +50,22 @@ export default async function EkvAuditPage() {
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
 
-  // Resolve carebox_status through the mapping before comparing.
-  // e.g. "VERSCHICKT" → "Pending", "PENDING" → "Pending" (case-insensitive fallback)
+  // Built-in Zoho raw value equivalences (fallback when status map is not configured)
+  const ZOHO_BUILT_IN: Record<string, string> = {
+    VERSCHICKT: "Pending",
+    PENDING: "Pending",
+  };
+
+  function resolveCarebox(careboxStatus: string): string {
+    return statusMap[careboxStatus]
+      ?? ZOHO_BUILT_IN[careboxStatus.toUpperCase()]
+      ?? careboxStatus;
+  }
+
+  // Resolve carebox_status through mapping (with built-in fallbacks) before comparing
   const mismatches = (mismatchRecords ?? []).filter((r) => {
     if (!r.carebox_status) return false;
-    const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
+    const resolved = resolveCarebox(r.carebox_status);
     return r.status?.toLowerCase() !== resolved.toLowerCase();
   });
 
@@ -112,7 +123,7 @@ export default async function EkvAuditPage() {
           <p className="text-3xl font-bold text-green-600 mt-1">
             {(mismatchRecords ?? []).filter(r => {
               if (!r.carebox_status) return false;
-              const resolved = statusMap[r.carebox_status] ?? r.carebox_status;
+              const resolved = resolveCarebox(r.carebox_status);
               return r.status?.toLowerCase() === resolved.toLowerCase();
             }).length}
           </p>
