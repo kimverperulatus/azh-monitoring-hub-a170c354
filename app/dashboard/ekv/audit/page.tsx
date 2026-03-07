@@ -45,7 +45,7 @@ export default async function EkvAuditPage() {
   const { data: mismatchRecords } = await supabase
     .from("ekv_records")
     .select(
-      "id, kv_angelegt, kv_entschieden, kvnr_noventi, versichertenvorname, versichertennachname, versicherten_nr, kassenname, status, carebox_status, reasons",
+      "id, kv_angelegt, kv_entschieden, kvnr_noventi, versichertenvorname, versichertennachname, versicherten_nr, kassenname, status, carebox_status, reasons, audit_date",
     )
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
@@ -156,6 +156,7 @@ export default async function EkvAuditPage() {
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Carebox Status</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
+                <th className="text-left px-4 py-3 font-medium text-gray-600">Audit Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -179,6 +180,7 @@ export default async function EkvAuditPage() {
                       <span className="block truncate text-xs" title={record.reasons}>{record.reasons}</span>
                     ) : "-"}
                   </td>
+                  <td className="px-4 py-3 text-gray-600">{formatDate(record.audit_date)}</td>
                 </tr>
               ))}
             </tbody>
