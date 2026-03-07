@@ -43,6 +43,15 @@ async function getAccessToken(
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    return await handleLookup(request);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: `Internal server error: ${msg}` }, { status: 500 });
+  }
+}
+
+async function handleLookup(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -150,3 +159,4 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ ok: true, updated, notFound, results });
 }
+
