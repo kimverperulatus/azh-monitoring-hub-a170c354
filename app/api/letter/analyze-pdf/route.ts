@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion: "2024-02-01" });
+    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion: "2024-10-21" });
 
     const response = await client.chat.completions.create({
       model: deployment,
