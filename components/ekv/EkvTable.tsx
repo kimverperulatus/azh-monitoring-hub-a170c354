@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
-import { Download, Search, RefreshCw } from "lucide-react";
+import { Download, Search, RefreshCw, Eye } from "lucide-react";
 import { useState, useCallback } from "react";
 
 const EXPORT_FIELDS = [
@@ -458,6 +458,7 @@ export default function EkvTable({
               <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Carebox Status</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Audit Date</th>
+              <th className="px-2 py-2 w-10"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -502,11 +503,21 @@ export default function EkvTable({
                   )}
                 </td>
                 <td className="px-2 py-2 text-gray-600 whitespace-nowrap">{formatDate(record.audit_date)}</td>
+                <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                    suppressHydrationWarning
+                  >
+                    <Eye className="w-3 h-3" />
+                    View
+                  </button>
+                </td>
               </tr>
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={10} className="px-4 py-8 text-center text-gray-400">
                   No EKV records found
                 </td>
               </tr>

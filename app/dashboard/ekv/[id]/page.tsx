@@ -4,6 +4,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowLeft } from "lucide-react";
 import NoteEditor from "@/components/ekv/NoteEditor";
+import EkvRecordEditor from "@/components/ekv/EkvRecordEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -64,82 +65,18 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
         </span>
       </div>
 
-      {/* 2-column card grid */}
-      <div className="grid grid-cols-2 gap-5">
-        {/* Left column */}
-        <div className="space-y-5">
-          {/* KV Dates */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">KV Dates</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="KV Angelegt" value={formatDate(record.kv_angelegt)} />
-              <Field label="KV Entschieden" value={formatDate(record.kv_entschieden)} />
-            </div>
-          </section>
+      {/* Editable fields */}
+      <EkvRecordEditor record={record} />
 
-          {/* Versicherten */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Versicherten</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Vorname" value={record.versichertenvorname} />
-              <Field label="Nachname" value={record.versichertennachname} />
-              <Field label="Versicherten-Nr" value={record.versicherten_nr} />
-            </div>
-          </section>
-
-          {/* Status & Reasons */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Status & Reasons</h2>
-            <div className="grid grid-cols-1 gap-4">
-              <Field label="Status" value={record.status} />
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Carebox Status</span>
-                {record.carebox_status ? (
-                  <span className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${statusStyles[record.carebox_status] ?? "bg-blue-50 text-blue-700"}`}>
-                    {record.carebox_status}
-                  </span>
-                ) : (
-                  <span className="text-sm text-gray-800">-</span>
-                )}
-              </div>
-              <Field label="Reasons" value={record.reasons} />
-            </div>
-          </section>
+      {/* Timestamps — read only */}
+      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <h2 className="text-sm font-semibold text-gray-700">Timestamps</h2>
+        <div className="grid grid-cols-3 gap-4">
+          <Field label="Created At" value={record.created_at ? format(new Date(record.created_at), "dd.MM.yyyy HH:mm") : null} />
+          <Field label="Updated At" value={record.updated_at ? format(new Date(record.updated_at), "dd.MM.yyyy HH:mm") : null} />
+          <Field label="Audit Date" value={record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null} />
         </div>
-
-        {/* Right column */}
-        <div className="space-y-5">
-          {/* Identifiers */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Identifiers</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="KVNr NOVENTI" value={record.kvnr_noventi} />
-              <Field label="KVNr LE" value={record.kvnr_le} />
-              <Field label="LE - IK" value={record.le_ik} />
-              <Field label="LE - KdNr" value={record.le_kdnr} />
-            </div>
-          </section>
-
-          {/* Kasse */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Kasse</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Kassenname" value={record.kassenname} />
-              <Field label="Kassen - IK" value={record.kassen_ik} />
-            </div>
-          </section>
-
-          {/* Timestamps */}
-          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
-            <h2 className="text-sm font-semibold text-gray-700">Timestamps</h2>
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Created At" value={record.created_at ? format(new Date(record.created_at), "dd.MM.yyyy HH:mm") : null} />
-              <Field label="Updated At" value={record.updated_at ? format(new Date(record.updated_at), "dd.MM.yyyy HH:mm") : null} />
-              <Field label="Audit Date" value={record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null} />
-            </div>
-          </section>
-        </div>
-      </div>
+      </section>
 
       {/* Notes — full width */}
       <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
