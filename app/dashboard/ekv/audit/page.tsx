@@ -1,7 +1,7 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { format } from "date-fns";
-import { ArrowLeft, Download, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Download, AlertTriangle, Eye } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +31,7 @@ function formatDate(val: string | null) {
 export default async function EkvAuditPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, never>>;
+  searchParams: Promise<{ status?: string }>;
 }) {
   const supabase = await createClient();
   const admin = createAdminClient();
@@ -83,7 +83,20 @@ export default async function EkvAuditPage({
     return r.status?.toLowerCase() !== resolved.toLowerCase();
   });
 
-  const exportIds = mismatches.map((r) => r.id).join(",");
+  // Build status counts from all mismatches
+  const statusCounts: Record<string, number> = {};
+  for (const r of mismatches) {
+    const s = r.status ?? "Unknown";
+    statusCounts[s] = (statusCounts[s] ?? 0) + 1;
+  }
+
+  // Apply status filter from search params
+  const { status: filterStatus } = await searchParams;
+  const filtered = filterStatus
+    ? mismatches.filter((r) => (r.status ?? "Unknown") === filterStatus)
+    : mismatches;
+
+  const exportIds = filtered.map((r) => r.id).join(",");
   const exportUrl = `/api/ekv/export?ids=${exportIds}&fields=kv_angelegt,kv_entschieden,kvnr_noventi,versichertenvorname,versichertennachname,versicherten_nr,kassenname,status,carebox_status,reasons`;
 
   return (
@@ -112,13 +125,13 @@ export default async function EkvAuditPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {mismatches.length > 0 && (
+          {filtered.length > 0 && (
             <a
               href={exportUrl}
               className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
             >
               <Download className="w-4 h-4" />
-              Export {mismatches.length} Records
+              Export {filtered.length} Records
             </a>
           )}
         </div>
@@ -146,6 +159,46 @@ export default async function EkvAuditPage({
         </div>
       </div>
 
+      {/* Status Filter Tabs */}
+      {mismatches.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/dashboard/ekv/audit"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+              !filterStatus
+                ? "bg-brand-red-800 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            All
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${!filterStatus ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+              {mismatches.length}
+            </span>
+          </Link>
+          {Object.entries(statusCounts)
+            .sort((a, b) => b[1] - a[1])
+            .map(([status, count]) => {
+              const isActive = filterStatus === status;
+              return (
+                <Link
+                  key={status}
+                  href={`/dashboard/ekv/audit?status=${encodeURIComponent(status)}`}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-brand-red-800 text-white"
+                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {status}
+                  <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>
+                    {count}
+                  </span>
+                </Link>
+              );
+            })}
+        </div>
+      )}
+
       {/* Table */}
       {mismatches.length === 0 ? (
         <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
@@ -157,31 +210,41 @@ export default async function EkvAuditPage({
           <table className="w-full text-xs whitespace-nowrap">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">KV Angelegt</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">KV Entschieden</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">KVNr NOVENTI</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Versicherten-Nr</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Kassenname</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Carebox Status</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Audit Date</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">KV Angelegt</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">KV Entschieden</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">KVNr NOVENTI</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Versicherten-Nr</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Kassenname</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Status</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Carebox Status</th>
+                <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Audit Date</th>
+                <th className="px-3 py-2.5"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {mismatches.map((record) => (
+              {filtered.map((record) => (
                 <tr key={record.id} className="hover:bg-amber-50 transition-colors">
-                  <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_angelegt)}</td>
-                  <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_entschieden)}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kvnr_noventi ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.versicherten_nr ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-700">{record.kassenname ?? "-"}</td>
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5 text-gray-700">{formatDate(record.kv_angelegt)}</td>
+                  <td className="px-3 py-2.5 text-gray-700">{formatDate(record.kv_entschieden)}</td>
+                  <td className="px-3 py-2.5 text-gray-600 font-mono">{record.kvnr_noventi ?? "-"}</td>
+                  <td className="px-3 py-2.5 text-gray-600 font-mono">{record.versicherten_nr ?? "-"}</td>
+                  <td className="px-3 py-2.5 text-gray-700">{record.kassenname ?? "-"}</td>
+                  <td className="px-3 py-2.5">
                     <StatusBadge value={record.status} />
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5">
                     <StatusBadge value={record.carebox_status} />
                   </td>
-                  <td className="px-2 py-2 text-gray-600">{formatDate(record.audit_date)}</td>
+                  <td className="px-3 py-2.5 text-gray-600">{formatDate(record.audit_date)}</td>
+                  <td className="px-3 py-2.5">
+                    <Link
+                      href={`/dashboard/ekv/${record.id}`}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-brand-navy-50 text-brand-navy-700 hover:bg-brand-navy-100 transition-colors"
+                    >
+                      <Eye className="w-3 h-3" />
+                      View
+                    </Link>
+                  </td>
                 </tr>
               ))}
             </tbody>
