@@ -28,7 +28,14 @@ function formatDate(val: string | null) {
   try { return format(new Date(val), "dd.MM.yyyy"); } catch { return val; }
 }
 
-export default async function EkvAuditPage() {
+export default async function EkvAuditPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const { filter } = await searchParams;
+  const showNotAudited = filter === "not_audited";
+
   const supabase = await createClient();
   const admin = createAdminClient();
 
@@ -42,13 +49,17 @@ export default async function EkvAuditPage() {
   }
 
   // Column-to-column comparison must be done in-memory (PostgREST can't do WHERE col1 != col2)
-  const { data: mismatchRecords } = await supabase
+  let recordsQuery = supabase
     .from("ekv_records")
     .select(
       "id, kv_angelegt, kv_entschieden, kvnr_noventi, versichertenvorname, versichertennachname, versicherten_nr, kassenname, status, carebox_status, reasons, audit_date",
     )
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
+
+  if (showNotAudited) recordsQuery = recordsQuery.is("audit_date", null);
+
+  const { data: mismatchRecords } = await recordsQuery;
 
   // Built-in Zoho raw value equivalences (fallback when status map is not configured)
   const ZOHO_BUILT_IN: Record<string, string> = {
@@ -104,15 +115,27 @@ export default async function EkvAuditPage() {
             </p>
           </div>
         </div>
-        {mismatches.length > 0 && (
+        <div className="flex items-center gap-2">
           <a
-            href={exportUrl}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            href={showNotAudited ? "/dashboard/ekv/audit" : "/dashboard/ekv/audit?filter=not_audited"}
+            className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              showNotAudited
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
+            }`}
           >
-            <Download className="w-4 h-4" />
-            Export {mismatches.length} Records
+            Not Yet Audited
           </a>
-        )}
+          {mismatches.length > 0 && (
+            <a
+              href={exportUrl}
+              className="flex items-center gap-1.5 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Export {mismatches.length} Records
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Summary */}
