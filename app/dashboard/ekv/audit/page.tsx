@@ -52,7 +52,8 @@ export default async function EkvAuditPage({
       "id, kv_angelegt, kv_entschieden, kvnr_noventi, versicherten_nr, kassenname, status, carebox_status, audit_date",
     )
     .not("carebox_status", "is", null)
-    .order("kv_angelegt", { ascending: false });
+    .order("kv_angelegt", { ascending: false })
+    .limit(100);
 
   const { data: mismatchRecords } = await recordsQuery;
 
