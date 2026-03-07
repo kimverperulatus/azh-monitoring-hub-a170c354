@@ -8,7 +8,7 @@ export const maxDuration = 60;
 const EXTRACTION_PROMPT = `You are analyzing a German health insurance letter/document. Extract the following fields from the PDF and return ONLY a valid JSON object with no additional text or explanation.
 
 Fields to extract:
-- category: Must be exactly "Carebox" or "Reusable Pads". Determine based on the product or service described. If the letter involves Carebox products/services, use "Carebox". If it involves reusable pads/diapers/incontinence products, use "Reusable Pads". If unclear, use null.
+- category: Must be exactly "Carebox" or "Reusable Pads". IMPORTANT: If the document contains the text "Produktgruppe 54", always use "Carebox". Otherwise, determine based on the product or service described — if the letter involves Carebox products/services, use "Carebox"; if it involves reusable pads/diapers/incontinence products, use "Reusable Pads". If unclear, use null.
 - type: Must be exactly "Approved", "Reject", or "Terminations". Identify from the letter's purpose — approval/Genehmigung = "Approved", rejection/Ablehnung = "Reject", termination/Kündigung = "Terminations". If unclear, use null.
 - health_insurance_provider: Name of the health insurance (Krankenkasse), e.g. "AOK Bayern", "TK", "Barmer", etc.
 - date_of_letter: Date of the letter in YYYY-MM-DD format. null if not found.
