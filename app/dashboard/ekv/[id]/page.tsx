@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import NoteEditor from "@/components/ekv/NoteEditor";
 import EkvRecordEditor from "@/components/ekv/EkvRecordEditor";
 
@@ -34,11 +34,11 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: record } = await supabase
-    .from("ekv_records")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const [{ data: record }, { data: prevRecord }, { data: nextRecord }] = await Promise.all([
+    supabase.from("ekv_records").select("*").eq("id", id).single(),
+    supabase.from("ekv_records").select("id").lt("id", id).order("id", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("ekv_records").select("id").gt("id", id).order("id", { ascending: true }).limit(1).maybeSingle(),
+  ]);
 
   if (!record) notFound();
 
@@ -49,19 +49,49 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
   return (
     <div className="p-3 md:p-6 space-y-4 w-full">
       {/* Back + header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         <Link
           href="/dashboard/ekv"
           className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Back to EKV Records
+          <span className="hidden sm:inline">Back to EKV Records</span>
         </Link>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gray-400 font-mono">{record.id}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-gray-400 font-mono hidden md:inline">{record.id}</span>
           <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[record.status] ?? "bg-brand-navy-50 text-brand-navy-700"}`}>
             {record.status}
           </span>
+          <div className="flex items-center gap-1 ml-1">
+            {prevRecord ? (
+              <Link
+                href={`/dashboard/ekv/${prevRecord.id}`}
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Prev
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-300 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                <ChevronLeft className="w-3.5 h-3.5" />
+                Prev
+              </span>
+            )}
+            {nextRecord ? (
+              <Link
+                href={`/dashboard/ekv/${nextRecord.id}`}
+                className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <span className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-300 bg-gray-50 border border-gray-100 rounded-lg cursor-not-allowed">
+                Next
+                <ChevronRight className="w-3.5 h-3.5" />
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
