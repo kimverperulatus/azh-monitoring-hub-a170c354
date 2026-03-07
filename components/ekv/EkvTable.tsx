@@ -238,13 +238,13 @@ export default function EkvTable({
             onKeyDown={(e) => {
               if (e.key === "Enter") setFilter("q", (e.target as HTMLInputElement).value);
             }}
-            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm transition-shadow"
             suppressHydrationWarning
           />
         </div>
         <button
           onClick={() => setShowExportModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 active:scale-95 shadow-sm transition-all duration-150 whitespace-nowrap"
           suppressHydrationWarning
         >
           <Download className="w-4 h-4" />
@@ -253,7 +253,7 @@ export default function EkvTable({
         {hasAnyFilter && (
           <button
             onClick={clearAllFilters}
-            className="px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors whitespace-nowrap"
+            className="px-3.5 py-2 rounded-xl text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 active:scale-95 transition-all duration-150 whitespace-nowrap"
             suppressHydrationWarning
           >
             Clear Filters
@@ -262,16 +262,16 @@ export default function EkvTable({
       </div>
 
       {/* Row 2: Status tabs */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <button
           onClick={() => setFilter("status", "")}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-            activeStatus === "" ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
+            activeStatus === "" ? "bg-blue-600 text-white shadow-sm shadow-blue-200" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
           suppressHydrationWarning
         >
           All
-          <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+          <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-bold ${
             activeStatus === "" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
           }`}>
             {grandTotal}
@@ -281,13 +281,13 @@ export default function EkvTable({
           <button
             key={s}
             onClick={() => setFilter("status", s)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              activeStatus === s ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150 active:scale-95 ${
+              activeStatus === s ? "bg-blue-600 text-white shadow-sm shadow-blue-200" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
             suppressHydrationWarning
           >
             {s}
-            <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+            <span className={`text-[11px] px-1.5 py-0.5 rounded-full font-bold ${
               activeStatus === s ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
             }`}>
               {c}
@@ -297,7 +297,7 @@ export default function EkvTable({
       </div>
 
       {/* Row 3: Secondary filters + date ranges */}
-      <div className="flex flex-wrap items-end gap-6 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+      <div className="flex flex-wrap items-end gap-6 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
         {/* Carebox Status */}
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Carebox Status</span>
@@ -407,18 +407,18 @@ export default function EkvTable({
       {/* Selection bar */}
       {selectedIds.size > 0 && (
         <div className="space-y-2">
-          <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-2.5">
-            <span className="text-sm text-blue-700 font-medium">
+          <div className="flex items-center justify-between bg-blue-600 rounded-xl px-4 py-2.5 shadow-sm shadow-blue-200">
+            <span className="text-sm text-white font-medium">
               {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} selected
               {selectedIds.size >= MAX_SELECTION && (
-                <span className="ml-2 text-xs text-blue-500">(max {MAX_SELECTION})</span>
+                <span className="ml-2 text-xs text-blue-200">(max {MAX_SELECTION})</span>
               )}
             </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={lookupCarebox}
                 disabled={lookupLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-all duration-150 active:scale-95"
                 suppressHydrationWarning
               >
                 {lookupLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
@@ -426,7 +426,7 @@ export default function EkvTable({
               </button>
               <button
                 onClick={() => setShowExportModal(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/15 hover:bg-white/25 text-white rounded-lg text-sm font-medium transition-all duration-150 active:scale-95"
                 suppressHydrationWarning
               >
                 <Download className="w-3.5 h-3.5" />
@@ -434,7 +434,7 @@ export default function EkvTable({
               </button>
               <button
                 onClick={() => { setSelectedIds(new Set()); setLookupResult(null); setLookupError(""); }}
-                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                className="px-3 py-1.5 text-sm text-blue-200 hover:text-white hover:bg-white/15 rounded-lg transition-all duration-150"
                 suppressHydrationWarning
               >
                 Clear
@@ -442,36 +442,36 @@ export default function EkvTable({
             </div>
           </div>
           {lookupLoading && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 space-y-2">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 space-y-2">
               <div className="flex items-center gap-2 text-sm text-blue-700 font-medium">
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 Looking up {selectedIds.size} record{selectedIds.size !== 1 ? "s" : ""} in Zoho CRM...
               </div>
-              <div className="w-full bg-blue-200 rounded-full h-1.5 overflow-hidden relative">
-                <div className="absolute inset-y-0 left-0 w-1/3 bg-blue-500 rounded-full animate-pulse" />
+              <div className="w-full bg-blue-100 rounded-full h-1 overflow-hidden">
+                <div className="h-full w-1/3 bg-blue-500 rounded-full animate-[pulse_1s_ease-in-out_infinite]" />
               </div>
             </div>
           )}
           {lookupError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
+            <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-2.5 text-sm text-red-600 font-medium">
               {lookupError}
             </div>
           )}
           {lookupResult && (
-            <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 text-sm text-green-700 space-y-1">
+            <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 text-sm text-green-700 space-y-1.5">
               <div>
                 Lookup complete: <strong>{lookupResult.updated}</strong> record{lookupResult.updated !== 1 ? "s" : ""} found in Zoho
                 {lookupResult.notFound > 0 && (
-                  <span className="ml-2 text-green-600">({lookupResult.notFound} not found)</span>
+                  <span className="ml-2 text-green-500 text-xs">({lookupResult.notFound} not found)</span>
                 )}
               </div>
               {lookupResult.statusChanged > 0 && (
-                <div className="text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1 text-xs inline-block">
-                  ⚠ <strong>{lookupResult.statusChanged}</strong> record{lookupResult.statusChanged !== 1 ? "s" : ""} had mismatched status — Status field auto-corrected via mapping
+                <div className="text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5 text-xs inline-flex items-center gap-1">
+                  <strong>{lookupResult.statusChanged}</strong> record{lookupResult.statusChanged !== 1 ? "s" : ""} had mismatched status — auto-corrected via mapping
                 </div>
               )}
               {lookupResult.statusChanged === 0 && lookupResult.updated > 0 && (
-                <div className="text-green-600 text-xs">All statuses match — no corrections needed</div>
+                <div className="text-green-500 text-xs">All statuses match — no corrections needed</div>
               )}
             </div>
           )}
@@ -479,11 +479,12 @@ export default function EkvTable({
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="px-2 py-2 w-8">
+          <thead>
+            <tr className="bg-slate-50 border-b border-gray-100">
+              <th className="px-3 py-2.5 w-8">
                 <input
                   type="checkbox"
                   checked={pageAllSelected}
@@ -493,25 +494,25 @@ export default function EkvTable({
                   suppressHydrationWarning
                 />
               </th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KV angelegt</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KV entschieden</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KVNr NOVENTI</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">KVNr LE</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600">Kassenname</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600">Reason</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Carebox Status</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Audit Date</th>
-              <th className="px-2 py-2 w-10"></th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">KV Angelegt</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">KV Entschieden</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">KVNr NOVENTI</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">KVNr LE</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Kassenname</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Reason</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Status</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Carebox Status</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Audit Date</th>
+              <th className="px-3 py-2.5 w-10"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-50">
             {records.map((record) => (
               <tr
                 key={record.id}
-                className={`hover:bg-blue-50 ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
+                className={`transition-colors duration-100 ${selectedIds.has(record.id) ? "bg-blue-50/60" : "hover:bg-slate-50"}`}
               >
-                <td className="px-2 py-2" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
+                <td className="px-3 py-2.5" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
                   <input
                     type="checkbox"
                     checked={selectedIds.has(record.id)}
@@ -521,35 +522,35 @@ export default function EkvTable({
                     suppressHydrationWarning
                   />
                 </td>
-                <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.kv_angelegt)}</td>
-                <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.kv_entschieden)}</td>
-                <td className="px-2 py-2 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_noventi ?? "-"}</td>
-                <td className="px-2 py-2 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_le ?? "-"}</td>
-                <td className="px-2 py-2 text-gray-700">{record.kassenname ?? "-"}</td>
-                <td className="px-2 py-2 text-gray-500 max-w-[160px]">
+                <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap font-medium">{formatDate(record.kv_angelegt)}</td>
+                <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap">{formatDate(record.kv_entschieden)}</td>
+                <td className="px-3 py-2.5 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_noventi ?? <span className="text-gray-300">—</span>}</td>
+                <td className="px-3 py-2.5 text-gray-600 font-mono whitespace-nowrap">{record.kvnr_le ?? <span className="text-gray-300">—</span>}</td>
+                <td className="px-3 py-2.5 text-gray-700">{record.kassenname ?? <span className="text-gray-300">—</span>}</td>
+                <td className="px-3 py-2.5 text-gray-500 max-w-[160px]">
                   {record.reasons ? (
                     <span className="block truncate" title={record.reasons}>{record.reasons}</span>
-                  ) : "-"}
+                  ) : <span className="text-gray-300">—</span>}
                 </td>
-                <td className="px-2 py-2">
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(record.status)}`}>
+                <td className="px-3 py-2.5">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap ${getStatusStyle(record.status)}`}>
                     {record.status}
                   </span>
                 </td>
-                <td className="px-2 py-2">
+                <td className="px-3 py-2.5">
                   {record.carebox_status ? (
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${getStatusStyle(record.carebox_status)}`}>
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap ${getStatusStyle(record.carebox_status)}`}>
                       {record.carebox_status}
                     </span>
                   ) : (
-                    <span className="text-gray-400">-</span>
+                    <span className="text-gray-300">—</span>
                   )}
                 </td>
-                <td className="px-2 py-2 text-gray-600 whitespace-nowrap">{formatDate(record.audit_date)}</td>
-                <td className="px-2 py-2" onClick={(e) => e.stopPropagation()}>
+                <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap">{formatDate(record.audit_date)}</td>
+                <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
-                    className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 active:scale-95 rounded-lg transition-all duration-100"
                     suppressHydrationWarning
                   >
                     <Eye className="w-3 h-3" />
@@ -560,33 +561,32 @@ export default function EkvTable({
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={10} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={10} className="px-4 py-12 text-center text-gray-400 text-sm">
                   No EKV records found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-gray-500">
-        <div className="flex items-center gap-3">
-          <span>Page {page} of {totalPages} ({total} records)</span>
-        </div>
+        <span className="text-xs text-gray-400">Page <span className="font-medium text-gray-600">{page}</span> of <span className="font-medium text-gray-600">{totalPages}</span> &nbsp;·&nbsp; <span className="font-medium text-gray-600">{total.toLocaleString()}</span> records</span>
         {totalPages > 1 && (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 active:scale-95 text-sm font-medium text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-100"
             >
               Previous
             </button>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 active:scale-95 text-sm font-medium text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-100"
             >
               Next
             </button>
@@ -596,13 +596,13 @@ export default function EkvTable({
 
       {/* Export field selection modal */}
       {showExportModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-1">Export CSV</h2>
-            <p className="text-sm text-gray-500 mb-4">Select the fields to include in the export.</p>
-            <div className="grid grid-cols-2 gap-2 mb-5">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-150">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm mx-4 animate-in slide-in-from-bottom-4 duration-200">
+            <h2 className="text-base font-semibold text-gray-900 mb-1">Export CSV</h2>
+            <p className="text-xs text-gray-400 mb-4">Select the fields to include in the export.</p>
+            <div className="grid grid-cols-2 gap-2 mb-4">
               {EXPORT_FIELDS.map((f) => (
-                <label key={f.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label key={f.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer hover:text-gray-900 transition-colors">
                   <input
                     type="checkbox"
                     checked={selectedFields.includes(f.key)}
@@ -616,13 +616,13 @@ export default function EkvTable({
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={() => setSelectedFields(EXPORT_FIELDS.map((f) => f.key))}
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
               >
                 Select all
               </button>
               <button
                 onClick={() => setSelectedFields([])}
-                className="text-xs text-gray-500 hover:underline"
+                className="text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors"
               >
                 Clear all
               </button>
@@ -631,14 +631,14 @@ export default function EkvTable({
               <button
                 onClick={doExport}
                 disabled={selectedFields.length === 0}
-                className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-medium py-2 rounded-lg text-sm transition-all duration-150 disabled:opacity-50 shadow-sm shadow-blue-200"
               >
                 <Download className="w-4 h-4" />
                 Download
               </button>
               <button
                 onClick={() => setShowExportModal(false)}
-                className="flex-1 border border-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+                className="flex-1 border border-gray-200 text-gray-600 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 active:scale-95 transition-all duration-150"
               >
                 Cancel
               </button>

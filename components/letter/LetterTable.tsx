@@ -159,7 +159,7 @@ export default function LetterTable({
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 space-y-3 shadow-sm">
         {/* Row 1: Search */}
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
@@ -170,12 +170,12 @@ export default function LetterTable({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && submitSearch(searchInput)}
-              className="w-full border border-gray-300 rounded-lg pl-9 pr-9 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-200 rounded-xl pl-9 pr-9 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
             />
             {searchInput && (
               <button
                 onClick={() => { setSearchInput(""); applyFilter("search", ""); }}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -183,24 +183,24 @@ export default function LetterTable({
           </div>
           <button
             onClick={() => submitSearch(searchInput)}
-            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-xl hover:bg-blue-700 active:scale-95 transition-all duration-150 shadow-sm shadow-blue-200"
           >
             Search
           </button>
           {hasFilters && (
-            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-700 underline transition-colors whitespace-nowrap">
+            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-600 font-medium transition-colors whitespace-nowrap px-2">
               Clear all
             </button>
           )}
         </div>
 
         {/* Row 2: Dropdowns + date + scan status */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Category */}
           <select
             value={filterCategory}
             onChange={(e) => applyFilter("category", e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
           >
             <option value="">All Categories</option>
             {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -210,7 +210,7 @@ export default function LetterTable({
           <select
             value={filterType}
             onChange={(e) => applyFilter("type", e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white transition-shadow"
           >
             <option value="">All Types</option>
             {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -222,7 +222,7 @@ export default function LetterTable({
             placeholder="Insurance provider…"
             value={filterProvider}
             onChange={(e) => applyFilter("provider", e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-44 transition-shadow"
           />
 
           <div className="h-5 border-l border-gray-200" />
@@ -232,11 +232,11 @@ export default function LetterTable({
             type="date"
             value={scanDate}
             onChange={(e) => applyFilter("scan_date", e.target.value)}
-            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow"
           />
           <button
             onClick={setScanToday}
-            className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-150 active:scale-95 ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600 shadow-sm shadow-blue-200" : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
           >
             Today
           </button>
@@ -247,7 +247,7 @@ export default function LetterTable({
               <button
                 key={s}
                 onClick={() => applyFilter("scan_status", s)}
-                className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanStatus === s ? (s === "success" ? "bg-green-600 text-white border-green-600" : s === "error" ? "bg-red-600 text-white border-red-600" : "bg-gray-800 text-white border-gray-800") : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-150 active:scale-95 ${scanStatus === s ? (s === "success" ? "bg-green-600 text-white border-green-600 shadow-sm shadow-green-200" : s === "error" ? "bg-red-600 text-white border-red-600 shadow-sm shadow-red-200" : "bg-gray-800 text-white border-gray-800") : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}
               >
                 {s === "" ? "All" : s === "success" ? "Success" : "Error"}
               </button>
@@ -257,28 +257,29 @@ export default function LetterTable({
       </div>
 
       {isAdmin && selectedIds.size > 0 && (
-        <div className="flex items-center gap-3 px-4 py-2.5 bg-red-50 border border-red-200 rounded-xl">
-          <span className="text-sm text-red-700 font-medium">
+        <div className="flex items-center gap-3 px-4 py-2.5 bg-red-600 rounded-xl shadow-sm shadow-red-200">
+          <span className="text-sm text-white font-medium">
             {selectedIds.size} record{selectedIds.size > 1 ? "s" : ""} selected
           </span>
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 bg-white hover:bg-red-50 disabled:opacity-50 rounded-lg transition-all duration-150 active:scale-95"
           >
             <Trash2 className="w-3.5 h-3.5" />
             {deleting ? "Deleting..." : "Delete Selected"}
           </button>
-          {deleteError && <span className="text-sm text-red-600">{deleteError}</span>}
+          {deleteError && <span className="text-sm text-red-200">{deleteError}</span>}
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-xs">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
+          <thead>
+            <tr className="bg-slate-50 border-b border-gray-100">
               {isAdmin && (
-                <th className="px-2 py-2 w-7">
+                <th className="px-3 py-2.5 w-7">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -287,25 +288,25 @@ export default function LetterTable({
                   />
                 </th>
               )}
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Category</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Type</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Insurance</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Date of Letter</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Approval ID</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Valid Until</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">File Name</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Scan</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">AI Summary</th>
-              <th className="px-2 py-2" />
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Category</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Type</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Insurance</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Date of Letter</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Approval ID</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Valid Until</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">File Name</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Scan</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">AI Summary</th>
+              <th className="px-3 py-2.5" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-50">
             {records.map((record) => {
               const selected = selectedIds.has(record.id);
               return (
-                <tr key={record.id} className={`hover:bg-gray-50 transition-colors ${selected ? "bg-red-50" : ""}`}>
+                <tr key={record.id} className={`transition-colors duration-100 ${selected ? "bg-red-50/50" : "hover:bg-slate-50"}`}>
                   {isAdmin && (
-                    <td className="px-2 py-2">
+                    <td className="px-3 py-2.5">
                       <input
                         type="checkbox"
                         checked={selected}
@@ -314,35 +315,35 @@ export default function LetterTable({
                       />
                     </td>
                   )}
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5">
                     {record.category ? (
                       <div className="flex flex-wrap gap-1">
                         {record.category.split(",").map((cat) => cat.trim()).filter(Boolean).map((cat) => (
-                          <span key={cat} className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${CATEGORY_STYLES[cat] ?? "bg-gray-100 text-gray-700"}`}>
+                          <span key={cat} className={`px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap ${CATEGORY_STYLES[cat] ?? "bg-gray-100 text-gray-700"}`}>
                             {cat}
                           </span>
                         ))}
                       </div>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5">
                     {record.type ? (
-                      <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>
+                      <span className={`px-2 py-0.5 rounded-md text-[11px] font-semibold whitespace-nowrap ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>
                         {record.type}
                       </span>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{record.health_insurance_provider ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.approval_id ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
-                  <td className="px-2 py-2 max-w-[160px]">
+                  <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap font-medium">{record.health_insurance_provider ?? <span className="text-gray-300">—</span>}</td>
+                  <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
+                  <td className="px-3 py-2.5 text-gray-600 font-mono">{record.approval_id ?? <span className="text-gray-300">—</span>}</td>
+                  <td className="px-3 py-2.5 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
+                  <td className="px-3 py-2.5 max-w-[160px]">
                     {record.file_name ? (
                       <div className="flex items-center gap-1 group">
                         <span className="truncate text-gray-500" title={record.file_name}>{record.file_name}</span>
                         <button
                           onClick={() => copyFileName(record.id, record.file_name!)}
-                          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-700"
+                          className="shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-150 text-gray-400 hover:text-gray-700"
                           title="Copy file name"
                         >
                           {copiedId === record.id
@@ -350,30 +351,30 @@ export default function LetterTable({
                             : <Copy className="w-3 h-3" />}
                         </button>
                       </div>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5">
                     {record.scan_status === "success" && (
-                      <span className="flex items-center gap-1 font-medium text-green-700 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[11px] font-semibold whitespace-nowrap">
                         <CheckCircle2 className="w-3 h-3" /> OK
                       </span>
                     )}
                     {record.scan_status === "error" && (
-                      <span className="flex items-center gap-1 font-medium text-red-600 whitespace-nowrap">
-                        <AlertCircle className="w-3 h-3" /> Err
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 text-red-600 text-[11px] font-semibold whitespace-nowrap">
+                        <AlertCircle className="w-3 h-3" /> Error
                       </span>
                     )}
-                    {!record.scan_status && <span className="text-gray-400">-</span>}
+                    {!record.scan_status && <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-2 py-2 text-gray-500 max-w-[200px]">
+                  <td className="px-3 py-2.5 text-gray-500 max-w-[200px]">
                     {record.ai_summary ? (
                       <span className="line-clamp-2 leading-relaxed" title={record.ai_summary}>{record.ai_summary}</span>
-                    ) : <span className="text-gray-400">-</span>}
+                    ) : <span className="text-gray-300">—</span>}
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="px-3 py-2.5">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
-                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 active:scale-95 rounded-lg transition-all duration-100 whitespace-nowrap"
                     >
                       <Eye className="w-3 h-3" />
                       View
@@ -384,30 +385,31 @@ export default function LetterTable({
             })}
             {!records.length && (
               <tr>
-                <td colSpan={isAdmin ? 11 : 10} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={isAdmin ? 11 : 10} className="px-4 py-12 text-center text-gray-400 text-sm">
                   No records found
                 </td>
               </tr>
             )}
           </tbody>
         </table>
+        </div>
       </div>
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm text-gray-500">
-          <span>Page {page} of {totalPages} · {total} total records</span>
-          <div className="flex gap-2">
+          <span className="text-xs text-gray-400">Page <span className="font-medium text-gray-600">{page}</span> of <span className="font-medium text-gray-600">{totalPages}</span> &nbsp;·&nbsp; <span className="font-medium text-gray-600">{total.toLocaleString()}</span> total</span>
+          <div className="flex gap-1.5">
             <button
               disabled={page <= 1}
               onClick={() => setPage(page - 1)}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 text-sm"
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium text-gray-600 transition-all duration-100"
             >
               Previous
             </button>
             <button
               disabled={page >= totalPages}
               onClick={() => setPage(page + 1)}
-              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-40 text-sm"
+              className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium text-gray-600 transition-all duration-100"
             >
               Next
             </button>

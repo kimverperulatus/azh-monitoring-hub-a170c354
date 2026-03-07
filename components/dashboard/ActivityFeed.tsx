@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { Upload } from "lucide-react";
+import { Upload, FileText, Mail, ArrowRight } from "lucide-react";
 
 type Activity = {
   id: string;
@@ -16,38 +16,46 @@ function isImport(action: string) {
 export default function ActivityFeed({ activities }: { activities: Activity[] }) {
   if (!activities.length) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-sm text-gray-400">
-        No recent activity
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-center">
+        <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+          <ArrowRight className="w-5 h-5 text-gray-300" />
+        </div>
+        <p className="text-sm text-gray-400 font-medium">No recent activity</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-      {activities.map((activity) => (
-        <div key={activity.id} className="flex items-center gap-4 px-4 py-3">
-          <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
-              activity.module === "ekv"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-purple-100 text-purple-700"
-            }`}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm divide-y divide-gray-50 overflow-hidden">
+      {activities.map((activity, idx) => {
+        const isEkv = activity.module === "ekv";
+        const ModuleIcon = isEkv ? FileText : Mail;
+        return (
+          <div
+            key={activity.id}
+            className="flex items-center gap-3.5 px-5 py-3 hover:bg-slate-50 transition-colors duration-150"
+            style={{ animationDelay: `${idx * 30}ms` }}
           >
-            {activity.module?.toUpperCase()}
-          </span>
-          {isImport(activity.action) ? (
-            <span className="flex items-center gap-1.5 text-sm text-gray-700 flex-1">
-              <Upload className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
-              {activity.action.replace(/^import:\s*/i, "")}
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isEkv ? "bg-blue-50" : "bg-violet-50"}`}>
+              <ModuleIcon className={`w-3.5 h-3.5 ${isEkv ? "text-blue-500" : "text-violet-500"}`} />
+            </div>
+            <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wider shrink-0 ${isEkv ? "bg-blue-100 text-blue-700" : "bg-violet-100 text-violet-700"}`}>
+              {activity.module?.toUpperCase()}
             </span>
-          ) : (
-            <span className="text-sm text-gray-700 flex-1">{activity.action}</span>
-          )}
-          <span className="text-xs text-gray-400 whitespace-nowrap">
-            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
-          </span>
-        </div>
-      ))}
+            {isImport(activity.action) ? (
+              <span className="flex items-center gap-1.5 text-sm text-gray-600 flex-1 min-w-0">
+                <Upload className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <span className="truncate">{activity.action.replace(/^import:\s*/i, "")}</span>
+              </span>
+            ) : (
+              <span className="text-sm text-gray-600 flex-1 min-w-0 truncate">{activity.action}</span>
+            )}
+            <span className="text-xs text-gray-400 whitespace-nowrap shrink-0">
+              {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }

@@ -16,7 +16,7 @@ export default async function DashboardLayout({
   const role = await getUserRole(user.id);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col h-screen bg-slate-50">
       <Navbar user={user} role={role} />
       <main className="flex-1 overflow-auto">
         {children}
