@@ -113,7 +113,7 @@ export default function EkvTable({
   const totalPages = Math.ceil(total / pageSize);
 
   const hasDateFilters = angelegtFrom || angelegtTo || entschiedenFrom || entschiedenTo;
-  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters || auditFilter || careboxFilter;
+  const hasAnyFilter = activeStatus || searchQuery || hasDateFilters || auditFilter || careboxFilter;
 
   function clearAllFilters() {
     router.push(pathname);
@@ -135,7 +135,6 @@ export default function EkvTable({
     } else {
       if (activeStatus)    params.set("status", activeStatus);
       if (searchQuery)     params.set("q", searchQuery);
-      if (kasseFilter)     params.set("kasse", kasseFilter);
       if (angelegtFrom)    params.set("angelegt_from", angelegtFrom);
       if (angelegtTo)      params.set("angelegt_to", angelegtTo);
       if (entschiedenFrom) params.set("entschieden_from", entschiedenFrom);
@@ -222,29 +221,22 @@ export default function EkvTable({
   const grandTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   return (
-    <div className="space-y-4">
-      {/* Search + Filters */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <input
-          type="text"
-          placeholder="Search by name, Versicherten-Nr, KVNr, Reason..."
-          defaultValue={searchQuery}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") setFilter("q", (e.target as HTMLInputElement).value);
-          }}
-          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          suppressHydrationWarning
-        />
-        <input
-          type="text"
-          placeholder="Filter by Kassenname..."
-          defaultValue={kasseFilter}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") setFilter("kasse", (e.target as HTMLInputElement).value);
-          }}
-          className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          suppressHydrationWarning
-        />
+    <div className="space-y-3">
+      {/* Row 1: Search + actions */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name, Versicherten-Nr, KVNr, Kassenname, Reason..."
+            defaultValue={searchQuery}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") setFilter("q", (e.target as HTMLInputElement).value);
+            }}
+            className="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            suppressHydrationWarning
+          />
+        </div>
         <button
           onClick={() => setShowExportModal(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
@@ -262,132 +254,131 @@ export default function EkvTable({
             Clear Filters
           </button>
         )}
-        <div className="flex flex-wrap gap-2">
+      </div>
+
+      {/* Row 2: Status tabs */}
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => setFilter("status", "")}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+            activeStatus === "" ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+          }`}
+          suppressHydrationWarning
+        >
+          All
+          <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
+            activeStatus === "" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+          }`}>
+            {grandTotal}
+          </span>
+        </button>
+        {activeStatusCounts.map(({ status: s, count: c }) => (
           <button
-            onClick={() => setFilter("status", "")}
+            key={s}
+            onClick={() => setFilter("status", s)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              activeStatus === "" ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+              activeStatus === s ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
             suppressHydrationWarning
           >
-            All
+            {s}
             <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-              activeStatus === "" ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+              activeStatus === s ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
             }`}>
-              {grandTotal}
+              {c}
             </span>
           </button>
-          {activeStatusCounts.map(({ status: s, count: c }) => (
-            <button
-              key={s}
-              onClick={() => setFilter("status", s)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                activeStatus === s ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-              }`}
-              suppressHydrationWarning
-            >
-              {s}
-              <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${
-                activeStatus === s ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
-              }`}>
-                {c}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Carebox Status Filter */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Carebox Status:</span>
-        {[
-          { value: "", label: "All" },
-          { value: "empty", label: "Empty" },
-        ].map(({ value, label }) => (
-          <button
-            key={value}
-            onClick={() => setFilter("carebox_filter", value)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              careboxFilter === value
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
-            suppressHydrationWarning
-          >
-            {label}
-          </button>
         ))}
       </div>
 
-      {/* Audit Date Filter */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Audit Date:</span>
-        {[
-          { value: "", label: "All" },
-          { value: "not_audited", label: "Not Audited" },
-          { value: "today", label: "Today" },
-        ].map(({ value, label }) => (
-          <button
-            key={value}
-            onClick={() => setFilter("audit_filter", value)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-              auditFilter === value
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-            }`}
-            suppressHydrationWarning
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {/* Date Filters */}
-      <div className="flex flex-wrap items-end gap-4 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+      {/* Row 3: Secondary filters + date ranges */}
+      <div className="flex flex-wrap items-end gap-6 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+        {/* Carebox Status */}
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-gray-500">KV Angelegt</span>
-          <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Carebox Status</span>
+          <div className="flex gap-1.5">
+            {[{ value: "", label: "All" }, { value: "empty", label: "Empty" }].map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setFilter("carebox_filter", value)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  careboxFilter === value ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+                suppressHydrationWarning
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Audit Date quick filter */}
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Audit Date</span>
+          <div className="flex gap-1.5">
+            {[{ value: "", label: "All" }, { value: "not_audited", label: "Not Audited" }, { value: "today", label: "Today" }].map(({ value, label }) => (
+              <button
+                key={value}
+                onClick={() => setFilter("audit_filter", value)}
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                  auditFilter === value ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                }`}
+                suppressHydrationWarning
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* KV Angelegt date range */}
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">KV Angelegt</span>
+          <div className="flex items-center gap-1.5">
             <input
               type="date"
               defaultValue={angelegtFrom}
               onChange={(e) => setFilter("angelegt_from", e.target.value)}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               suppressHydrationWarning
             />
-            <span className="text-xs text-gray-400">to</span>
+            <span className="text-xs text-gray-400">–</span>
             <input
               type="date"
               defaultValue={angelegtTo}
               onChange={(e) => setFilter("angelegt_to", e.target.value)}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               suppressHydrationWarning
             />
           </div>
         </div>
+
+        {/* KV Entschieden date range */}
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-medium text-gray-500">KV Entschieden</span>
-          <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">KV Entschieden</span>
+          <div className="flex items-center gap-1.5">
             <input
               type="date"
               defaultValue={entschiedenFrom}
               onChange={(e) => setFilter("entschieden_from", e.target.value)}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               suppressHydrationWarning
             />
-            <span className="text-xs text-gray-400">to</span>
+            <span className="text-xs text-gray-400">–</span>
             <input
               type="date"
               defaultValue={entschiedenTo}
               onChange={(e) => setFilter("entschieden_to", e.target.value)}
-              className="border border-gray-200 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-gray-200 rounded-md px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
               suppressHydrationWarning
             />
           </div>
         </div>
+
         {hasDateFilters && (
           <button
             onClick={clearDateFilters}
-            className="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors"
+            className="px-2.5 py-1 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-md transition-colors self-end"
           >
             Clear dates
           </button>
