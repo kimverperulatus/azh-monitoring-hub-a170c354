@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Pencil, X, Check } from "lucide-react";
+import { Pencil, X, Check, Search, RefreshCw } from "lucide-react";
 
 type EkvRecord = {
   id: string;
@@ -65,6 +65,9 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [lookupResult, setLookupResult] = useState<{ updated: number; notFound: number; statusChanged: number } | null>(null);
+  const [lookupError, setLookupError] = useState("");
   const [form, setForm] = useState({
     kv_angelegt:          record.kv_angelegt?.slice(0, 10) ?? "",
     kv_entschieden:       record.kv_entschieden?.slice(0, 10) ?? "",
@@ -83,6 +86,32 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
 
   function handleChange(name: string, value: string) {
     setForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function handleLookup() {
+    setLookupLoading(true);
+    setLookupError("");
+    setLookupResult(null);
+    try {
+      const res = await fetch("/api/zoho/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: [record.id] }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        const msg = json.error ?? "Lookup failed.";
+        setLookupError(msg.includes("Unexpected end of JSON") ? "No Record Found." : msg);
+      } else {
+        setLookupResult({ updated: json.updated, notFound: json.notFound, statusChanged: json.statusChanged ?? 0 });
+        router.refresh();
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setLookupError(msg.includes("Unexpected end of JSON") ? "No Record Found." : `Error: ${msg}`);
+    } finally {
+      setLookupLoading(false);
+    }
   }
 
   async function handleSave() {
@@ -109,14 +138,31 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
         {/* Card header */}
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 bg-gray-50">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Record Details</p>
-          <button
-            onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <Pencil className="w-3 h-3" />
-            Edit
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLookup}
+              disabled={lookupLoading}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+            >
+              {lookupLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Search className="w-3 h-3" />}
+              {lookupLoading ? "Looking up..." : "Lookup Carebox"}
+            </button>
+            <button
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <Pencil className="w-3 h-3" />
+              Edit
+            </button>
+          </div>
         </div>
+        {lookupError && (
+          <p className="text-xs text-red-600 bg-red-50 border-b border-red-100 px-4 py-2">{lookupError}</p>
+        )}
+        {lookupResult && (
+          <p className="text-xs text-green-700 bg-green-50 border-b border-green-100 px-4 py-2">
+            {lookupResult.updated > 0 ? `Found in Zoho — carebox status updated.` : "Not found in Zoho."}</p>
+        )}
         <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
           {/* Row 1: Identifiers */}
           <Field label="KVNr NOVENTI" value={record.kvnr_noventi} />
