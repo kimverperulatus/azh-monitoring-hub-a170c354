@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import EkvTable from "@/components/ekv/EkvTable";
 import ImportModal from "@/components/ekv/ImportModal";
+import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -79,7 +81,16 @@ export default async function EkvPage({
           <h1 className="text-2xl font-bold text-gray-900">EKV Records</h1>
           <p className="text-sm text-gray-500">{count ?? 0} total records</p>
         </div>
-        <ImportModal />
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/ekv/audit"
+            className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors"
+          >
+            <AlertTriangle className="w-4 h-4" />
+            Audit
+          </Link>
+          <ImportModal />
+        </div>
       </div>
       <EkvTable
         records={records ?? []}
