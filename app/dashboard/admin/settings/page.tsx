@@ -112,9 +112,13 @@ export default function AdminSettingsPage() {
     if (!res.ok) {
       const msg = json.error ?? "Token exchange failed.";
       if (msg.includes("invalid_code")) {
-        setExchangeError("Grant code is invalid or already used. Grant codes are single-use and expire quickly — go back to Zoho Self Client and generate a brand new code, then paste it here immediately.");
+        setExchangeError("Grant code is invalid or already used. Grant codes are single-use — generate a brand new code and paste it here immediately.");
+      } else if (msg.includes("invalid_client")) {
+        setExchangeError("Client ID or Client Secret is incorrect. Double-check the credentials match the Self Client app in the Zoho API Console.");
       } else {
-        setExchangeError(msg);
+        // Show full Zoho response to help diagnose
+        const detail = json.zoho_response ? ` (Zoho response: ${JSON.stringify(json.zoho_response)})` : "";
+        setExchangeError(msg + detail);
       }
     } else {
       const refreshToken = json.refresh_token as string;

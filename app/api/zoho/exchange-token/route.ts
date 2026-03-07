@@ -26,24 +26,21 @@ export async function POST(request: NextRequest) {
   }
 
   const tokenHost = ZOHO_TOKEN_HOSTS[datacenter] ?? ZOHO_TOKEN_HOSTS.eu;
-  const params = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id,
-    client_secret,
-    code: grant_code,
-  });
 
-  const res = await fetch(`${tokenHost}/oauth/v2/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: params.toString(),
-  });
+  // Zoho Self Client: send params as URL query string (as documented by Zoho)
+  const url = new URL(`${tokenHost}/oauth/v2/token`);
+  url.searchParams.set("grant_type", "authorization_code");
+  url.searchParams.set("client_id", client_id);
+  url.searchParams.set("client_secret", client_secret);
+  url.searchParams.set("code", grant_code);
 
+  const res = await fetch(url.toString(), { method: "POST" });
   const json = await res.json();
 
   if (!json.refresh_token) {
+    // Return the full Zoho response so it's easier to debug
     return NextResponse.json(
-      { error: `Zoho error: ${json.error ?? json.message ?? JSON.stringify(json)}` },
+      { error: `Zoho error: ${json.error ?? json.message ?? JSON.stringify(json)}`, zoho_response: json },
       { status: 502 }
     );
   }
