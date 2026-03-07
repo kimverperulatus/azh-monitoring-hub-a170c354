@@ -100,7 +100,7 @@ export default async function EkvAuditPage({
   const exportUrl = `/api/ekv/export?ids=${exportIds}&fields=kv_angelegt,kv_entschieden,kvnr_noventi,versichertenvorname,versichertennachname,versicherten_nr,kassenname,status,carebox_status,reasons`;
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
@@ -112,13 +112,13 @@ export default async function EkvAuditPage({
         </Link>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-5 h-5 text-amber-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Status Mismatch Audit</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Status Mismatch Audit</h1>
             <p className="text-sm text-gray-500">
               Records where <strong>Status</strong> ≠ <strong>Carebox Status</strong>
             </p>
@@ -138,7 +138,7 @@ export default async function EkvAuditPage({
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <p className="text-xs text-gray-400 uppercase tracking-wide font-medium">Total Mismatches</p>
           <p className="text-3xl font-bold text-amber-600 mt-1">{mismatches.length}</p>

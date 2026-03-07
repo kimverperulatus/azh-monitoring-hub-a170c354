@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings, Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { UserRole } from "@/lib/auth/role";
@@ -116,27 +116,31 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const initials = user.email?.slice(0, 2).toUpperCase() ?? "??";
 
   return (
     <>
-    <header className="h-14 bg-brand-navy-800 border-b border-brand-navy-900 flex items-center px-6 gap-8 shrink-0 shadow-lg">
+    <header className="h-14 bg-brand-navy-800 border-b border-brand-navy-900 flex items-center px-4 md:px-6 gap-3 md:gap-8 shrink-0 shadow-lg">
       {/* Brand */}
-      <div className="flex items-center gap-2.5 mr-2">
+      <div className="flex items-center gap-2.5 shrink-0">
         <div className="w-7 h-7 rounded-lg bg-brand-red-800 flex items-center justify-center shadow-sm">
           <span className="text-white text-xs font-bold tracking-tight">AZ</span>
         </div>
-        <div className="leading-none">
+        <div className="leading-none hidden sm:block">
           <p className="text-sm font-semibold text-white tracking-tight">Application Status Audits</p>
           <p className="text-[10px] text-brand-navy-300">Carebox Dashboard</p>
         </div>
+        <div className="leading-none sm:hidden">
+          <p className="text-sm font-semibold text-white tracking-tight">AZH</p>
+        </div>
       </div>
 
-      {/* Divider */}
-      <div className="w-px h-5 bg-brand-navy-600" />
+      {/* Divider — desktop only */}
+      <div className="w-px h-5 bg-brand-navy-600 hidden md:block" />
 
-      {/* Nav Links */}
-      <nav className="flex items-center gap-0.5">
+      {/* Nav Links — desktop */}
+      <nav className="hidden md:flex items-center gap-0.5">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href);
           return (
@@ -159,8 +163,8 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* User Menu */}
-      <div className="relative" ref={dropdownRef}>
+      {/* User Menu — desktop */}
+      <div className="relative hidden md:block" ref={dropdownRef}>
         <button
           onClick={() => setDropdownOpen((o) => !o)}
           className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm hover:bg-brand-navy-700 transition-all duration-150"
@@ -209,7 +213,72 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
           </div>
         )}
       </div>
+
+      {/* Hamburger — mobile */}
+      <button
+        onClick={() => setMobileMenuOpen((o) => !o)}
+        className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-brand-navy-200 hover:bg-brand-navy-700 transition-colors"
+        suppressHydrationWarning
+      >
+        {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
     </header>
+
+    {/* Mobile Menu */}
+    {mobileMenuOpen && (
+      <div className="md:hidden bg-brand-navy-900 border-b border-brand-navy-800 px-4 py-3 space-y-1 z-40 shadow-lg">
+        {navItems.map(({ href, label, icon: Icon }) => {
+          const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMobileMenuOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                active
+                  ? "bg-brand-red-800 text-white"
+                  : "text-brand-navy-200 hover:bg-brand-navy-700 hover:text-white"
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </Link>
+          );
+        })}
+        <div className="border-t border-brand-navy-700 pt-2 mt-2 space-y-1">
+          <div className="px-3 py-1.5">
+            <p className="text-[10px] text-brand-navy-300 uppercase tracking-wider">Signed in as</p>
+            <p className="text-xs font-medium text-white truncate mt-0.5">{user.email}</p>
+          </div>
+          {role === "admin" && (
+            <button
+              onClick={() => { setMobileMenuOpen(false); setShowCreateUserModal(true); }}
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-brand-navy-200 hover:bg-brand-navy-700 transition-colors"
+              suppressHydrationWarning
+            >
+              <UserPlus className="w-4 h-4" />
+              Create User
+            </button>
+          )}
+          <button
+            onClick={() => { setMobileMenuOpen(false); setShowPasswordModal(true); }}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-brand-navy-200 hover:bg-brand-navy-700 transition-colors"
+            suppressHydrationWarning
+          >
+            <KeyRound className="w-4 h-4" />
+            Change Password
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-brand-red-500 hover:bg-brand-navy-700 transition-colors"
+            suppressHydrationWarning
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
+        </div>
+      </div>
+    )}
 
     {showPasswordModal && (
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-150">

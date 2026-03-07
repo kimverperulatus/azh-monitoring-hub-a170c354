@@ -52,10 +52,10 @@ export default async function LetterPage({
   const { data: records, count } = await query.range(from, from + pageSize - 1);
 
   return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="p-3 md:p-6 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Scan Letter</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Scan Letter</h1>
           <p className="text-sm text-gray-500">{count ?? 0} total records</p>
         </div>
         <PdfUploadModal />

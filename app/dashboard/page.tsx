@@ -111,7 +111,7 @@ export default async function DashboardPage({
   const letterYearTotal = letterMonthly.reduce((a, b) => a + b, 0);
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <div>
         <h1 className="text-xl font-bold text-gray-900 tracking-tight">Overview</h1>
@@ -120,11 +120,11 @@ export default async function DashboardPage({
 
       {/* EKV Stats */}
       <section>
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2 md:mb-3">
           <span className="w-1.5 h-4 rounded-full bg-brand-red-800 inline-block" />
-          <h2 className="text-sm font-semibold text-brand-navy-800 uppercase tracking-wide">EKV Module</h2>
+          <h2 className="text-xs font-semibold text-brand-navy-800 uppercase tracking-wide">EKV Module</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
           <StatsCard label="Total Records" value={ekvTotal} color="navy" icon="total" />
           {ekvCounts.map(({ status, count }) => (
             <StatsCard key={status} label={status} value={count} color={getColor(status)} />
@@ -134,11 +134,11 @@ export default async function DashboardPage({
 
       {/* Letter Stats */}
       <section>
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-2 md:mb-3">
           <span className="w-1.5 h-4 rounded-full bg-brand-gold-500 inline-block" />
-          <h2 className="text-sm font-semibold text-brand-navy-800 uppercase tracking-wide">Letter Module</h2>
+          <h2 className="text-xs font-semibold text-brand-navy-800 uppercase tracking-wide">Letter Module</h2>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
           <StatsCard label="Total Records" value={letterTotal} color="navy" icon="total" />
           {letterCounts.map(({ status, count }) => (
             <StatsCard key={status} label={status} value={count} color={getColor(status)} />

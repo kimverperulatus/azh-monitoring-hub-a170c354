@@ -36,13 +36,13 @@ export default function StatsCard({
   const IconComp = iconOverride === "total" ? FileText : (labelIconMap[label] ?? Hash);
 
   return (
-    <div className={`rounded-xl border shadow-sm p-4 flex items-start gap-3 hover:shadow-md transition-shadow duration-200 ${cfg.card}`}>
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${cfg.iconBg}`}>
-        <IconComp className={`w-4 h-4 ${cfg.icon}`} />
+    <div className={`rounded-xl border shadow-sm p-2.5 md:p-4 flex items-start gap-2 md:gap-3 hover:shadow-md transition-shadow duration-200 ${cfg.card}`}>
+      <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center shrink-0 ${cfg.iconBg}`}>
+        <IconComp className={`w-3.5 h-3.5 md:w-4 md:h-4 ${cfg.icon}`} />
       </div>
       <div className="min-w-0">
-        <p className="text-xs font-medium text-gray-500 leading-none truncate">{label}</p>
-        <p className={`text-2xl font-bold mt-1 leading-none tabular-nums ${cfg.value}`}>{value.toLocaleString()}</p>
+        <p className="text-[10px] md:text-xs font-medium text-gray-500 leading-none truncate">{label}</p>
+        <p className={`text-xl md:text-2xl font-bold mt-1 leading-none tabular-nums ${cfg.value}`}>{value.toLocaleString()}</p>
       </div>
     </div>
   );

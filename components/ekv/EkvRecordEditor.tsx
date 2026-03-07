@@ -117,7 +117,7 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
             Edit
           </button>
         </div>
-        <div className="p-4 grid grid-cols-4 gap-x-6 gap-y-3">
+        <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
           {/* Row 1: Identifiers */}
           <Field label="KVNr NOVENTI" value={record.kvnr_noventi} />
           <Field label="KVNr LE" value={record.kvnr_le} />
@@ -150,7 +150,7 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
               <span className="text-sm text-gray-400">-</span>
             )}
           </div>
-          <div className="col-span-2 flex flex-col gap-0.5">
+          <div className="col-span-2 md:col-span-2 flex flex-col gap-0.5">
             <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Reasons</span>
             <span className="text-sm text-gray-800">{record.reasons || "-"}</span>
           </div>
@@ -183,7 +183,7 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
         </div>
       </div>
       {error && <p className="text-xs text-red-600 bg-red-50 border-b border-red-200 px-4 py-2">{error}</p>}
-      <div className="p-4 grid grid-cols-4 gap-x-4 gap-y-3">
+      <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-3">
         <InputField label="KVNr NOVENTI" name="kvnr_noventi" value={form.kvnr_noventi} onChange={handleChange} />
         <InputField label="KVNr LE" name="kvnr_le" value={form.kvnr_le} onChange={handleChange} />
         <InputField label="LE - IK" name="le_ik" value={form.le_ik} onChange={handleChange} />
@@ -211,7 +211,7 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
             ))}
           </select>
         </div>
-        <div className="col-span-3 flex flex-col gap-0.5">
+        <div className="col-span-2 md:col-span-3 flex flex-col gap-0.5">
           <label className="text-[10px] font-medium text-gray-400 uppercase tracking-wide">Reasons</label>
           <textarea
             value={form.reasons}

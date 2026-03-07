@@ -69,7 +69,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
       <EkvRecordEditor record={record} />
 
       {/* Timestamps + Notes side by side */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Timestamps</p>
           <div className="space-y-1.5">
@@ -78,7 +78,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
             <Field label="Audit Date" value={auditDate} />
           </div>
         </div>
-        <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-3 space-y-2">
+        <div className="md:col-span-2 bg-white rounded-xl border border-gray-200 p-3 space-y-2">
           <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Notes</p>
           <NoteEditor recordId={record.id} initialNote={record.notes ?? null} />
         </div>
