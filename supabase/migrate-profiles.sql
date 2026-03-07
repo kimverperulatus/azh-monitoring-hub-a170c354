@@ -9,7 +9,7 @@ create table if not exists profiles (
 alter table profiles enable row level security;
 
 -- Allow users to read their own profile
-create policy if not exists "Users can read own profile"
+create policy "Users can read own profile"
   on profiles for select
   using (auth.uid() = id);
 
