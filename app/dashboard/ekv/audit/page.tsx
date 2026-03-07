@@ -58,6 +58,9 @@ export default async function EkvAuditPage() {
     ABGELEHNT: "Rejected",
     REJECTED: "Rejected",
     "ABGELEHNT/REJECTED": "Rejected",
+    GENEHMIGT: "Approved",
+    APPROVED: "Approved",
+    "GENEHMIGT/APPROVED": "Approved",
   };
 
   function resolveCarebox(careboxStatus: string): string {
