@@ -5,17 +5,19 @@ import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
+import type { UserRole } from "@/lib/auth/role";
 import { useState, useRef, useEffect } from "react";
 
-const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/ekv", label: "EKV", icon: FileText },
-  { href: "/dashboard/letter", label: "Letter", icon: Mail },
-  { href: "/dashboard/logs", label: "Logs", icon: ScrollText },
-  { href: "/dashboard/admin/settings", label: "Settings", icon: Settings },
+const allNavItems = [
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, adminOnly: false },
+  { href: "/dashboard/ekv", label: "EKV", icon: FileText, adminOnly: false },
+  { href: "/dashboard/letter", label: "Letter", icon: Mail, adminOnly: false },
+  { href: "/dashboard/logs", label: "Logs", icon: ScrollText, adminOnly: false },
+  { href: "/dashboard/admin/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
-export default function Navbar({ user }: { user: User }) {
+export default function Navbar({ user, role }: { user: User; role: UserRole }) {
+  const navItems = allNavItems.filter((item) => !item.adminOnly || role === "admin");
   const pathname = usePathname();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -29,6 +31,7 @@ export default function Navbar({ user }: { user: User }) {
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
+  const [newUserRole, setNewUserRole] = useState<"admin" | "support">("support");
   const [cuError, setCuError] = useState("");
   const [cuSuccess, setCuSuccess] = useState("");
   const [cuLoading, setCuLoading] = useState(false);
@@ -81,7 +84,7 @@ export default function Navbar({ user }: { user: User }) {
     const res = await fetch("/api/admin/create-user", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: newUserEmail, password: newUserPassword }),
+      body: JSON.stringify({ email: newUserEmail, password: newUserPassword, role: newUserRole }),
     });
     const json = await res.json();
     setCuLoading(false);
@@ -100,6 +103,7 @@ export default function Navbar({ user }: { user: User }) {
     setCuSuccess("");
     setNewUserEmail("");
     setNewUserPassword("");
+    setNewUserRole("support");
   }
 
   useEffect(() => {
@@ -175,14 +179,16 @@ export default function Navbar({ user }: { user: User }) {
               <p className="text-xs text-gray-400">Signed in as</p>
               <p className="text-sm font-medium text-gray-800 truncate">{user.email}</p>
             </div>
-            <button
-              onClick={() => { setDropdownOpen(false); setShowCreateUserModal(true); }}
-              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-              suppressHydrationWarning
-            >
-              <UserPlus className="w-4 h-4" />
-              Create User
-            </button>
+            {role === "admin" && (
+              <button
+                onClick={() => { setDropdownOpen(false); setShowCreateUserModal(true); }}
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                suppressHydrationWarning
+              >
+                <UserPlus className="w-4 h-4" />
+                Create User
+              </button>
+            )}
             <button
               onClick={() => { setDropdownOpen(false); setShowPasswordModal(true); }}
               className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
@@ -284,6 +290,18 @@ export default function Navbar({ user }: { user: User }) {
                 placeholder="••••••••"
                 suppressHydrationWarning
               />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <select
+                value={newUserRole}
+                onChange={(e) => setNewUserRole(e.target.value as "admin" | "support")}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                suppressHydrationWarning
+              >
+                <option value="support">Support</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
             {cuError && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{cuError}</p>}
             {cuSuccess && <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">{cuSuccess}</p>}

@@ -9,10 +9,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { email, password } = await request.json();
+  const { email, password, role } = await request.json();
   if (!email || !password) {
     return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
   }
+
+  const validRoles = ["admin", "support"];
+  const assignedRole = validRoles.includes(role) ? role : "support";
 
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.createUser({
@@ -24,6 +27,9 @@ export async function POST(request: NextRequest) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Insert profile with role
+  await admin.from("profiles").insert({ id: data.user.id, role: assignedRole });
 
   return NextResponse.json({ user: data.user });
 }
