@@ -284,9 +284,6 @@ export default function LetterTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Health Insurance Provider</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Date of Letter</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Insurance Number</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">First Name</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Last Name</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Approval ID</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Valid Until</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">File Name</th>
@@ -326,9 +323,6 @@ export default function LetterTable({
                   </td>
                   <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{record.health_insurance_provider ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
-                  <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.insurance_number ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700">{record.first_name ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700">{record.last_name ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.approval_id ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
                   <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate" title={record.file_name ?? ""}>{record.file_name ?? "-"}</td>
@@ -364,7 +358,7 @@ export default function LetterTable({
             })}
             {!records.length && (
               <tr>
-                <td colSpan={isAdmin ? 14 : 13} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={isAdmin ? 11 : 10} className="px-4 py-8 text-center text-gray-400">
                   No records found
                 </td>
               </tr>
