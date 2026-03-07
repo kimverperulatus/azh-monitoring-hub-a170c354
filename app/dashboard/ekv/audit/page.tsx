@@ -31,11 +31,8 @@ function formatDate(val: string | null) {
 export default async function EkvAuditPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<Record<string, never>>;
 }) {
-  const { filter } = await searchParams;
-  const showNotAudited = filter === "not_audited";
-
   const supabase = await createClient();
   const admin = createAdminClient();
 
@@ -56,8 +53,6 @@ export default async function EkvAuditPage({
     )
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
-
-  if (showNotAudited) recordsQuery = recordsQuery.is("audit_date", null);
 
   const { data: mismatchRecords } = await recordsQuery;
 
@@ -116,16 +111,6 @@ export default async function EkvAuditPage({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <a
-            href={showNotAudited ? "/dashboard/ekv/audit" : "/dashboard/ekv/audit?filter=not_audited"}
-            className={`px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-              showNotAudited
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            Not Yet Audited
-          </a>
           {mismatches.length > 0 && (
             <a
               href={exportUrl}
