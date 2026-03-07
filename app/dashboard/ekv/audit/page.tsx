@@ -52,7 +52,7 @@ export default async function EkvAuditPage({
   let recordsQuery = supabase
     .from("ekv_records")
     .select(
-      "id, kv_angelegt, kv_entschieden, kvnr_noventi, versichertenvorname, versichertennachname, versicherten_nr, kassenname, status, carebox_status, reasons, audit_date",
+      "id, kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, notes, status, carebox_status, reasons, audit_date",
     )
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
@@ -91,7 +91,7 @@ export default async function EkvAuditPage({
   const exportUrl = `/api/ekv/export?ids=${exportIds}&fields=kv_angelegt,kv_entschieden,kvnr_noventi,versichertenvorname,versichertennachname,versicherten_nr,kassenname,status,carebox_status,reasons`;
 
   return (
-    <div className="p-6 space-y-5 max-w-7xl">
+    <div className="p-6 space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
@@ -168,42 +168,58 @@ export default async function EkvAuditPage({
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-          <table className="w-full text-sm whitespace-nowrap">
+          <table className="w-full text-xs whitespace-nowrap">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">KV Angelegt</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr NOVENTI</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Name</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Versicherten-Nr</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Carebox Status</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Audit Date</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">KV Angelegt</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">KV Entschieden</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">KVNr NOVENTI</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">KVNr LE</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">LE IK</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">LE KdNr</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Name</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Versicherten-Nr</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Kassenname</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Kassen IK</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Carebox Status</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Reason</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Notes</th>
+                <th className="text-left px-2 py-2 font-medium text-gray-600">Audit Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {mismatches.map((record) => (
                 <tr key={record.id} className="hover:bg-amber-50 transition-colors">
-                  <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_angelegt)}</td>
-                  <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_noventi ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700">
+                  <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_angelegt)}</td>
+                  <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_entschieden)}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kvnr_noventi ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kvnr_le ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.le_ik ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.le_kdnr ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-700">
                     {[record.versichertenvorname, record.versichertennachname].filter(Boolean).join(" ") || "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.versicherten_nr ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700">{record.kassenname ?? "-"}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.versicherten_nr ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-700">{record.kassenname ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kassen_ik ?? "-"}</td>
+                  <td className="px-2 py-2">
                     <StatusBadge value={record.status} />
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     <StatusBadge value={record.carebox_status} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500 max-w-[200px]">
+                  <td className="px-2 py-2 text-gray-500 max-w-[150px]">
                     {record.reasons ? (
-                      <span className="block truncate text-xs" title={record.reasons}>{record.reasons}</span>
+                      <span className="block truncate" title={record.reasons}>{record.reasons}</span>
                     ) : "-"}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{formatDate(record.audit_date)}</td>
+                  <td className="px-2 py-2 text-gray-500 max-w-[150px]">
+                    {record.notes ? (
+                      <span className="block truncate" title={record.notes}>{record.notes}</span>
+                    ) : "-"}
+                  </td>
+                  <td className="px-2 py-2 text-gray-600">{formatDate(record.audit_date)}</td>
                 </tr>
               ))}
             </tbody>
