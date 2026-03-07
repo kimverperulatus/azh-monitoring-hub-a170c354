@@ -32,7 +32,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">AZH Monitoring</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Application Status Audits</h1>
           <p className="text-sm text-gray-500 mt-1">Carebox EKV & Letter Dashboard</p>
         </div>
 

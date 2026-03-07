@@ -27,7 +27,7 @@ export default function Sidebar({ user }: { user: User }) {
   return (
     <aside className="w-60 bg-white border-r border-gray-200 flex flex-col">
       <div className="px-6 py-5 border-b border-gray-200">
-        <h1 className="font-bold text-gray-900 text-lg">AZH Monitoring</h1>
+        <h1 className="font-bold text-gray-900 text-lg">Application Status Audits</h1>
         <p className="text-xs text-gray-400 mt-0.5">Carebox Dashboard</p>
       </div>
 

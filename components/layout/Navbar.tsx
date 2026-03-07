@@ -47,7 +47,7 @@ export default function Navbar({ user }: { user: User }) {
           <span className="text-white text-xs font-bold">AZ</span>
         </div>
         <div className="leading-none">
-          <p className="text-sm font-semibold text-gray-900">AZH Monitoring</p>
+          <p className="text-sm font-semibold text-gray-900">Application Status Audits</p>
           <p className="text-[10px] text-gray-400">Carebox Dashboard</p>
         </div>
       </div>
