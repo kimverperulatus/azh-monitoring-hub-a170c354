@@ -19,6 +19,15 @@ const FIELDS = [
     ],
   },
   {
+    section: "Azure AI Credentials",
+    description: "Azure OpenAI service credentials for AI-powered PDF analysis.",
+    items: [
+      { key: "azure_ai_endpoint",   label: "Endpoint",        type: "text",     placeholder: "https://your-resource.openai.azure.com/" },
+      { key: "azure_ai_key",        label: "API Key",         type: "password", placeholder: "••••••••••••••••" },
+      { key: "azure_ai_deployment", label: "Deployment Name", type: "text",     placeholder: "gpt-4o" },
+    ],
+  },
+  {
     section: "CRM Module & Field Mapping",
     description: "Enter the exact API names of the Zoho CRM module and fields. These must match your Zoho configuration.",
     items: [

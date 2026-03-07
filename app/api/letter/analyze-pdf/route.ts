@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import Anthropic from "@anthropic-ai/sdk";
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { createAdminClient } from "@/lib/supabase/server";
+import { AzureOpenAI } from "openai";
+import pdfParse from "pdf-parse";
 
 const EXTRACTION_PROMPT = `You are analyzing a German health insurance letter/document. Extract the following fields from the PDF and return ONLY a valid JSON object with no additional text or explanation.
 
@@ -40,41 +40,54 @@ export async function POST(request: NextRequest) {
   if (file.type !== "application/pdf") return NextResponse.json({ error: "File must be a PDF" }, { status: 400 });
   if (file.size > 10 * 1024 * 1024) return NextResponse.json({ error: "File too large (max 10 MB)" }, { status: 400 });
 
-  const buffer = await file.arrayBuffer();
-  const base64 = Buffer.from(buffer).toString("base64");
+  // Load Azure AI credentials from admin settings
+  const admin = createAdminClient();
+  const { data: settingsRows } = await admin
+    .from("app_settings")
+    .select("key, value")
+    .in("key", ["azure_ai_endpoint", "azure_ai_key", "azure_ai_deployment"]);
 
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY is not configured" }, { status: 500 });
+  const settings: Record<string, string> = {};
+  for (const row of settingsRows ?? []) {
+    settings[row.key] = row.value ?? "";
+  }
+
+  const endpoint = settings.azure_ai_endpoint?.trim();
+  const apiKey = settings.azure_ai_key?.trim();
+  const deployment = settings.azure_ai_deployment?.trim();
+
+  if (!endpoint || !apiKey || !deployment) {
+    return NextResponse.json({ error: "Azure AI credentials are not configured. Set them in Admin → Settings." }, { status: 500 });
+  }
+
+  // Extract text from PDF
+  const buffer = Buffer.from(await file.arrayBuffer());
+  let pdfText: string;
+  try {
+    const parsed = await pdfParse(buffer);
+    pdfText = parsed.text?.trim();
+    if (!pdfText) {
+      return NextResponse.json({ error: "Could not extract text from PDF. The file may be scanned/image-only." }, { status: 400 });
+    }
+  } catch {
+    return NextResponse.json({ error: "Failed to parse PDF." }, { status: 400 });
   }
 
   try {
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-6",
+    const client = new AzureOpenAI({ endpoint, apiKey, apiVersion: "2024-02-01" });
+
+    const response = await client.chat.completions.create({
+      model: deployment,
       max_tokens: 1024,
       messages: [
         {
           role: "user",
-          content: [
-            {
-              type: "document",
-              source: {
-                type: "base64",
-                media_type: "application/pdf",
-                data: base64,
-              },
-            },
-            {
-              type: "text",
-              text: EXTRACTION_PROMPT,
-            },
-          ],
+          content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}`,
         },
       ],
     });
 
-    const text = message.content.find((c) => c.type === "text")?.text ?? "";
-
-    // Strip markdown code fences if present
+    const text = response.choices[0]?.message?.content ?? "";
     const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/, "").trim();
 
     let extracted: Record<string, string | null>;
