@@ -40,6 +40,7 @@ type EkvRecord = {
   status: string;
   carebox_status: string | null;
   reasons: string | null;
+  audit_date: string | null;
 };
 
 const statusStyles: Record<string, string> = {
@@ -430,6 +431,7 @@ export default function EkvTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Carebox Status</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Audit Date</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -473,11 +475,12 @@ export default function EkvTable({
                     <span className="text-gray-400 text-xs">-</span>
                   )}
                 </td>
+                <td className="px-4 py-3 text-gray-600 text-xs">{formatDate(record.audit_date)}</td>
               </tr>
             ))}
             {!records.length && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-gray-400">
                   No EKV records found
                 </td>
               </tr>

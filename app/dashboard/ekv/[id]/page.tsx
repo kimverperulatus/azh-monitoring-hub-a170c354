@@ -135,6 +135,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
             <div className="grid grid-cols-2 gap-4">
               <Field label="Created At" value={record.created_at ? format(new Date(record.created_at), "dd.MM.yyyy HH:mm") : null} />
               <Field label="Updated At" value={record.updated_at ? format(new Date(record.updated_at), "dd.MM.yyyy HH:mm") : null} />
+              <Field label="Audit Date" value={record.audit_date ? format(new Date(record.audit_date), "dd.MM.yyyy HH:mm") : null} />
             </div>
           </section>
         </div>
