@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Navy background -->
+  <rect width="32" height="32" rx="7" fill="#1e3a5f"/>
+  <!-- Red accent bar (monitoring line) -->
+  <rect x="6" y="22" width="20" height="2.5" rx="1.25" fill="#9b1c1c"/>
+  <!-- "A" lettermark in white -->
+  <path d="M16 7L9 21h3.2l1.3-3h5l1.3 3H23L16 7zm-1.6 8.5L16 12l1.6 3.5h-3.2z" fill="white"/>
+</svg>
