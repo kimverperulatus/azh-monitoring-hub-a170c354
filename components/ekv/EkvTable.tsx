@@ -83,6 +83,11 @@ export default function EkvTable({
   const totalPages = Math.ceil(total / pageSize);
 
   const hasDateFilters = angelegtFrom || angelegtTo || entschiedenFrom || entschiedenTo;
+  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters;
+
+  function clearAllFilters() {
+    router.push(pathname);
+  }
 
   function clearDateFilters() {
     const params = new URLSearchParams(searchParams.toString());
@@ -138,6 +143,15 @@ export default function EkvTable({
           <Download className="w-4 h-4" />
           Export CSV
         </button>
+        {hasAnyFilter && (
+          <button
+            onClick={clearAllFilters}
+            className="px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 transition-colors whitespace-nowrap"
+            suppressHydrationWarning
+          >
+            Clear Filters
+          </button>
+        )}
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("status", "")}
