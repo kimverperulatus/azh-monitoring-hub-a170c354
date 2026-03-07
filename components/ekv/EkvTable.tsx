@@ -218,7 +218,11 @@ export default function EkvTable({
           </thead>
           <tbody className="divide-y divide-gray-100">
             {records.map((record) => (
-              <tr key={record.id} className="hover:bg-gray-50">
+              <tr
+                key={record.id}
+                className="hover:bg-blue-50 cursor-pointer"
+                onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
+              >
                 <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_angelegt)}</td>
                 <td className="px-4 py-3 text-gray-700">{formatDate(record.kv_entschieden)}</td>
                 <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_noventi ?? "-"}</td>
