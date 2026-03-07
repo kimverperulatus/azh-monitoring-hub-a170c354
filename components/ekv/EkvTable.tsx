@@ -189,13 +189,15 @@ export default function EkvTable({
       });
       const json = await res.json();
       if (!res.ok) {
-        setLookupError(json.error ?? "Lookup failed.");
+        const errMsg = json.error ?? "Lookup failed.";
+        setLookupError(errMsg.includes("Unexpected end of JSON") ? "No Record Found." : errMsg);
       } else {
         setLookupResult({ updated: json.updated, notFound: json.notFound, statusChanged: json.statusChanged ?? 0 });
         router.refresh();
       }
     } catch (err) {
-      setLookupError(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      const msg = err instanceof Error ? err.message : String(err);
+      setLookupError(msg.includes("Unexpected end of JSON") ? "No Record Found." : `Error: ${msg}`);
     } finally {
       setLookupLoading(false);
     }
