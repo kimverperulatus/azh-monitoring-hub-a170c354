@@ -7,7 +7,7 @@ const FIELDS = [
   {
     section: "Zoho OAuth Credentials",
     items: [
-      { key: "zoho_client_id",      label: "Client ID",      type: "text",     placeholder: "1000.XXXXXXXXXXXX..." },
+      { key: "zoho_client_id",      label: "Client ID",      type: "password", placeholder: "1000.XXXXXXXXXXXX..." },
       { key: "zoho_client_secret",  label: "Client Secret",  type: "password", placeholder: "••••••••••••••••" },
       { key: "zoho_refresh_token",  label: "Refresh Token",  type: "password", placeholder: "1000.XXXXXXXXXXXX..." },
     ],
@@ -22,7 +22,7 @@ const FIELDS = [
     section: "Azure AI Credentials",
     description: "Azure OpenAI service credentials for AI-powered PDF analysis.",
     items: [
-      { key: "azure_ai_endpoint",   label: "Endpoint",        type: "text",     placeholder: "https://your-resource.openai.azure.com/" },
+      { key: "azure_ai_endpoint",   label: "Endpoint",        type: "password", placeholder: "https://your-resource.openai.azure.com/" },
       { key: "azure_ai_key",        label: "API Key",         type: "password", placeholder: "••••••••••••••••" },
       { key: "azure_ai_deployment", label: "Deployment Name", type: "text",     placeholder: "gpt-4o" },
       { key: "azure_ai_version",    label: "API Version",     type: "text",     placeholder: "2024-10-21" },
