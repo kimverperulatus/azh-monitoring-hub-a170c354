@@ -16,6 +16,7 @@ type EkvRecord = {
   versicherten_nr: string | null;
   kassen_ik: string | null;
   kassenname: string | null;
+  notes: string | null;
   status: string;
   reasons: string | null;
 };
@@ -213,6 +214,7 @@ export default function EkvTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr NOVENTI</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr LE</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Notes</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
             </tr>
           </thead>
@@ -228,6 +230,11 @@ export default function EkvTable({
                 <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_noventi ?? "-"}</td>
                 <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_le ?? "-"}</td>
                 <td className="px-4 py-3 text-gray-700">{record.kassenname ?? "-"}</td>
+                <td className="px-4 py-3 text-gray-500 max-w-[200px]">
+                  {record.notes ? (
+                    <span className="block truncate text-xs" title={record.notes}>{record.notes}</span>
+                  ) : "-"}
+                </td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${getStatusStyle(record.status)}`}>
                     {record.status}

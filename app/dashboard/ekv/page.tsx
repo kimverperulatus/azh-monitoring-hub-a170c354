@@ -45,7 +45,7 @@ export default async function EkvPage({
   let recordsQuery = supabase
     .from("ekv_records")
     .select(
-      "id, kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, status, reasons",
+      "id, kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, notes, status, reasons",
       { count: "exact" }
     )
     .order("kv_angelegt", { ascending: false })
