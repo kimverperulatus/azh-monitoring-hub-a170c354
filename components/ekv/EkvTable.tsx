@@ -79,7 +79,7 @@ export default function EkvTable({
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedFields, setSelectedFields] = useState<string[]>(EXPORT_FIELDS.map((f) => f.key));
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const MAX_SELECTION = 200;
+  const MAX_SELECTION = 50;
   const [lookupLoading, setLookupLoading] = useState(false);
   const [lookupResult, setLookupResult] = useState<{ updated: number; notFound: number; statusChanged: number } | null>(null);
   const [lookupError, setLookupError] = useState("");
@@ -555,28 +555,6 @@ export default function EkvTable({
       <div className="flex items-center justify-between text-sm text-gray-500">
         <div className="flex items-center gap-3">
           <span>Page {page} of {totalPages} ({total} records)</span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400">Per page:</span>
-            {[10, 50, 100, 200].map((size) => (
-              <button
-                key={size}
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams.toString());
-                  params.set("page_size", String(size));
-                  params.delete("page");
-                  router.push(`${pathname}?${params.toString()}`);
-                }}
-                className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                  pageSize === size
-                    ? "bg-blue-600 text-white"
-                    : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
-                }`}
-                suppressHydrationWarning
-              >
-                {size}
-              </button>
-            ))}
-          </div>
         </div>
         {totalPages > 1 && (
           <div className="flex gap-2">

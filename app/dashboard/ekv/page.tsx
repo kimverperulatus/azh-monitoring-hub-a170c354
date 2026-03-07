@@ -39,8 +39,7 @@ export default async function EkvPage({
   const supabase = await createClient();
   const { status, page: pageParam, q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to, audit_filter, carebox_filter, page_size } = await searchParams;
   const page = parseInt(pageParam ?? "1");
-  const allowedSizes = [10, 50, 100, 200];
-  const pageSize = allowedSizes.includes(Number(page_size)) ? Number(page_size) : 50;
+  const pageSize = 50;
   const from = (page - 1) * pageSize;
   const filters: Filters = { q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to };
 
