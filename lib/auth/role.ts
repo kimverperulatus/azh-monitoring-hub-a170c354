@@ -10,7 +10,7 @@ export async function getUserRole(userId: string): Promise<UserRole> {
     .select("role")
     .eq("id", userId)
     .single();
-  return (data?.role as UserRole) ?? "admin";
+  return (data?.role as UserRole) ?? "support";
 }
 
 /**
