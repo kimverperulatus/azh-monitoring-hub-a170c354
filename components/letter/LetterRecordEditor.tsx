@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Pencil, X, Check } from "lucide-react";
+import { Pencil, X, Check, CheckCircle2, AlertCircle } from "lucide-react";
 
 type LetterRecord = {
   id: string;
@@ -24,6 +24,8 @@ type LetterRecord = {
   house_number: string | null;
   post_code: string | null;
   city: string | null;
+  file_name: string | null;
+  scan_status: string | null;
 };
 
 const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads"];
@@ -191,6 +193,28 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
           </div>
 
           <div className="space-y-5">
+            {(record.file_name || record.scan_status) && (
+              <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+                <h2 className="text-sm font-semibold text-gray-700">Scan Info</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="File Name" value={record.file_name} />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Scan Status</span>
+                    {record.scan_status === "success" && (
+                      <span className="flex items-center gap-1 text-sm font-medium text-green-700">
+                        <CheckCircle2 className="w-4 h-4" /> Success
+                      </span>
+                    )}
+                    {record.scan_status === "error" && (
+                      <span className="flex items-center gap-1 text-sm font-medium text-red-600">
+                        <AlertCircle className="w-4 h-4" /> Error
+                      </span>
+                    )}
+                    {!record.scan_status && <span className="text-sm text-gray-800">-</span>}
+                  </div>
+                </div>
+              </section>
+            )}
             <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
               <h2 className="text-sm font-semibold text-gray-700">Insurance</h2>
               <div className="grid grid-cols-2 gap-4">
