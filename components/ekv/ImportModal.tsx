@@ -256,6 +256,17 @@ export default function ImportModal() {
       );
     }
 
+    // Log import activity
+    const parts: string[] = [];
+    if (inserted > 0) parts.push(`${inserted} new records imported`);
+    if (updated > 0) parts.push(`${updated} records updated`);
+    if (errors > 0) parts.push(`${errors} failed`);
+    await supabase.from("activity_logs").insert({
+      module: "ekv",
+      action: `Import: ${parts.join(", ") || "no changes"}`,
+      user_id: session?.user?.id ?? null,
+    });
+
     setResult({ inserted, updated, errors, errorMessages });
     setImporting(false);
     router.refresh();

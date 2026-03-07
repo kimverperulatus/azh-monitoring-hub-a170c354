@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import StatsCard from "@/components/dashboard/StatsCard";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 
+export const dynamic = "force-dynamic";
+
 const STATUS_COLORS: Record<string, "yellow" | "green" | "red" | "orange" | "gray" | "blue"> = {
   Pending:       "yellow",
   Approved:      "green",

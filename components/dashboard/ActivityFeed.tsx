@@ -1,4 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
+import { Upload } from "lucide-react";
 
 type Activity = {
   id: string;
@@ -7,6 +8,10 @@ type Activity = {
   record_id: string;
   timestamp: string;
 };
+
+function isImport(action: string) {
+  return action?.toLowerCase().startsWith("import:");
+}
 
 export default function ActivityFeed({ activities }: { activities: Activity[] }) {
   if (!activities.length) {
@@ -30,7 +35,14 @@ export default function ActivityFeed({ activities }: { activities: Activity[] })
           >
             {activity.module?.toUpperCase()}
           </span>
-          <span className="text-sm text-gray-700 flex-1">{activity.action}</span>
+          {isImport(activity.action) ? (
+            <span className="flex items-center gap-1.5 text-sm text-gray-700 flex-1">
+              <Upload className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" />
+              {activity.action.replace(/^import:\s*/i, "")}
+            </span>
+          ) : (
+            <span className="text-sm text-gray-700 flex-1">{activity.action}</span>
+          )}
           <span className="text-xs text-gray-400 whitespace-nowrap">
             {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
           </span>
