@@ -20,7 +20,7 @@ function applyFilters(query: any, filters: Filters) {
   const { q, kasse, angelegt_from, angelegt_to, entschieden_from, entschieden_to } = filters;
   if (kasse)            query = query.ilike("kassenname", `%${kasse}%`);
   if (q)                query = query.or(
-    `versichertenvorname.ilike.%${q}%,versichertennachname.ilike.%${q}%,versicherten_nr.ilike.%${q}%,kvnr_noventi.ilike.%${q}%,kassenname.ilike.%${q}%`
+    `versichertenvorname.ilike.%${q}%,versichertennachname.ilike.%${q}%,versicherten_nr.ilike.%${q}%,kvnr_noventi.ilike.%${q}%,kassenname.ilike.%${q}%,reasons.ilike.%${q}%`
   );
   if (angelegt_from)    query = query.gte("kv_angelegt", angelegt_from);
   if (angelegt_to)      query = query.lte("kv_angelegt", angelegt_to);

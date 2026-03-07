@@ -98,7 +98,7 @@ export default function EkvTable({
       <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
-          placeholder="Search by name, Versicherten-Nr, KVNr..."
+          placeholder="Search by name, Versicherten-Nr, KVNr, Reason..."
           defaultValue={searchQuery}
           onKeyDown={(e) => {
             if (e.key === "Enter") setFilter("q", (e.target as HTMLInputElement).value);
