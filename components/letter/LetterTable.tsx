@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Eye, Trash2 } from "lucide-react";
+import { Eye, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
 type LetterRecord = {
@@ -18,6 +18,8 @@ type LetterRecord = {
   last_name: string | null;
   approval_id: string | null;
   valid_until: string | null;
+  file_name: string | null;
+  scan_status: string | null;
 };
 
 function formatDate(val: string | null) {
@@ -144,6 +146,8 @@ export default function LetterTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">Last Name</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Approval ID</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Valid Until</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">File Name</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Scan</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -183,6 +187,20 @@ export default function LetterTable({
                   <td className="px-4 py-3 text-gray-700">{record.last_name ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.approval_id ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate" title={record.file_name ?? ""}>{record.file_name ?? "-"}</td>
+                  <td className="px-4 py-3">
+                    {record.scan_status === "success" && (
+                      <span className="flex items-center gap-1 text-xs font-medium text-green-700">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Success
+                      </span>
+                    )}
+                    {record.scan_status === "error" && (
+                      <span className="flex items-center gap-1 text-xs font-medium text-red-600">
+                        <AlertCircle className="w-3.5 h-3.5" /> Error
+                      </span>
+                    )}
+                    {!record.scan_status && <span className="text-gray-400 text-xs">-</span>}
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
@@ -197,7 +215,7 @@ export default function LetterTable({
             })}
             {!records.length && (
               <tr>
-                <td colSpan={isAdmin ? 11 : 10} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={isAdmin ? 13 : 12} className="px-4 py-8 text-center text-gray-400">
                   No records found
                 </td>
               </tr>
