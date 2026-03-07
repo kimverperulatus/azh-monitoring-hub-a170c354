@@ -548,7 +548,27 @@ export default function EkvTable({
 
       {/* Pagination */}
       <div className="flex items-center justify-between text-sm text-gray-500">
-        <span className="text-xs text-gray-400">Page <span className="font-medium text-gray-600">{page}</span> of <span className="font-medium text-gray-600">{totalPages}</span> &nbsp;·&nbsp; <span className="font-medium text-gray-600">{total.toLocaleString()}</span> records</span>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-400">Page <span className="font-medium text-gray-600">{page}</span> of <span className="font-medium text-gray-600">{totalPages}</span> &nbsp;·&nbsp; <span className="font-medium text-gray-600">{total.toLocaleString()}</span> records</span>
+          <div className="flex items-center gap-1.5">
+            {[10, 20, 50, 100].map((n) => (
+              <button
+                key={n}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  params.set("page_size", String(n));
+                  params.delete("page");
+                  router.push(`${pathname}?${params.toString()}`);
+                }}
+                className={`px-2 py-1 rounded-md text-xs font-medium transition-colors ${
+                  pageSize === n ? "bg-brand-navy-800 text-white" : "bg-white border border-gray-200 text-gray-500 hover:bg-gray-50"
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
         {totalPages > 1 && (
           <div className="flex gap-1.5">
             <button
