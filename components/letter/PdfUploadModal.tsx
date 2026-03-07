@@ -78,7 +78,22 @@ export default function PdfUploadModal() {
         }
       }
 
-      // Step 2: Save to DB (success or error record)
+      // Step 2: Upload PDF to storage
+      let pdf_url: string | null = null;
+      try {
+        const storagePath = `${Date.now()}-${file.name}`;
+        const { data: storageData, error: storageError } = await supabase.storage
+          .from("letter-pdfs")
+          .upload(storagePath, file, { contentType: "application/pdf" });
+        if (!storageError && storageData) {
+          const { data: { publicUrl } } = supabase.storage.from("letter-pdfs").getPublicUrl(storageData.path);
+          pdf_url = publicUrl;
+        }
+      } catch {
+        // storage upload is best-effort; continue without it
+      }
+
+      // Step 3: Save to DB (success or error record)
       updateStatus(i, "saving");
 
       const payload: Record<string, string | null> = {
@@ -86,6 +101,7 @@ export default function PdfUploadModal() {
         scan_status: analyzeError ? "error" : "success",
         ...(extracted ?? {}),
         ...(fallbackSummary ? { ai_summary: fallbackSummary } : {}),
+        ...(pdf_url ? { pdf_url } : {}),
       };
 
       const { error: dbError } = await supabase.from("letter_records").insert(payload);

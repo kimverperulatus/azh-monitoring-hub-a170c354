@@ -28,6 +28,7 @@ type LetterRecord = {
   scan_status: string | null;
   ai_summary: string | null;
   created_at: string | null;
+  pdf_url: string | null;
 };
 
 const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads", "Invoice", "Other"];
@@ -133,6 +134,7 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
     house_number:               record.house_number ?? "",
     post_code:                  record.post_code ?? "",
     city:                       record.city ?? "",
+    pdf_url:                    record.pdf_url ?? "",
   });
 
   function handleChange(name: string, value: string) {
@@ -175,6 +177,28 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
             <section className="bg-blue-50 rounded-xl border border-blue-200 p-5 space-y-2">
               <h2 className="text-sm font-semibold text-blue-700">AI Summary</h2>
               <p className="text-sm text-blue-900 leading-relaxed">{record.ai_summary}</p>
+            </section>
+          )}
+
+          {record.pdf_url && (
+            <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-gray-700">PDF Preview</h2>
+                <a
+                  href={record.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Open in new tab ↗
+                </a>
+              </div>
+              <iframe
+                src={record.pdf_url}
+                className="w-full rounded-lg border border-gray-200"
+                style={{ height: "600px" }}
+                title="PDF Preview"
+              />
             </section>
           )}
 
@@ -395,6 +419,11 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
                 className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
               />
             </div>
+          </section>
+
+          <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+            <h2 className="text-sm font-semibold text-gray-700">PDF Link</h2>
+            <InputField label="PDF URL" name="pdf_url" value={form.pdf_url} onChange={handleChange} />
           </section>
         </div>
       </div>
