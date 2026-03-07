@@ -19,10 +19,10 @@ export async function POST(request: NextRequest) {
     await admin.storage.from("letter-pdfs").remove([storagePath]);
   }
 
-  // Clear pdf_url from the record
+  // Clear pdf_url and stamp process_status
   const { error: dbError } = await admin
     .from("letter_records")
-    .update({ pdf_url: null })
+    .update({ pdf_url: null, process_status: "Process Completed" })
     .eq("id", record_id);
 
   if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });

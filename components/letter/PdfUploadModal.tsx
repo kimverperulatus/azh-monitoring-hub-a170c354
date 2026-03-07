@@ -133,7 +133,7 @@ export default function PdfUploadModal() {
     return (
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-brand-red-800 hover:bg-brand-red-700 rounded-lg transition-colors"
       >
         <Upload className="w-4 h-4" />
         Upload PDF
@@ -217,7 +217,7 @@ export default function PdfUploadModal() {
               <button
                 onClick={handleRun}
                 disabled={!files.length || running}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-brand-red-800 hover:bg-brand-red-700 disabled:opacity-50 text-white font-medium rounded-lg text-sm transition-colors"
               >
                 {running ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Processing {files.filter(f => f.status === "analyzing" || f.status === "saving").map((_, i) => i + 1)[0] ?? ""}...</>

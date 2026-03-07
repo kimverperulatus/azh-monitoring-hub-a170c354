@@ -15,7 +15,7 @@ const statusStyles: Record<string, string> = {
 
 function StatusBadge({ value }: { value: string | null }) {
   if (!value) return <span className="text-gray-400 text-xs">-</span>;
-  const style = statusStyles[value] ?? "bg-blue-50 text-blue-700";
+  const style = statusStyles[value] ?? "bg-brand-navy-50 text-brand-navy-700";
   return (
     <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${style}`}>
       {value}

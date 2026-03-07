@@ -60,7 +60,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
           <h1 className="text-2xl font-bold text-gray-900">EKV Record</h1>
           <p className="text-xs text-gray-400 font-mono mt-0.5">{record.id}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusStyles[record.status] ?? "bg-blue-50 text-blue-700"}`}>
+        <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusStyles[record.status] ?? "bg-brand-navy-50 text-brand-navy-700"}`}>
           {record.status}
         </span>
       </div>

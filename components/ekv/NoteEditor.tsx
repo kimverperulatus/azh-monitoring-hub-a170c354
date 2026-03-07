@@ -44,7 +44,7 @@ export default function NoteEditor({ recordId, initialNote }: { recordId: string
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
+          className="px-4 py-2 bg-brand-red-800 hover:bg-brand-red-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors flex items-center gap-2"
         >
           {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
           {saving ? "Saving..." : "Save Note"}

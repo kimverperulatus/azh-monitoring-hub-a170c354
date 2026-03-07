@@ -150,7 +150,7 @@ export default function Sidebar({ user }: { user: User }) {
               <button
                 type="submit"
                 disabled={pwLoading}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+                className="flex-1 bg-brand-red-800 hover:bg-brand-red-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
               >
                 {pwLoading ? "Saving..." : "Save"}
               </button>

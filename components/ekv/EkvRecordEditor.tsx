@@ -188,7 +188,7 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-brand-red-800 hover:bg-brand-red-700 disabled:opacity-50 rounded-lg transition-colors"
           >
             <Check className="w-3.5 h-3.5" />
             {saving ? "Saving..." : "Save"}

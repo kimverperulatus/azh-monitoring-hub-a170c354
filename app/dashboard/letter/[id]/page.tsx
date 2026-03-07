@@ -8,7 +8,7 @@ import LetterRecordEditor from "@/components/letter/LetterRecordEditor";
 export const dynamic = "force-dynamic";
 
 const CATEGORY_STYLES: Record<string, string> = {
-  "Carebox":       "bg-blue-50 text-blue-700",
+  "Carebox":       "bg-brand-navy-50 text-brand-navy-700",
   "Reusable Pads": "bg-purple-50 text-purple-700",
   "Invoice":       "bg-amber-50 text-amber-700",
   "Other":         "bg-gray-100 text-gray-600",

@@ -68,7 +68,7 @@ export default function RecordsTable({
           onClick={() => setFilter("")}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
             activeStatus === ""
-              ? "bg-blue-600 text-white"
+              ? "bg-brand-red-800 text-white"
               : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
           }`}
         >
@@ -80,7 +80,7 @@ export default function RecordsTable({
             onClick={() => setFilter(s)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
               activeStatus === s
-                ? "bg-blue-600 text-white"
+                ? "bg-brand-red-800 text-white"
                 : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
             }`}
           >

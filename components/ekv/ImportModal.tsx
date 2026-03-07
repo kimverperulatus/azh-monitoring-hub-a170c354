@@ -278,7 +278,7 @@ export default function ImportModal() {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-brand-red-800 hover:bg-brand-red-700 text-white text-sm font-medium rounded-lg transition-colors"
       >
         <Upload className="w-4 h-4" />
         Import
@@ -427,7 +427,7 @@ export default function ImportModal() {
                 <button
                   onClick={handleImport}
                   disabled={rows.length === 0 || importing}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-brand-red-800 hover:bg-brand-red-700 text-white text-sm font-medium rounded-lg disabled:opacity-50 transition-colors"
                 >
                   {importing ? `Importing...` : `Import ${rows.length} rows`}
                 </button>
@@ -435,7 +435,7 @@ export default function ImportModal() {
               {result && (
                 <button
                   onClick={reset}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                  className="px-4 py-2 bg-brand-red-800 hover:bg-brand-red-700 text-white text-sm font-medium rounded-lg transition-colors"
                 >
                   Import another file
                 </button>
