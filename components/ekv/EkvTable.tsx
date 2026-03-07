@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
+import { Download } from "lucide-react";
 
 type EkvRecord = {
   id: string;
@@ -90,13 +91,25 @@ export default function EkvTable({
     router.push(`${pathname}?${params.toString()}`);
   }
 
+  function handleExport() {
+    const params = new URLSearchParams();
+    if (activeStatus)    params.set("status", activeStatus);
+    if (searchQuery)     params.set("q", searchQuery);
+    if (kasseFilter)     params.set("kasse", kasseFilter);
+    if (angelegtFrom)    params.set("angelegt_from", angelegtFrom);
+    if (angelegtTo)      params.set("angelegt_to", angelegtTo);
+    if (entschiedenFrom) params.set("entschieden_from", entschiedenFrom);
+    if (entschiedenTo)   params.set("entschieden_to", entschiedenTo);
+    window.location.href = `/api/ekv/export?${params.toString()}`;
+  }
+
   const activeStatusCounts = statusCounts.filter((s) => s.count > 0);
   const grandTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
 
   return (
     <div className="space-y-4">
       {/* Search + Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
         <input
           type="text"
           placeholder="Search by name, Versicherten-Nr, KVNr, Reason..."
@@ -117,6 +130,14 @@ export default function EkvTable({
           className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm w-full sm:w-56 focus:outline-none focus:ring-2 focus:ring-blue-500"
           suppressHydrationWarning
         />
+        <button
+          onClick={handleExport}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
+          suppressHydrationWarning
+        >
+          <Download className="w-4 h-4" />
+          Export CSV
+        </button>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("status", "")}
