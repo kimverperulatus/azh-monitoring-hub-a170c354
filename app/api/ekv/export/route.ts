@@ -1,6 +1,23 @@
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
+const ALL_FIELDS: { key: string; label: string; col: string }[] = [
+  { key: "kv_angelegt",          label: "KV Angelegt",     col: "kv_angelegt" },
+  { key: "kv_entschieden",       label: "KV Entschieden",  col: "kv_entschieden" },
+  { key: "kvnr_noventi",         label: "KVNr NOVENTI",    col: "kvnr_noventi" },
+  { key: "kvnr_le",              label: "KVNr LE",         col: "kvnr_le" },
+  { key: "le_ik",                label: "LE IK",           col: "le_ik" },
+  { key: "le_kdnr",              label: "LE KdNr",         col: "le_kdnr" },
+  { key: "versichertenvorname",  label: "Vorname",         col: "versichertenvorname" },
+  { key: "versichertennachname", label: "Nachname",        col: "versichertennachname" },
+  { key: "versicherten_nr",      label: "Versicherten-Nr", col: "versicherten_nr" },
+  { key: "kassen_ik",            label: "Kassen IK",       col: "kassen_ik" },
+  { key: "kassenname",           label: "Kassenname",      col: "kassenname" },
+  { key: "status",               label: "Status",          col: "status" },
+  { key: "reasons",              label: "Reasons",         col: "reasons" },
+  { key: "notes",                label: "Notes",           col: "notes" },
+];
+
 function applyFilters(query: any, filters: Record<string, string>) {
   const { q, kasse, status, angelegt_from, angelegt_to, entschieden_from, entschieden_to } = filters;
   if (kasse)            query = query.ilike("kassenname", `%${kasse}%`);
@@ -38,9 +55,18 @@ export async function GET(request: NextRequest) {
     entschieden_to: sp.get("entschieden_to") ?? "",
   };
 
+  // Determine which fields to include
+  const fieldsParam = sp.get("fields");
+  const selectedKeys = fieldsParam ? fieldsParam.split(",").filter(Boolean) : ALL_FIELDS.map((f) => f.key);
+  const selectedFields = ALL_FIELDS.filter((f) => selectedKeys.includes(f.key));
+  if (selectedFields.length === 0) {
+    return NextResponse.json({ error: "No fields selected." }, { status: 400 });
+  }
+
+  const selectCols = selectedFields.map((f) => f.col).join(", ");
   let query = supabase
     .from("ekv_records")
-    .select("kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, status, reasons, notes")
+    .select(selectCols)
     .order("kv_angelegt", { ascending: false });
 
   query = applyFilters(query, filters);
@@ -51,17 +77,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const headers = [
-    "KV Angelegt", "KV Entschieden", "KVNr NOVENTI", "KVNr LE",
-    "LE IK", "LE KdNr", "Vorname", "Nachname", "Versicherten-Nr",
-    "Kassen IK", "Kassenname", "Status", "Reasons", "Notes",
-  ];
-
-  const rows = (data ?? []).map((r) => [
-    r.kv_angelegt, r.kv_entschieden, r.kvnr_noventi, r.kvnr_le,
-    r.le_ik, r.le_kdnr, r.versichertenvorname, r.versichertennachname, r.versicherten_nr,
-    r.kassen_ik, r.kassenname, r.status, r.reasons, r.notes,
-  ].map(escapeCSV).join(","));
+  const headers = selectedFields.map((f) => f.label);
+  const rows = (data ?? []).map((r: any) =>
+    selectedFields.map((f) => escapeCSV(r[f.col])).join(",")
+  );
 
   const csv = [headers.join(","), ...rows].join("\r\n");
 

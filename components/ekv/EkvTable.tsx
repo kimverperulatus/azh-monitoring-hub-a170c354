@@ -3,6 +3,24 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import { Download } from "lucide-react";
+import { useState } from "react";
+
+const EXPORT_FIELDS = [
+  { key: "kv_angelegt",          label: "KV Angelegt" },
+  { key: "kv_entschieden",       label: "KV Entschieden" },
+  { key: "kvnr_noventi",         label: "KVNr NOVENTI" },
+  { key: "kvnr_le",              label: "KVNr LE" },
+  { key: "le_ik",                label: "LE IK" },
+  { key: "le_kdnr",              label: "LE KdNr" },
+  { key: "versichertenvorname",  label: "Vorname" },
+  { key: "versichertennachname", label: "Nachname" },
+  { key: "versicherten_nr",      label: "Versicherten-Nr" },
+  { key: "kassen_ik",            label: "Kassen IK" },
+  { key: "kassenname",           label: "Kassenname" },
+  { key: "status",               label: "Status" },
+  { key: "reasons",              label: "Reasons" },
+  { key: "notes",                label: "Notes" },
+];
 
 type EkvRecord = {
   id: string;
@@ -55,6 +73,8 @@ export default function EkvTable({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [selectedFields, setSelectedFields] = useState<string[]>(EXPORT_FIELDS.map((f) => f.key));
 
   function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -96,7 +116,7 @@ export default function EkvTable({
     router.push(`${pathname}?${params.toString()}`);
   }
 
-  function handleExport() {
+  function doExport() {
     const params = new URLSearchParams();
     if (activeStatus)    params.set("status", activeStatus);
     if (searchQuery)     params.set("q", searchQuery);
@@ -105,7 +125,15 @@ export default function EkvTable({
     if (angelegtTo)      params.set("angelegt_to", angelegtTo);
     if (entschiedenFrom) params.set("entschieden_from", entschiedenFrom);
     if (entschiedenTo)   params.set("entschieden_to", entschiedenTo);
+    params.set("fields", selectedFields.join(","));
     window.location.href = `/api/ekv/export?${params.toString()}`;
+    setShowExportModal(false);
+  }
+
+  function toggleField(key: string) {
+    setSelectedFields((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
   }
 
   const activeStatusCounts = statusCounts.filter((s) => s.count > 0);
@@ -136,7 +164,7 @@ export default function EkvTable({
           suppressHydrationWarning
         />
         <button
-          onClick={handleExport}
+          onClick={() => setShowExportModal(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors whitespace-nowrap"
           suppressHydrationWarning
         >
@@ -307,6 +335,59 @@ export default function EkvTable({
             >
               Next
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Export field selection modal */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Export CSV</h2>
+            <p className="text-sm text-gray-500 mb-4">Select the fields to include in the export.</p>
+            <div className="grid grid-cols-2 gap-2 mb-5">
+              {EXPORT_FIELDS.map((f) => (
+                <label key={f.key} className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={selectedFields.includes(f.key)}
+                    onChange={() => toggleField(f.key)}
+                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  {f.label}
+                </label>
+              ))}
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <button
+                onClick={() => setSelectedFields(EXPORT_FIELDS.map((f) => f.key))}
+                className="text-xs text-blue-600 hover:underline"
+              >
+                Select all
+              </button>
+              <button
+                onClick={() => setSelectedFields([])}
+                className="text-xs text-gray-500 hover:underline"
+              >
+                Clear all
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={doExport}
+                disabled={selectedFields.length === 0}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                <Download className="w-4 h-4" />
+                Download
+              </button>
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 border border-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
