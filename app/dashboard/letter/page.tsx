@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 export default async function LetterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; scan_date?: string; scan_status?: string }>;
+  searchParams: Promise<{ page?: string; scan_date?: string; scan_status?: string; category?: string; type?: string; provider?: string; search?: string }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const role = user ? await getUserRole(user.id) : "support";
-  const { page: pageParam, scan_date, scan_status } = await searchParams;
+  const { page: pageParam, scan_date, scan_status, category, type, provider, search } = await searchParams;
   const page = parseInt(pageParam ?? "1");
   const pageSize = 50;
   const from = (page - 1) * pageSize;
@@ -31,6 +31,22 @@ export default async function LetterPage({
   }
   if (scan_status === "success" || scan_status === "error") {
     query = query.eq("scan_status", scan_status);
+  }
+  if (category) {
+    query = query.eq("category", category);
+  }
+  if (type) {
+    query = query.eq("type", type);
+  }
+  if (provider) {
+    query = query.ilike("health_insurance_provider", `%${provider}%`);
+  }
+  if (search) {
+    query = query.or(
+      ["first_name", "last_name", "insurance_number", "health_insurance_provider", "approval_id", "file_name", "ai_summary", "product_list", "reason", "city", "street", "post_code"]
+        .map((col) => `${col}.ilike.%${search}%`)
+        .join(",")
+    );
   }
 
   const { data: records, count } = await query.range(from, from + pageSize - 1);
@@ -52,6 +68,10 @@ export default async function LetterPage({
         isAdmin={role === "admin"}
         scanDate={scan_date ?? ""}
         scanStatus={scan_status ?? ""}
+        filterCategory={category ?? ""}
+        filterType={type ?? ""}
+        filterProvider={provider ?? ""}
+        filterSearch={search ?? ""}
       />
     </div>
   );

@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Eye, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Eye, Trash2, CheckCircle2, AlertCircle, Search, X } from "lucide-react";
 import { useState } from "react";
 
 type LetterRecord = {
@@ -41,6 +41,9 @@ const TYPE_STYLES: Record<string, string> = {
   "Terminations": "bg-gray-100 text-gray-600",
 };
 
+const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads", "Invoice", "Other"];
+const TYPE_OPTIONS = ["Approved", "Reject", "Terminations"];
+
 export default function LetterTable({
   records,
   total,
@@ -49,6 +52,10 @@ export default function LetterTable({
   isAdmin = false,
   scanDate = "",
   scanStatus = "",
+  filterCategory = "",
+  filterType = "",
+  filterProvider = "",
+  filterSearch = "",
 }: {
   records: LetterRecord[];
   total: number;
@@ -57,6 +64,10 @@ export default function LetterTable({
   isAdmin?: boolean;
   scanDate?: string;
   scanStatus?: string;
+  filterCategory?: string;
+  filterType?: string;
+  filterProvider?: string;
+  filterSearch?: string;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -66,6 +77,7 @@ export default function LetterTable({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [searchInput, setSearchInput] = useState(filterSearch);
 
   function setPage(p: number) {
     const params = new URLSearchParams(searchParams.toString());
@@ -89,7 +101,12 @@ export default function LetterTable({
   }
 
   function clearFilters() {
+    setSearchInput("");
     router.push(pathname);
+  }
+
+  function submitSearch(val: string) {
+    applyFilter("search", val);
   }
 
   function toggleSelect(id: string) {
@@ -130,47 +147,106 @@ export default function LetterTable({
 
   const allSelected = records.length > 0 && selectedIds.size === records.length;
 
-  const hasFilters = scanDate || scanStatus;
+  const hasFilters = !!(scanDate || scanStatus || filterCategory || filterType || filterProvider || filterSearch);
 
   return (
     <div className="space-y-4">
       {/* Filter bar */}
-      <div className="flex flex-wrap items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl">
+      <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+        {/* Row 1: Search */}
         <div className="flex items-center gap-2">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Scan Date</label>
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search across all fields…"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && submitSearch(searchInput)}
+              className="w-full border border-gray-300 rounded-lg pl-9 pr-9 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            {searchInput && (
+              <button
+                onClick={() => { setSearchInput(""); applyFilter("search", ""); }}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => submitSearch(searchInput)}
+            className="px-3 py-1.5 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Search
+          </button>
+          {hasFilters && (
+            <button onClick={clearFilters} className="text-xs text-gray-400 hover:text-gray-700 underline transition-colors whitespace-nowrap">
+              Clear all
+            </button>
+          )}
+        </div>
+
+        {/* Row 2: Dropdowns + date + scan status */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Category */}
+          <select
+            value={filterCategory}
+            onChange={(e) => applyFilter("category", e.target.value)}
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Categories</option>
+            {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+
+          {/* Type */}
+          <select
+            value={filterType}
+            onChange={(e) => applyFilter("type", e.target.value)}
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">All Types</option>
+            {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+
+          {/* Health Insurance Provider */}
+          <input
+            type="text"
+            placeholder="Insurance provider…"
+            value={filterProvider}
+            onChange={(e) => applyFilter("provider", e.target.value)}
+            className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-44"
+          />
+
+          <div className="h-5 border-l border-gray-200" />
+
+          {/* Scan Date */}
           <input
             type="date"
             value={scanDate}
             onChange={(e) => applyFilter("scan_date", e.target.value)}
             className="border border-gray-300 rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-        </div>
-        <button
-          onClick={setScanToday}
-          className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
-        >
-          Today
-        </button>
-        <div className="flex items-center gap-1.5 ml-2">
-          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Status</label>
-          {(["", "success", "error"] as const).map((s) => (
-            <button
-              key={s}
-              onClick={() => applyFilter("scan_status", s)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanStatus === s ? (s === "success" ? "bg-green-600 text-white border-green-600" : s === "error" ? "bg-red-600 text-white border-red-600" : "bg-gray-800 text-white border-gray-800") : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
-            >
-              {s === "" ? "All" : s === "success" ? "Success" : "Error"}
-            </button>
-          ))}
-        </div>
-        {hasFilters && (
           <button
-            onClick={clearFilters}
-            className="ml-auto text-xs text-gray-400 hover:text-gray-700 underline transition-colors"
+            onClick={setScanToday}
+            className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanDate === new Date().toISOString().slice(0, 10) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
           >
-            Clear filters
+            Today
           </button>
-        )}
+
+          {/* Scan Status */}
+          <div className="flex items-center gap-1">
+            {(["", "success", "error"] as const).map((s) => (
+              <button
+                key={s}
+                onClick={() => applyFilter("scan_status", s)}
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${scanStatus === s ? (s === "success" ? "bg-green-600 text-white border-green-600" : s === "error" ? "bg-red-600 text-white border-red-600" : "bg-gray-800 text-white border-gray-800") : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50"}`}
+              >
+                {s === "" ? "All" : s === "success" ? "Success" : "Error"}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {isAdmin && selectedIds.size > 0 && (
