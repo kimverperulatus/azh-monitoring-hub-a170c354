@@ -188,17 +188,29 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
                   href={record.pdf_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-blue-600 hover:underline"
+                  className="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
                 >
-                  Open in new tab ↗
+                  Open PDF ↗
                 </a>
               </div>
-              <iframe
-                src={record.pdf_url}
+              <object
+                data={record.pdf_url}
+                type="application/pdf"
                 className="w-full rounded-lg border border-gray-200"
-                style={{ height: "600px" }}
-                title="PDF Preview"
-              />
+                style={{ height: "700px" }}
+              >
+                <div className="flex flex-col items-center justify-center gap-3 py-12 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm text-gray-500">Your browser cannot display the PDF inline.</p>
+                  <a
+                    href={record.pdf_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline font-medium"
+                  >
+                    Open PDF in new tab ↗
+                  </a>
+                </div>
+              </object>
             </section>
           )}
 
