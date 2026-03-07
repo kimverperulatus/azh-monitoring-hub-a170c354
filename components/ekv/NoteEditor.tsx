@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { CheckCircle, Loader2 } from "lucide-react";
 
@@ -16,14 +15,7 @@ export default function NoteEditor({ recordId, initialNote }: { recordId: string
     setError("");
     setSaved(false);
 
-    const sessionClient = createClient();
-    const { data: { session } } = await sessionClient.auth.getSession();
-
-    const supabase = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-    if (session) await supabase.auth.setSession(session);
+    const supabase = createClient();
 
     const { error: updateError } = await supabase
       .from("ekv_records")
