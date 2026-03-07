@@ -3,7 +3,7 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
-import { Eye, Trash2, CheckCircle2, AlertCircle, Search, X } from "lucide-react";
+import { Eye, Trash2, CheckCircle2, AlertCircle, Search, X, Copy, Check } from "lucide-react";
 import { useState } from "react";
 
 type LetterRecord = {
@@ -78,6 +78,13 @@ export default function LetterTable({
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const [searchInput, setSearchInput] = useState(filterSearch);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  function copyFileName(id: string, name: string) {
+    navigator.clipboard.writeText(name);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 1500);
+  }
 
   function setPage(p: number) {
     const params = new URLSearchParams(searchParams.toString());
@@ -282,7 +289,7 @@ export default function LetterTable({
               )}
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Category</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Type</th>
-              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Health Insurance Provider</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Insurance</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Date of Letter</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Approval ID</th>
               <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Valid Until</th>
@@ -325,7 +332,22 @@ export default function LetterTable({
                   <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
                   <td className="px-2 py-2 text-gray-600 font-mono">{record.approval_id ?? "-"}</td>
                   <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
-                  <td className="px-2 py-2 text-gray-500 max-w-[140px] truncate" title={record.file_name ?? ""}>{record.file_name ?? "-"}</td>
+                  <td className="px-2 py-2 max-w-[160px]">
+                    {record.file_name ? (
+                      <div className="flex items-center gap-1 group">
+                        <span className="truncate text-gray-500" title={record.file_name}>{record.file_name}</span>
+                        <button
+                          onClick={() => copyFileName(record.id, record.file_name!)}
+                          className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-700"
+                          title="Copy file name"
+                        >
+                          {copiedId === record.id
+                            ? <Check className="w-3 h-3 text-green-500" />
+                            : <Copy className="w-3 h-3" />}
+                        </button>
+                      </div>
+                    ) : <span className="text-gray-400">-</span>}
+                  </td>
                   <td className="px-2 py-2">
                     {record.scan_status === "success" && (
                       <span className="flex items-center gap-1 font-medium text-green-700 whitespace-nowrap">
