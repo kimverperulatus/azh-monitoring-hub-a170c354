@@ -78,16 +78,15 @@ export default function PdfUploadModal() {
         }
       }
 
-      // Step 2: Upload PDF to storage
+      // Step 2: Upload PDF to storage via server route (uses admin client to bypass RLS)
       let pdf_url: string | null = null;
       try {
-        const storagePath = `${Date.now()}-${file.name}`;
-        const { data: storageData, error: storageError } = await supabase.storage
-          .from("letter-pdfs")
-          .upload(storagePath, file, { contentType: "application/pdf" });
-        if (!storageError && storageData) {
-          const { data: { publicUrl } } = supabase.storage.from("letter-pdfs").getPublicUrl(storageData.path);
-          pdf_url = publicUrl;
+        const fd3 = new FormData();
+        fd3.append("file", file);
+        const res3 = await fetch("/api/letter/upload-storage", { method: "POST", body: fd3 });
+        if (res3.ok) {
+          const json3 = await res3.json();
+          pdf_url = json3.pdf_url ?? null;
         }
       } catch {
         // storage upload is best-effort; continue without it
