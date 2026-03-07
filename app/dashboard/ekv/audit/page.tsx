@@ -52,7 +52,7 @@ export default async function EkvAuditPage({
   let recordsQuery = supabase
     .from("ekv_records")
     .select(
-      "id, kv_angelegt, kv_entschieden, kvnr_noventi, kvnr_le, le_ik, le_kdnr, versichertenvorname, versichertennachname, versicherten_nr, kassen_ik, kassenname, notes, status, carebox_status, reasons, audit_date",
+      "id, kv_angelegt, kv_entschieden, kvnr_noventi, versicherten_nr, kassenname, status, carebox_status, audit_date",
     )
     .not("carebox_status", "is", null)
     .order("kv_angelegt", { ascending: false });
@@ -174,17 +174,10 @@ export default async function EkvAuditPage({
                 <th className="text-left px-2 py-2 font-medium text-gray-600">KV Angelegt</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">KV Entschieden</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">KVNr NOVENTI</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">KVNr LE</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">LE IK</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">LE KdNr</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Name</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">Versicherten-Nr</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">Kassenname</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Kassen IK</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">Status</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">Carebox Status</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Reason</th>
-                <th className="text-left px-2 py-2 font-medium text-gray-600">Notes</th>
                 <th className="text-left px-2 py-2 font-medium text-gray-600">Audit Date</th>
               </tr>
             </thead>
@@ -194,30 +187,13 @@ export default async function EkvAuditPage({
                   <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_angelegt)}</td>
                   <td className="px-2 py-2 text-gray-700">{formatDate(record.kv_entschieden)}</td>
                   <td className="px-2 py-2 text-gray-600 font-mono">{record.kvnr_noventi ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kvnr_le ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.le_ik ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.le_kdnr ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-700">
-                    {[record.versichertenvorname, record.versichertennachname].filter(Boolean).join(" ") || "-"}
-                  </td>
                   <td className="px-2 py-2 text-gray-600 font-mono">{record.versicherten_nr ?? "-"}</td>
                   <td className="px-2 py-2 text-gray-700">{record.kassenname ?? "-"}</td>
-                  <td className="px-2 py-2 text-gray-600 font-mono">{record.kassen_ik ?? "-"}</td>
                   <td className="px-2 py-2">
                     <StatusBadge value={record.status} />
                   </td>
                   <td className="px-2 py-2">
                     <StatusBadge value={record.carebox_status} />
-                  </td>
-                  <td className="px-2 py-2 text-gray-500 max-w-[150px]">
-                    {record.reasons ? (
-                      <span className="block truncate" title={record.reasons}>{record.reasons}</span>
-                    ) : "-"}
-                  </td>
-                  <td className="px-2 py-2 text-gray-500 max-w-[150px]">
-                    {record.notes ? (
-                      <span className="block truncate" title={record.notes}>{record.notes}</span>
-                    ) : "-"}
                   </td>
                   <td className="px-2 py-2 text-gray-600">{formatDate(record.audit_date)}</td>
                 </tr>
