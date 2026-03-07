@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
   const endpoint = settings.azure_ai_endpoint?.trim();
   const apiKey = settings.azure_ai_key?.trim();
   const deployment = settings.azure_ai_deployment?.trim();
-  const apiVersion = settings.azure_ai_version?.trim() || "2024-10-21";
+  const apiVersion = settings.azure_ai_version?.trim() || "2025-04-14";
 
   if (!endpoint || !apiKey || !deployment) {
     return NextResponse.json({ error: "Azure AI credentials are not configured. Set them in Admin → Settings." }, { status: 500 });
