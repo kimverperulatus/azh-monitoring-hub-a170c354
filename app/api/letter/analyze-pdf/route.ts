@@ -25,9 +25,10 @@ Fields to extract:
 - house_number: Patient house number (Hausnummer). null if not found.
 - post_code: Patient postal code (PLZ). null if not found.
 - city: Patient city (Ort/Stadt). null if not found.
+- ai_summary: A concise English summary (2-4 sentences) of what this letter is about — who it is for, what was approved/rejected/terminated, and any key details. Always write in English regardless of the document language.
 
 Return ONLY a JSON object like this (no markdown, no explanation):
-{"category":null,"type":null,"health_insurance_provider":null,"date_of_letter":null,"insurance_number":null,"first_name":null,"last_name":null,"approval_id":null,"co_payment":null,"insurance_covered_amount":null,"product_list":null,"valid_until":null,"reason":null,"street":null,"house_number":null,"post_code":null,"city":null}`;
+{"category":null,"type":null,"health_insurance_provider":null,"date_of_letter":null,"insurance_number":null,"first_name":null,"last_name":null,"approval_id":null,"co_payment":null,"insurance_covered_amount":null,"product_list":null,"valid_until":null,"reason":null,"street":null,"house_number":null,"post_code":null,"city":null,"ai_summary":null}`;
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();

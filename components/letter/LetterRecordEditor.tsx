@@ -26,6 +26,7 @@ type LetterRecord = {
   city: string | null;
   file_name: string | null;
   scan_status: string | null;
+  ai_summary: string | null;
 };
 
 const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads"];
@@ -193,6 +194,12 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
           </div>
 
           <div className="space-y-5">
+            {record.ai_summary && (
+              <section className="bg-blue-50 rounded-xl border border-blue-200 p-5 space-y-2">
+                <h2 className="text-sm font-semibold text-blue-700">AI Summary</h2>
+                <p className="text-sm text-blue-900 leading-relaxed">{record.ai_summary}</p>
+              </section>
+            )}
             {(record.file_name || record.scan_status) && (
               <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
                 <h2 className="text-sm font-semibold text-gray-700">Scan Info</h2>

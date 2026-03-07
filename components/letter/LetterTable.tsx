@@ -20,6 +20,7 @@ type LetterRecord = {
   valid_until: string | null;
   file_name: string | null;
   scan_status: string | null;
+  ai_summary: string | null;
 };
 
 function formatDate(val: string | null) {
@@ -148,6 +149,7 @@ export default function LetterTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">Valid Until</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">File Name</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Scan</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">AI Summary</th>
               <th className="px-4 py-3" />
             </tr>
           </thead>
@@ -201,6 +203,11 @@ export default function LetterTable({
                     )}
                     {!record.scan_status && <span className="text-gray-400 text-xs">-</span>}
                   </td>
+                  <td className="px-4 py-3 text-gray-500 text-xs max-w-[220px]">
+                    {record.ai_summary ? (
+                      <span className="line-clamp-2 leading-relaxed" title={record.ai_summary}>{record.ai_summary}</span>
+                    ) : <span className="text-gray-400">-</span>}
+                  </td>
                   <td className="px-4 py-3">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
@@ -215,7 +222,7 @@ export default function LetterTable({
             })}
             {!records.length && (
               <tr>
-                <td colSpan={isAdmin ? 13 : 12} className="px-4 py-8 text-center text-gray-400">
+                <td colSpan={isAdmin ? 14 : 13} className="px-4 py-8 text-center text-gray-400">
                   No records found
                 </td>
               </tr>
