@@ -57,3 +57,103 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ─── Company Brand Colors ──────────────────────────────────────────────────── */
+/* These are defined explicitly to guarantee generation regardless of JIT scan. */
+@layer utilities {
+  /* ── Navy backgrounds ── */
+  .bg-brand-navy-50  { background-color: #f0f1f8; }
+  .bg-brand-navy-100 { background-color: #dee0f0; }
+  .bg-brand-navy-600 { background-color: #2e3485; }
+  .bg-brand-navy-700 { background-color: #26296b; }
+  .bg-brand-navy-800 { background-color: #1c2040; }
+  .bg-brand-navy-900 { background-color: #131629; }
+
+  /* ── Navy text ── */
+  .text-brand-navy-100 { color: #dee0f0; }
+  .text-brand-navy-200 { color: #bbbfe1; }
+  .text-brand-navy-300 { color: #8a90cc; }
+  .text-brand-navy-700 { color: #26296b; }
+  .text-brand-navy-800 { color: #1c2040; }
+  .text-brand-navy-900 { color: #131629; }
+
+  /* ── Navy borders ── */
+  .border-brand-navy-100 { border-color: #dee0f0; }
+  .border-brand-navy-600 { border-color: #2e3485; }
+  .border-brand-navy-900 { border-color: #131629; }
+
+  /* ── Navy hover ── */
+  .hover\:bg-brand-navy-700:hover { background-color: #26296b; }
+
+  /* ── Navy focus ring ── */
+  .focus\:ring-brand-navy-500:focus { --tw-ring-color: #40469e; }
+
+  /* ── Navy gradients ── */
+  .from-brand-navy-800 {
+    --tw-gradient-from: #1c2040;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(28 32 64 / 0));
+  }
+
+  /* ── Red backgrounds ── */
+  .bg-brand-red-50  { background-color: #fdf3f4; }
+  .bg-brand-red-100 { background-color: #fce6e8; }
+  .bg-brand-red-700 { background-color: #a61e37; }
+  .bg-brand-red-800 { background-color: #7a1c2a; }
+  .bg-brand-red-900 { background-color: #5a1520; }
+
+  /* ── Red text ── */
+  .text-brand-red-500 { color: #e14561; }
+  .text-brand-red-700 { color: #a61e37; }
+  .text-brand-red-800 { color: #7a1c2a; }
+  .text-brand-red-900 { color: #5a1520; }
+
+  /* ── Red borders ── */
+  .border-brand-red-100 { border-color: #fce6e8; }
+  .border-brand-red-200 { border-color: #f9d0d5; }
+  .border-brand-red-800 { border-color: #7a1c2a; }
+
+  /* ── Red hover ── */
+  .hover\:bg-brand-red-50:hover  { background-color: #fdf3f4; }
+  .hover\:bg-brand-red-100:hover { background-color: #fce6e8; }
+  .hover\:bg-brand-red-700:hover { background-color: #a61e37; }
+  .hover\:text-brand-red-800:hover { color: #7a1c2a; }
+
+  /* ── Red shadows ── */
+  .shadow-brand-red-200 { --tw-shadow-color: #f9d0d5; box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
+  .shadow-brand-red-950 { --tw-shadow-color: #3d0e16; box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
+
+  /* ── Red gradients ── */
+  .to-brand-red-800 {
+    --tw-gradient-to: #7a1c2a;
+  }
+
+  /* ── Gold backgrounds ── */
+  .bg-brand-gold-50  { background-color: #fbf8ec; }
+  .bg-brand-gold-100 { background-color: #f6efd0; }
+  .bg-brand-gold-500 { background-color: #c2a040; }
+  .bg-brand-gold-700 { background-color: #7e6122; }
+
+  /* ── Gold text ── */
+  .text-brand-gold-500 { color: #c2a040; }
+  .text-brand-gold-600 { color: #a4832e; }
+  .text-brand-gold-700 { color: #7e6122; }
+  .text-brand-gold-900 { color: #2e220b; }
+
+  /* ── Gold borders ── */
+  .border-brand-gold-100 { border-color: #f6efd0; }
+
+  /* ── Gold hover ── */
+  .hover\:bg-brand-gold-100:hover { background-color: #f6efd0; }
+
+  /* ── Gold gradients ── */
+  .from-brand-gold-500 {
+    --tw-gradient-from: #c2a040;
+    --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgb(194 160 64 / 0));
+  }
+  .to-brand-gold-700 {
+    --tw-gradient-to: #7e6122;
+  }
+
+  /* ── Navy shadow ── */
+  .shadow-brand-navy-900 { --tw-shadow-color: #131629; box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow); }
+}
