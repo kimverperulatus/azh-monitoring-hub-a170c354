@@ -3,7 +3,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse") as (buf: Buffer) => Promise<{ text: string }>;
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 const EXTRACTION_PROMPT = `You are analyzing a German health insurance letter/document. Extract the following fields from the PDF and return ONLY a valid JSON object with no additional text or explanation.
 
@@ -31,6 +31,43 @@ Return ONLY a JSON object like this (no markdown, no explanation):
 {"category":null,"type":null,"health_insurance_provider":null,"date_of_letter":null,"insurance_number":null,"first_name":null,"last_name":null,"approval_id":null,"co_payment":null,"insurance_covered_amount":null,"product_list":null,"valid_until":null,"reason":null,"street":null,"house_number":null,"post_code":null,"city":null,"ai_summary":null}`;
 
 const SUMMARY_PROMPT = `You are analyzing a document. Write a concise English summary (2-4 sentences) describing what this document is about — who it is for, what it covers, and any key details. Return ONLY the summary text, no JSON, no markdown.`;
+
+/** Clean and normalize raw PDF text for AI consumption */
+function cleanPdfText(raw: string): string {
+  return raw
+    // Remove non-printable / control chars except newlines and tabs
+    .replace(/[^\x09\x0A\x0D\x20-\x7E\u00A0-\uFFFF]/g, " ")
+    // Collapse 3+ consecutive blank lines into 2
+    .replace(/\n{3,}/g, "\n\n")
+    // Collapse runs of spaces/tabs within a line
+    .replace(/[ \t]{3,}/g, "  ")
+    .trim();
+}
+
+/**
+ * Smart truncation: keep first 8 000 chars + last 2 000 chars.
+ * Most letter content is in the beginning; the end often has signatures / dates.
+ */
+function truncateText(text: string, maxChars = 10_000): string {
+  if (text.length <= maxChars) return text;
+  const head = text.slice(0, 8_000);
+  const tail = text.slice(-2_000);
+  return `${head}\n\n[... content truncated ...]\n\n${tail}`;
+}
+
+/** Try to extract valid JSON from an AI response even if it has surrounding text */
+function extractJson(raw: string): Record<string, string | null> | null {
+  // Strip markdown fences
+  const stripped = raw.replace(/^```[a-z]*\n?/im, "").replace(/\n?```$/m, "").trim();
+  // Try direct parse first
+  try { return JSON.parse(stripped); } catch { /* fall through */ }
+  // Try to find the first {...} block
+  const match = stripped.match(/\{[\s\S]*\}/);
+  if (match) {
+    try { return JSON.parse(match[0]); } catch { /* fall through */ }
+  }
+  return null;
+}
 
 async function callAzure(url: string, apiKey: string, prompt: string, pdfText: string, maxTokens: number) {
   const res = await fetch(url, {
@@ -88,8 +125,16 @@ export async function POST(request: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
   let pdfText: string;
   try {
-    const parsed = await pdfParse(buffer);
-    pdfText = parsed.text?.trim();
+    // Try standard parse first; fall back with max_pages option for large PDFs
+    let parsed: { text: string } | null = null;
+    try {
+      parsed = await pdfParse(buffer);
+    } catch {
+      // Retry with a lenient option that skips problematic pages
+      parsed = await pdfParse(buffer, { max: 50 });
+    }
+    const rawText = parsed?.text?.trim() ?? "";
+    pdfText = truncateText(cleanPdfText(rawText));
     if (!pdfText) {
       return NextResponse.json({ error: "Could not extract text from PDF. The file may be scanned/image-only." }, { status: 400 });
     }
@@ -112,14 +157,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const text = await callAzure(azureUrl, apiKey, EXTRACTION_PROMPT, pdfText, 1024);
-    const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/, "").trim();
+    // Attempt 1: full text
+    let aiResponse = await callAzure(azureUrl, apiKey, EXTRACTION_PROMPT, pdfText, 2048);
+    let extracted = extractJson(aiResponse);
 
-    let extracted: Record<string, string | null>;
-    try {
-      extracted = JSON.parse(cleaned);
-    } catch {
-      return NextResponse.json({ error: "AI returned invalid JSON. Try again.", raw: text }, { status: 500 });
+    // Attempt 2: if JSON extraction failed, retry with shorter text
+    if (!extracted) {
+      const shorterText = truncateText(pdfText, 5_000);
+      aiResponse = await callAzure(azureUrl, apiKey, EXTRACTION_PROMPT, shorterText, 2048);
+      extracted = extractJson(aiResponse);
+    }
+
+    if (!extracted) {
+      return NextResponse.json({ error: "AI returned invalid JSON after two attempts.", raw: aiResponse }, { status: 500 });
     }
 
     return NextResponse.json({ ok: true, data: extracted });
