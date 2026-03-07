@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useState, useRef, useEffect } from "react";
@@ -19,12 +19,51 @@ export default function Navbar({ user }: { user: User }) {
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [pwError, setPwError] = useState("");
+  const [pwSuccess, setPwSuccess] = useState("");
+  const [pwLoading, setPwLoading] = useState(false);
 
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
     router.refresh();
+  }
+
+  async function handleChangePassword(e: React.FormEvent) {
+    e.preventDefault();
+    setPwError("");
+    setPwSuccess("");
+    if (newPassword !== confirmPassword) {
+      setPwError("Passwords do not match.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPwError("Password must be at least 6 characters.");
+      return;
+    }
+    setPwLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    setPwLoading(false);
+    if (error) {
+      setPwError(error.message);
+    } else {
+      setPwSuccess("Password updated successfully.");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  }
+
+  function closeModal() {
+    setShowPasswordModal(false);
+    setPwError("");
+    setPwSuccess("");
+    setNewPassword("");
+    setConfirmPassword("");
   }
 
   useEffect(() => {
@@ -100,6 +139,14 @@ export default function Navbar({ user }: { user: User }) {
               <p className="text-sm font-medium text-gray-800 truncate">{user.email}</p>
             </div>
             <button
+              onClick={() => { setDropdownOpen(false); setShowPasswordModal(true); }}
+              className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              suppressHydrationWarning
+            >
+              <KeyRound className="w-4 h-4" />
+              Change Password
+            </button>
+            <button
               onClick={handleLogout}
               className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
               suppressHydrationWarning
@@ -111,5 +158,57 @@ export default function Navbar({ user }: { user: User }) {
         )}
       </div>
     </header>
+
+    {showPasswordModal && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-sm">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Change Password</h2>
+          <form onSubmit={handleChangePassword} className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+              <input
+                type="password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+                suppressHydrationWarning
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+              <input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+                suppressHydrationWarning
+              />
+            </div>
+            {pwError && <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{pwError}</p>}
+            {pwSuccess && <p className="text-sm text-green-600 bg-green-50 px-3 py-2 rounded-lg">{pwSuccess}</p>}
+            <div className="flex gap-2 pt-1">
+              <button
+                type="submit"
+                disabled={pwLoading}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+              >
+                {pwLoading ? "Saving..." : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={closeModal}
+                className="flex-1 border border-gray-300 text-gray-700 font-medium py-2 rounded-lg text-sm hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    )}
   );
 }
