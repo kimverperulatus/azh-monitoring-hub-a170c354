@@ -163,7 +163,10 @@ async function handleLookup(request: NextRequest) {
     const statusChanged = !!mappedStatus && mappedStatus !== previousStatus;
 
     if (found) {
-      const updatePayload: Record<string, string | null> = { carebox_status: careboxStatus };
+      // If a mapping exists, store the mapped (local) value in carebox_status so it
+      // shows the correct styled badge. Also update status. Raw Zoho value is in results.
+      const careboxToStore = mappedStatus ?? careboxStatus;
+      const updatePayload: Record<string, string | null> = { carebox_status: careboxToStore };
       if (mappedStatus) updatePayload.status = mappedStatus;
       await admin.from("ekv_records").update(updatePayload).eq("id", record.id);
     }
