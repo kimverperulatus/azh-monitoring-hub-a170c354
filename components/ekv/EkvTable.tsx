@@ -234,62 +234,73 @@ export default function EkvTable({
   }
 
   async function startAuditAll() {
-    setBatchState(null);
-    // Fetch all matching IDs using current filters
-    const res = await fetch(`/api/ekv/all-ids?${searchParams.toString()}`);
-    const json = await res.json();
-    if (!res.ok) {
-      setBatchState({ running: false, total: 0, done: 0, batchNum: 0, totalBatches: 0, updated: 0, notFound: 0, statusChanged: 0, countdown: 0, error: json.error ?? "Failed to fetch IDs" });
-      return;
-    }
+    // Show loading immediately so user sees feedback
+    setBatchState({ running: true, total: 0, done: 0, batchNum: 0, totalBatches: 0, updated: 0, notFound: 0, statusChanged: 0, countdown: 0, error: "" });
 
-    const ids: string[] = json.ids;
-    if (!ids.length) {
-      setBatchState({ running: false, total: 0, done: 0, batchNum: 0, totalBatches: 0, updated: 0, notFound: 0, statusChanged: 0, countdown: 0, error: "No records match the current filters." });
-      return;
-    }
+    try {
+      // Strip pagination params — we want ALL matching IDs
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
+      params.delete("page_size");
 
-    const BATCH_SIZE = 200;
-    const WAIT_MS = 3 * 60 * 1000;
-    const batches: string[][] = [];
-    for (let i = 0; i < ids.length; i += BATCH_SIZE) batches.push(ids.slice(i, i + BATCH_SIZE));
-
-    let totalUpdated = 0, totalNotFound = 0, totalStatusChanged = 0, done = 0;
-
-    setBatchState({ running: true, total: ids.length, done: 0, batchNum: 1, totalBatches: batches.length, updated: 0, notFound: 0, statusChanged: 0, countdown: 0, error: "" });
-
-    for (let i = 0; i < batches.length; i++) {
-      setBatchState((prev) => prev && { ...prev, batchNum: i + 1, countdown: 0 });
-
-      const lookupRes = await fetch("/api/zoho/lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: batches[i] }),
-      });
-      const lookupJson = await lookupRes.json();
-
-      if (!lookupRes.ok) {
-        const errMsg = lookupJson.error ?? "Lookup failed";
-        setBatchState((prev) => prev && { ...prev, running: false, error: errMsg.includes("Unexpected end of JSON") ? "No Record Found." : errMsg });
+      const res = await fetch(`/api/ekv/all-ids?${params.toString()}`);
+      const json = await res.json();
+      if (!res.ok) {
+        setBatchState((prev) => prev && { ...prev, running: false, error: json.error ?? "Failed to fetch record IDs" });
         return;
       }
 
-      totalUpdated      += lookupJson.updated ?? 0;
-      totalNotFound     += lookupJson.notFound ?? 0;
-      totalStatusChanged += lookupJson.statusChanged ?? 0;
-      done              += batches[i].length;
-
-      setBatchState((prev) => prev && { ...prev, done, updated: totalUpdated, notFound: totalNotFound, statusChanged: totalStatusChanged });
-
-      if (i < batches.length - 1) {
-        await waitWithCountdown(WAIT_MS, (remaining) => {
-          setBatchState((prev) => prev && { ...prev, countdown: remaining });
-        });
+      const ids: string[] = json.ids ?? [];
+      if (!ids.length) {
+        setBatchState((prev) => prev && { ...prev, running: false, error: "No records match the current filters." });
+        return;
       }
-    }
 
-    setBatchState((prev) => prev && { ...prev, running: false, countdown: 0 });
-    router.refresh();
+      const BATCH_SIZE = 200;
+      const WAIT_MS = 3 * 60 * 1000;
+      const batches: string[][] = [];
+      for (let i = 0; i < ids.length; i += BATCH_SIZE) batches.push(ids.slice(i, i + BATCH_SIZE));
+
+      let totalUpdated = 0, totalNotFound = 0, totalStatusChanged = 0, done = 0;
+
+      setBatchState({ running: true, total: ids.length, done: 0, batchNum: 1, totalBatches: batches.length, updated: 0, notFound: 0, statusChanged: 0, countdown: 0, error: "" });
+
+      for (let i = 0; i < batches.length; i++) {
+        setBatchState((prev) => prev && { ...prev, batchNum: i + 1, countdown: 0 });
+
+        const lookupRes = await fetch("/api/zoho/lookup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: batches[i] }),
+        });
+        const lookupJson = await lookupRes.json();
+
+        if (!lookupRes.ok) {
+          const errMsg = lookupJson.error ?? "Lookup failed";
+          setBatchState((prev) => prev && { ...prev, running: false, error: errMsg.includes("Unexpected end of JSON") ? "No Record Found." : errMsg });
+          return;
+        }
+
+        totalUpdated       += lookupJson.updated ?? 0;
+        totalNotFound      += lookupJson.notFound ?? 0;
+        totalStatusChanged += lookupJson.statusChanged ?? 0;
+        done               += batches[i].length;
+
+        setBatchState((prev) => prev && { ...prev, done, updated: totalUpdated, notFound: totalNotFound, statusChanged: totalStatusChanged });
+
+        if (i < batches.length - 1) {
+          await waitWithCountdown(WAIT_MS, (remaining) => {
+            setBatchState((prev) => prev && { ...prev, countdown: remaining });
+          });
+        }
+      }
+
+      setBatchState((prev) => prev && { ...prev, running: false, countdown: 0 });
+      router.refresh();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setBatchState((prev) => prev && { ...prev, running: false, error: `Error: ${msg}` });
+    }
   }
 
   function exportSelected() {
@@ -493,12 +504,16 @@ export default function EkvTable({
                 <div className="flex items-center justify-between">
                   <span className={`font-medium ${batchState.running ? "text-amber-800" : "text-green-800"}`}>
                     {batchState.running
-                      ? batchState.countdown > 0
-                        ? `Waiting ${batchState.countdown}s before next batch (rate limit: 200 / 3 min)...`
-                        : `Processing batch ${batchState.batchNum} of ${batchState.totalBatches}...`
+                      ? batchState.total === 0
+                        ? "Fetching record IDs..."
+                        : batchState.countdown > 0
+                          ? `Waiting ${batchState.countdown}s before next batch (rate limit: 200 / 3 min)...`
+                          : `Processing batch ${batchState.batchNum} of ${batchState.totalBatches}...`
                       : "Audit complete"}
                   </span>
-                  <span className="text-xs text-gray-500">{batchState.done} / {batchState.total} records processed</span>
+                  {batchState.total > 0 && (
+                    <span className="text-xs text-gray-500">{batchState.done} / {batchState.total} records processed</span>
+                  )}
                 </div>
 
                 {/* Progress bar */}
