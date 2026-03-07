@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Save, RefreshCw } from "lucide-react";
+import { Save, RefreshCw, KeyRound, CheckCircle, ExternalLink } from "lucide-react";
 
 const FIELDS = [
   {
@@ -29,6 +29,14 @@ const FIELDS = [
   },
 ];
 
+const DC_CONSOLE_URLS: Record<string, string> = {
+  eu: "https://api-console.zoho.eu",
+  us: "https://api-console.zoho.com",
+  au: "https://api-console.zoho.com.au",
+  in: "https://api-console.zoho.in",
+  cn: "https://api-console.zoho.com.cn",
+};
+
 type SettingsMap = Record<string, string>;
 
 export default function AdminSettingsPage() {
@@ -37,6 +45,12 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  // Grant code exchange
+  const [grantCode, setGrantCode] = useState("");
+  const [exchangeLoading, setExchangeLoading] = useState(false);
+  const [exchangeError, setExchangeError] = useState("");
+  const [exchangeSuccess, setExchangeSuccess] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -70,6 +84,41 @@ export default function AdminSettingsPage() {
     }
   }
 
+  async function handleExchangeToken() {
+    setExchangeError("");
+    setExchangeSuccess("");
+    const clientId = values.zoho_client_id?.trim();
+    const clientSecret = values.zoho_client_secret?.trim();
+    const datacenter = values.zoho_datacenter || "eu";
+
+    if (!clientId || !clientSecret) {
+      setExchangeError("Fill in Client ID and Client Secret above first, then save.");
+      return;
+    }
+    if (!grantCode.trim()) {
+      setExchangeError("Paste your grant code first.");
+      return;
+    }
+
+    setExchangeLoading(true);
+    const res = await fetch("/api/zoho/exchange-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, grant_code: grantCode.trim(), datacenter }),
+    });
+    const json = await res.json();
+    setExchangeLoading(false);
+
+    if (!res.ok) {
+      setExchangeError(json.error ?? "Token exchange failed.");
+    } else {
+      const refreshToken = json.refresh_token as string;
+      setValues((v) => ({ ...v, zoho_refresh_token: refreshToken }));
+      setGrantCode("");
+      setExchangeSuccess("Refresh token obtained and filled in above. Click Save Settings to persist it.");
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-6 flex items-center gap-2 text-gray-500">
@@ -78,6 +127,9 @@ export default function AdminSettingsPage() {
       </div>
     );
   }
+
+  const datacenter = values.zoho_datacenter || "eu";
+  const consoleUrl = DC_CONSOLE_URLS[datacenter] ?? DC_CONSOLE_URLS.eu;
 
   return (
     <div className="p-6 max-w-2xl space-y-6">
@@ -137,16 +189,70 @@ export default function AdminSettingsPage() {
         </button>
       </form>
 
-      <section className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-700">How to get Zoho OAuth credentials</h2>
-        <ol className="text-sm text-gray-600 space-y-1.5 list-decimal list-inside">
-          <li>Go to <strong>api-console.zoho.eu</strong> (or your data center&apos;s API console)</li>
-          <li>Create a <strong>Self Client</strong> application</li>
-          <li>Note down the <strong>Client ID</strong> and <strong>Client Secret</strong></li>
-          <li>Generate a grant code with scope: <code className="bg-gray-100 px-1 rounded text-xs">ZohoCRM.modules.ALL</code></li>
-          <li>Exchange the grant code for a <strong>Refresh Token</strong> using the token endpoint</li>
-          <li>Paste the Refresh Token above</li>
+      {/* Grant code exchange — no redirect URI needed */}
+      <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <KeyRound className="w-4 h-4 text-gray-500" />
+          <h2 className="text-sm font-semibold text-gray-700">Get Refresh Token (Self Client)</h2>
+        </div>
+        <p className="text-xs text-gray-500">
+          No redirect URI needed. Use Zoho&apos;s Self Client to generate a one-time grant code, then exchange it here.
+        </p>
+
+        <ol className="text-sm text-gray-600 space-y-2 list-decimal list-inside">
+          <li>
+            Open the Zoho API Console for your data center:{" "}
+            <a
+              href={consoleUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-blue-600 hover:underline font-mono text-xs"
+            >
+              {consoleUrl} <ExternalLink className="w-3 h-3" />
+            </a>
+          </li>
+          <li>Go to <strong>Self Client</strong> → <strong>Generate Code</strong></li>
+          <li>
+            Set scope to:{" "}
+            <code className="bg-gray-100 px-1.5 py-0.5 rounded text-xs font-mono">ZohoCRM.modules.ALL</code>
+          </li>
+          <li>Set time duration (10 minutes is fine)</li>
+          <li>Copy the generated <strong>Grant Code</strong> and paste it below</li>
+          <li>Click <strong>Exchange for Refresh Token</strong> — the token will be filled in above automatically</li>
         </ol>
+
+        <div className="space-y-3 pt-1">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Grant Code</label>
+            <input
+              type="text"
+              value={grantCode}
+              onChange={(e) => setGrantCode(e.target.value)}
+              placeholder="1000.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+            />
+          </div>
+
+          {exchangeError && (
+            <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">{exchangeError}</p>
+          )}
+          {exchangeSuccess && (
+            <p className="text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg flex items-center gap-2">
+              <CheckCircle className="w-4 h-4 shrink-0" />
+              {exchangeSuccess}
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={handleExchangeToken}
+            disabled={exchangeLoading || !grantCode.trim()}
+            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+          >
+            {exchangeLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <KeyRound className="w-4 h-4" />}
+            {exchangeLoading ? "Exchanging..." : "Exchange for Refresh Token"}
+          </button>
+        </div>
       </section>
     </div>
   );
