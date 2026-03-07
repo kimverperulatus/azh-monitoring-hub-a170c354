@@ -214,7 +214,7 @@ export default function EkvTable({
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr NOVENTI</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">KVNr LE</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Kassenname</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Notes</th>
+              <th className="text-left px-4 py-3 font-medium text-gray-600">Reason</th>
               <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
             </tr>
           </thead>
@@ -231,8 +231,8 @@ export default function EkvTable({
                 <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.kvnr_le ?? "-"}</td>
                 <td className="px-4 py-3 text-gray-700">{record.kassenname ?? "-"}</td>
                 <td className="px-4 py-3 text-gray-500 max-w-[200px]">
-                  {record.notes ? (
-                    <span className="block truncate text-xs" title={record.notes}>{record.notes}</span>
+                  {record.reasons ? (
+                    <span className="block truncate text-xs" title={record.reasons}>{record.reasons}</span>
                   ) : "-"}
                 </td>
                 <td className="px-4 py-3">
