@@ -81,10 +81,17 @@ export default async function EkvPage({
     .select("*", { count: "exact", head: true })
     .is("audit_date", null);
 
-  const [{ data: records, count }, statusCounts, { count: notAuditedCount }] = await Promise.all([
+  const emptyAfterAuditQuery = supabase
+    .from("ekv_records")
+    .select("*", { count: "exact", head: true })
+    .is("carebox_status", null)
+    .not("audit_date", "is", null);
+
+  const [{ data: records, count }, statusCounts, { count: notAuditedCount }, { count: emptyAfterAuditCount }] = await Promise.all([
     recordsQuery,
     statusCountsPromise,
     notAuditedQuery,
+    emptyAfterAuditQuery,
   ]);
 
   return (
@@ -112,6 +119,7 @@ export default async function EkvPage({
         pageSize={pageSize}
         statusCounts={statusCounts}
         notAuditedCount={notAuditedCount ?? 0}
+        emptyAfterAuditCount={emptyAfterAuditCount ?? 0}
       />
     </div>
   );

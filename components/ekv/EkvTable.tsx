@@ -67,6 +67,7 @@ export default function EkvTable({
   pageSize,
   statusCounts = [],
   notAuditedCount = 0,
+  emptyAfterAuditCount = 0,
 }: {
   records: EkvRecord[];
   total: number;
@@ -74,6 +75,7 @@ export default function EkvTable({
   pageSize: number;
   statusCounts?: { status: string; count: number }[];
   notAuditedCount?: number;
+  emptyAfterAuditCount?: number;
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -300,16 +302,23 @@ export default function EkvTable({
         <div className="flex flex-col gap-1">
           <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Carebox Status</span>
           <div className="flex gap-1.5">
-            {[{ value: "", label: "All" }, { value: "empty", label: "Empty" }, { value: "empty_audited", label: "Empty after Audit" }].map(({ value, label }) => (
+            {[{ value: "", label: "All" }, { value: "empty", label: "Empty" }, { value: "empty_audited", label: "Empty after Audit", count: emptyAfterAuditCount }].map(({ value, label, count }) => (
               <button
                 key={value}
                 onClick={() => setFilter("carebox_filter", value)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
                   careboxFilter === value ? "bg-blue-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
                 }`}
                 suppressHydrationWarning
               >
                 {label}
+                {count != null && count > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded-full text-xs font-semibold ${
+                    careboxFilter === value ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"
+                  }`}>
+                    {count}
+                  </span>
+                )}
               </button>
             ))}
           </div>
