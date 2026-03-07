@@ -17,7 +17,7 @@ export default async function LetterPage({
   const { data: records, count } = await supabase
     .from("letter_records")
     .select(
-      "id, created_at, category, type, health_insurance_provider, date_of_letter, insurance_number, first_name, last_name, approval_id, co_payment, insurance_covered_amount, product_list, valid_until, reason, street, house_number, post_code, city",
+      "id, created_at, category, type, health_insurance_provider, date_of_letter, insurance_number, first_name, last_name, approval_id, valid_until",
       { count: "exact" }
     )
     .order("created_at", { ascending: false })
