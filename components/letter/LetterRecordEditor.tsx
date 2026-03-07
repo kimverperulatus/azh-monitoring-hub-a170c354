@@ -165,9 +165,13 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
               <div className="flex flex-col gap-0.5">
                 <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Category</span>
                 {record.category ? (
-                  <span className={`self-start px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[record.category] ?? "bg-gray-100 text-gray-700"}`}>
-                    {record.category}
-                  </span>
+                  <div className="flex flex-wrap gap-1">
+                    {record.category.split(",").map((c) => c.trim()).filter(Boolean).map((c) => (
+                      <span key={c} className={`px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[c] ?? "bg-gray-100 text-gray-700"}`}>
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 ) : <span className="text-sm text-gray-800">-</span>}
               </div>
               <div className="flex flex-col gap-0.5">
@@ -275,7 +279,29 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
           <section className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
             <h2 className="text-sm font-semibold text-gray-700">Classification</h2>
             <div className="grid grid-cols-2 gap-4">
-              <SelectField label="Category" name="category" value={form.category} options={CATEGORY_OPTIONS} onChange={handleChange} />
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Category</label>
+                <div className="flex flex-wrap gap-2">
+                  {CATEGORY_OPTIONS.map((opt) => {
+                    const selected = form.category.split(",").map((c) => c.trim()).includes(opt);
+                    return (
+                      <label key={opt} className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() => {
+                            const current = form.category.split(",").map((c) => c.trim()).filter(Boolean);
+                            const next = selected ? current.filter((c) => c !== opt) : [...current, opt];
+                            handleChange("category", next.join(", "));
+                          }}
+                          className="rounded border-gray-300"
+                        />
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[opt] ?? "bg-gray-100 text-gray-700"}`}>{opt}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
               <SelectField label="Type" name="type" value={form.type} options={TYPE_OPTIONS} onChange={handleChange} />
             </div>
           </section>

@@ -316,9 +316,13 @@ export default function LetterTable({
                   )}
                   <td className="px-2 py-2">
                     {record.category ? (
-                      <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${CATEGORY_STYLES[record.category] ?? "bg-gray-100 text-gray-700"}`}>
-                        {record.category}
-                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {record.category.split(",").map((cat) => cat.trim()).filter(Boolean).map((cat) => (
+                          <span key={cat} className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${CATEGORY_STYLES[cat] ?? "bg-gray-100 text-gray-700"}`}>
+                            {cat}
+                          </span>
+                        ))}
+                      </div>
                     ) : <span className="text-gray-400">-</span>}
                   </td>
                   <td className="px-2 py-2">

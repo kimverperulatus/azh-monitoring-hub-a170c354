@@ -33,7 +33,7 @@ export default async function LetterPage({
     query = query.eq("scan_status", scan_status);
   }
   if (category) {
-    query = query.eq("category", category);
+    query = query.ilike("category", `%${category}%`);
   }
   if (type) {
     query = query.eq("type", type);
