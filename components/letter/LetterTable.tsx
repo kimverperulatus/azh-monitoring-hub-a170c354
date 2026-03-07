@@ -267,11 +267,11 @@ export default function LetterTable({
       )}
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-xs">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               {isAdmin && (
-                <th className="px-4 py-3 w-8">
+                <th className="px-2 py-2 w-7">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -280,16 +280,16 @@ export default function LetterTable({
                   />
                 </th>
               )}
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Category</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Type</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Health Insurance Provider</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Date of Letter</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Approval ID</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Valid Until</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">File Name</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Scan</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">AI Summary</th>
-              <th className="px-4 py-3" />
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Category</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Type</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Health Insurance Provider</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Date of Letter</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Approval ID</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Valid Until</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">File Name</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">Scan</th>
+              <th className="text-left px-2 py-2 font-medium text-gray-600 whitespace-nowrap">AI Summary</th>
+              <th className="px-2 py-2" />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -298,7 +298,7 @@ export default function LetterTable({
               return (
                 <tr key={record.id} className={`hover:bg-gray-50 transition-colors ${selected ? "bg-red-50" : ""}`}>
                   {isAdmin && (
-                    <td className="px-4 py-3">
+                    <td className="px-2 py-2">
                       <input
                         type="checkbox"
                         checked={selected}
@@ -307,49 +307,49 @@ export default function LetterTable({
                       />
                     </td>
                   )}
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     {record.category ? (
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${CATEGORY_STYLES[record.category] ?? "bg-gray-100 text-gray-700"}`}>
+                      <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${CATEGORY_STYLES[record.category] ?? "bg-gray-100 text-gray-700"}`}>
                         {record.category}
                       </span>
-                    ) : <span className="text-gray-400 text-xs">-</span>}
+                    ) : <span className="text-gray-400">-</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     {record.type ? (
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>
+                      <span className={`px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${TYPE_STYLES[record.type] ?? "bg-gray-100 text-gray-700"}`}>
                         {record.type}
                       </span>
-                    ) : <span className="text-gray-400 text-xs">-</span>}
+                    ) : <span className="text-gray-400">-</span>}
                   </td>
-                  <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{record.health_insurance_provider ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
-                  <td className="px-4 py-3 text-gray-600 font-mono text-xs">{record.approval_id ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs max-w-[160px] truncate" title={record.file_name ?? ""}>{record.file_name ?? "-"}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{record.health_insurance_provider ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.date_of_letter)}</td>
+                  <td className="px-2 py-2 text-gray-600 font-mono">{record.approval_id ?? "-"}</td>
+                  <td className="px-2 py-2 text-gray-700 whitespace-nowrap">{formatDate(record.valid_until)}</td>
+                  <td className="px-2 py-2 text-gray-500 max-w-[140px] truncate" title={record.file_name ?? ""}>{record.file_name ?? "-"}</td>
+                  <td className="px-2 py-2">
                     {record.scan_status === "success" && (
-                      <span className="flex items-center gap-1 text-xs font-medium text-green-700">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Success
+                      <span className="flex items-center gap-1 font-medium text-green-700 whitespace-nowrap">
+                        <CheckCircle2 className="w-3 h-3" /> OK
                       </span>
                     )}
                     {record.scan_status === "error" && (
-                      <span className="flex items-center gap-1 text-xs font-medium text-red-600">
-                        <AlertCircle className="w-3.5 h-3.5" /> Error
+                      <span className="flex items-center gap-1 font-medium text-red-600 whitespace-nowrap">
+                        <AlertCircle className="w-3 h-3" /> Err
                       </span>
                     )}
-                    {!record.scan_status && <span className="text-gray-400 text-xs">-</span>}
+                    {!record.scan_status && <span className="text-gray-400">-</span>}
                   </td>
-                  <td className="px-4 py-3 text-gray-500 text-xs max-w-[220px]">
+                  <td className="px-2 py-2 text-gray-500 max-w-[200px]">
                     {record.ai_summary ? (
                       <span className="line-clamp-2 leading-relaxed" title={record.ai_summary}>{record.ai_summary}</span>
                     ) : <span className="text-gray-400">-</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-2">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
-                      className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors whitespace-nowrap"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <Eye className="w-3 h-3" />
                       View
                     </Link>
                   </td>
