@@ -75,9 +75,15 @@ export default async function EkvPage({
     })
   );
 
-  const [{ data: records, count }, statusCounts] = await Promise.all([
+  const notAuditedQuery = supabase
+    .from("ekv_records")
+    .select("*", { count: "exact", head: true })
+    .is("audit_date", null);
+
+  const [{ data: records, count }, statusCounts, { count: notAuditedCount }] = await Promise.all([
     recordsQuery,
     statusCountsPromise,
+    notAuditedQuery,
   ]);
 
   return (
@@ -104,6 +110,7 @@ export default async function EkvPage({
         page={page}
         pageSize={pageSize}
         statusCounts={statusCounts}
+        notAuditedCount={notAuditedCount ?? 0}
       />
     </div>
   );
