@@ -108,10 +108,11 @@ export default function EkvTable({
   const angelegtTo = searchParams.get("angelegt_to") ?? "";
   const entschiedenFrom = searchParams.get("entschieden_from") ?? "";
   const entschiedenTo = searchParams.get("entschieden_to") ?? "";
+  const auditFilter = searchParams.get("audit_filter") ?? "";
   const totalPages = Math.ceil(total / pageSize);
 
   const hasDateFilters = angelegtFrom || angelegtTo || entschiedenFrom || entschiedenTo;
-  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters;
+  const hasAnyFilter = activeStatus || searchQuery || kasseFilter || hasDateFilters || auditFilter;
 
   function clearAllFilters() {
     router.push(pathname);
@@ -123,6 +124,8 @@ export default function EkvTable({
     params.delete("page");
     router.push(`${pathname}?${params.toString()}`);
   }
+
+
 
   function doExport() {
     const params = new URLSearchParams();
@@ -291,6 +294,29 @@ export default function EkvTable({
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Audit Date Filter */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium text-gray-500 whitespace-nowrap">Audit Date:</span>
+        {[
+          { value: "", label: "All" },
+          { value: "not_audited", label: "Not Audited" },
+          { value: "today", label: "Today" },
+        ].map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setFilter("audit_filter", value)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              auditFilter === value
+                ? "bg-blue-600 text-white"
+                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+            }`}
+            suppressHydrationWarning
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Date Filters */}
