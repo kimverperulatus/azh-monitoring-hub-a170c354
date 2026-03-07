@@ -54,6 +54,7 @@ export default async function EkvAuditPage() {
   const ZOHO_BUILT_IN: Record<string, string> = {
     VERSCHICKT: "Pending",
     PENDING: "Pending",
+    "VERSCHICKT/PENDING": "Pending",
   };
 
   function resolveCarebox(careboxStatus: string): string {
