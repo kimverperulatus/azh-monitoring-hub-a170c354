@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Pencil, X, Check, CheckCircle2, AlertCircle, Copy } from "lucide-react";
+import { Pencil, X, Check, CheckCircle2, AlertCircle, Copy, Download } from "lucide-react";
 
 type LetterRecord = {
   id: string;
@@ -110,6 +110,35 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
   const [copiedRenamedFile, setCopiedRenamedFile] = useState(false);
   const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null);
   const [pdfLoadError, setPdfLoadError] = useState(false);
+  const [processing, setProcessing] = useState(false);
+
+  async function handleProcessToCrm() {
+    if (!record.pdf_url || processing) return;
+    setProcessing(true);
+    try {
+      // 1. Download PDF
+      const res = await fetch(record.pdf_url);
+      const blob = await res.blob();
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = renamedFileName;
+      a.click();
+      URL.revokeObjectURL(a.href);
+
+      // 2. Delete from storage and clear pdf_url in DB
+      await fetch("/api/letter/delete-storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ record_id: record.id, pdf_url: record.pdf_url }),
+      });
+
+      router.refresh();
+    } catch {
+      // best-effort
+    } finally {
+      setProcessing(false);
+    }
+  }
 
   useEffect(() => {
     if (!record.pdf_url) return;
@@ -214,7 +243,17 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
   if (!editing) {
     return (
       <>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          {record.pdf_url && (
+            <button
+              onClick={handleProcessToCrm}
+              disabled={processing}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              {processing ? "Processing..." : "Process to CRM"}
+            </button>
+          )}
           <button
             onClick={() => setEditing(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
