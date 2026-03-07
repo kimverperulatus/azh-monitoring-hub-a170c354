@@ -30,10 +30,31 @@ Fields to extract:
 Return ONLY a JSON object like this (no markdown, no explanation):
 {"category":null,"type":null,"health_insurance_provider":null,"date_of_letter":null,"insurance_number":null,"first_name":null,"last_name":null,"approval_id":null,"co_payment":null,"insurance_covered_amount":null,"product_list":null,"valid_until":null,"reason":null,"street":null,"house_number":null,"post_code":null,"city":null,"ai_summary":null}`;
 
+const SUMMARY_PROMPT = `You are analyzing a document. Write a concise English summary (2-4 sentences) describing what this document is about — who it is for, what it covers, and any key details. Return ONLY the summary text, no JSON, no markdown.`;
+
+async function callAzure(url: string, apiKey: string, prompt: string, pdfText: string, maxTokens: number) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "api-key": apiKey },
+    body: JSON.stringify({
+      max_completion_tokens: maxTokens,
+      messages: [{ role: "user", content: `${prompt}\n\n--- DOCUMENT TEXT ---\n${pdfText}` }],
+    }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(`${res.status} ${res.statusText}: ${errBody}`);
+  }
+  const json = await res.json() as { choices: { message: { content: string } }[] };
+  return json.choices[0]?.message?.content ?? "";
+}
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const summaryOnly = request.nextUrl.searchParams.get("summary_only") === "true";
 
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
@@ -77,25 +98,21 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Failed to parse PDF: ${msg}` }, { status: 400 });
   }
 
-  try {
-    // Azure OpenAI REST API
-    const url = `${endpoint.replace(/\/$/, "")}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "api-key": apiKey },
-      body: JSON.stringify({
-        max_completion_tokens: 1024,
-        messages: [{ role: "user", content: `${EXTRACTION_PROMPT}\n\n--- DOCUMENT TEXT ---\n${pdfText}` }],
-      }),
-    });
+  const azureUrl = `${endpoint.replace(/\/$/, "")}/openai/deployments/${deployment}/chat/completions?api-version=${apiVersion}`;
 
-    if (!res.ok) {
-      const errBody = await res.text();
-      throw new Error(`${res.status} ${res.statusText}: ${errBody}`);
+  // Summary-only mode: return just a plain text summary
+  if (summaryOnly) {
+    try {
+      const summary = await callAzure(azureUrl, apiKey, SUMMARY_PROMPT, pdfText, 512);
+      return NextResponse.json({ ok: true, summary: summary.trim() });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return NextResponse.json({ error: `AI error: ${msg}` }, { status: 500 });
     }
+  }
 
-    const json = await res.json() as { choices: { message: { content: string } }[] };
-    const text = json.choices[0]?.message?.content ?? "";
+  try {
+    const text = await callAzure(azureUrl, apiKey, EXTRACTION_PROMPT, pdfText, 1024);
     const cleaned = text.replace(/^```[a-z]*\n?/i, "").replace(/\n?```$/, "").trim();
 
     let extracted: Record<string, string | null>;
@@ -108,7 +125,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, data: extracted });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err);
-    // Include which endpoint+version was used to help diagnose
     const detail = `[endpoint=${endpoint} version=${apiVersion} deployment=${deployment}]`;
     return NextResponse.json({ error: `AI error: ${msg} ${detail}` }, { status: 500 });
   }

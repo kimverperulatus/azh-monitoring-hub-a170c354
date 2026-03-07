@@ -62,6 +62,22 @@ export default function PdfUploadModal() {
         analyzeError = "Network error during analysis.";
       }
 
+      // Fallback: if full extraction failed, try to get just a summary
+      let fallbackSummary: string | null = null;
+      if (analyzeError) {
+        try {
+          const fd2 = new FormData();
+          fd2.append("file", file);
+          const res2 = await fetch("/api/letter/analyze-pdf?summary_only=true", { method: "POST", body: fd2 });
+          if (res2.ok) {
+            const json2 = await res2.json();
+            fallbackSummary = json2.summary ?? null;
+          }
+        } catch {
+          // ignore — summary is best-effort
+        }
+      }
+
       // Step 2: Save to DB (success or error record)
       updateStatus(i, "saving");
 
@@ -69,6 +85,7 @@ export default function PdfUploadModal() {
         file_name: file.name,
         scan_status: analyzeError ? "error" : "success",
         ...(extracted ?? {}),
+        ...(fallbackSummary ? { ai_summary: fallbackSummary } : {}),
       };
 
       const { error: dbError } = await supabase.from("letter_records").insert(payload);
