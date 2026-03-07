@@ -465,8 +465,7 @@ export default function EkvTable({
             {records.map((record) => (
               <tr
                 key={record.id}
-                className={`hover:bg-blue-50 cursor-pointer ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
-                onClick={() => router.push(`/dashboard/ekv/${record.id}`)}
+                className={`hover:bg-blue-50 ${selectedIds.has(record.id) ? "bg-blue-50" : ""}`}
               >
                 <td className="px-2 py-2" onClick={(e) => { e.stopPropagation(); if ((e.target as HTMLElement).tagName !== "INPUT") toggleRow(record.id); }}>
                   <input

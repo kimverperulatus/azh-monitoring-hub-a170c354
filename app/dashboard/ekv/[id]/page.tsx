@@ -43,7 +43,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
   if (!record) notFound();
 
   return (
-    <div className="p-6 max-w-5xl space-y-6">
+    <div className="p-6 space-y-6">
       {/* Back + header */}
       <div className="flex items-center gap-3">
         <Link
