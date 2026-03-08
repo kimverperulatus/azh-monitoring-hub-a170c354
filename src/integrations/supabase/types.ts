@@ -43,6 +43,7 @@ export type Database = {
       }
       ekv_records: {
         Row: {
+          audit_date: string | null
           created_at: string
           error_message: string | null
           id: string
@@ -63,6 +64,7 @@ export type Database = {
           versichertenvorname: string | null
         }
         Insert: {
+          audit_date?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
@@ -83,6 +85,7 @@ export type Database = {
           versichertenvorname?: string | null
         }
         Update: {
+          audit_date?: string | null
           created_at?: string
           error_message?: string | null
           id?: string
@@ -106,6 +109,7 @@ export type Database = {
       }
       letter_records: {
         Row: {
+          ai_summary: string | null
           category: string | null
           created_at: string
           date_of_letter: string | null
@@ -124,6 +128,7 @@ export type Database = {
           uploader_name: string | null
         }
         Insert: {
+          ai_summary?: string | null
           category?: string | null
           created_at?: string
           date_of_letter?: string | null
@@ -142,6 +147,7 @@ export type Database = {
           uploader_name?: string | null
         }
         Update: {
+          ai_summary?: string | null
           category?: string | null
           created_at?: string
           date_of_letter?: string | null
@@ -188,18 +194,21 @@ export type Database = {
       role_permissions: {
         Row: {
           allowed: boolean
+          enabled: boolean | null
           id: string
           page_key: string
           role: string
         }
         Insert: {
           allowed?: boolean
+          enabled?: boolean | null
           id?: string
           page_key: string
           role: string
         }
         Update: {
           allowed?: boolean
+          enabled?: boolean | null
           id?: string
           page_key?: string
           role?: string
