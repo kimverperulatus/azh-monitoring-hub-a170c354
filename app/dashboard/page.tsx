@@ -3,6 +3,8 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import ActivityFeed from "@/components/dashboard/ActivityFeed";
 import MonthlyChart from "@/components/dashboard/MonthlyChart";
 import { Suspense } from "react";
+import Link from "next/link";
+import { FileText, List, Upload, ScrollText } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -117,6 +119,36 @@ export default async function DashboardPage({
         <h1 className="text-xl font-bold text-gray-900 tracking-tight">Overview</h1>
         <p className="text-sm text-gray-400 mt-0.5">Carebox monitoring dashboard</p>
       </div>
+
+      {/* Quick Nav */}
+      <section>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3">
+          <Link href="/dashboard/ekv" className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-brand-red-300 hover:bg-brand-red-50/40 transition-colors group">
+            <div className="w-8 h-8 rounded-lg bg-brand-red-100 flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4 text-brand-red-700" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 group-hover:text-brand-red-800">EKV</span>
+          </Link>
+          <Link href="/dashboard/letter/all" className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-brand-gold-400 hover:bg-brand-gold-50/40 transition-colors group">
+            <div className="w-8 h-8 rounded-lg bg-brand-gold-100 flex items-center justify-center shrink-0">
+              <List className="w-4 h-4 text-brand-gold-700" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 group-hover:text-brand-gold-800">All Scan Letters</span>
+          </Link>
+          <Link href="/dashboard/letter/upload" className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/40 transition-colors group">
+            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+              <Upload className="w-4 h-4 text-blue-600" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 group-hover:text-blue-700">Upload Scan Letters</span>
+          </Link>
+          <Link href="/dashboard/logs" className="flex items-center gap-3 px-4 py-3 bg-white border border-gray-200 rounded-xl hover:border-gray-400 hover:bg-gray-50 transition-colors group">
+            <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+              <ScrollText className="w-4 h-4 text-gray-600" />
+            </div>
+            <span className="text-sm font-semibold text-gray-700 group-hover:text-gray-900">Logs</span>
+          </Link>
+        </div>
+      </section>
 
       {/* EKV Stats */}
       <section>

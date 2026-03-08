@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import LetterTable from "@/components/letter/LetterTable";
 import { getUserRole } from "@/lib/auth/role";
 import Link from "next/link";
-import { Upload } from "lucide-react";
+import { Upload, List } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -56,15 +56,26 @@ export default async function AllScanLettersPage({
     <div className="p-3 md:p-6 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">All Scan Letters</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Scan Letters</h1>
           <p className="text-sm text-gray-500">{count ?? 0} total records</p>
         </div>
+      </div>
+
+      {/* Page tabs */}
+      <div className="flex gap-1.5">
+        <Link
+          href="/dashboard/letter/all"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-brand-navy-800 text-white transition-colors"
+        >
+          <List className="w-4 h-4" />
+          All Scan Letters
+        </Link>
         <Link
           href="/dashboard/letter/upload"
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white bg-brand-red-800 hover:bg-brand-red-700 rounded-lg transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
         >
           <Upload className="w-4 h-4" />
-          Upload PDF
+          Upload Scan Letters
         </Link>
       </div>
       <LetterTable
