@@ -99,6 +99,11 @@ serve(async (req) => {
           allRows = stripUnknownColumns(allRows, allowedCols);
         }
 
+        // Null out foreign key references to old auth.users IDs
+        if (table === "letter_records") {
+          allRows = allRows.map(row => ({ ...row, uploaded_by: null }));
+        }
+
         const conflictCol = CONFLICT_COLUMNS[table] || "id";
 
         let totalMigrated = 0;
