@@ -58,24 +58,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        setLoading(true);
         setSession(session);
         setUser(session?.user ?? null);
+
         if (session?.user) {
-          // Use setTimeout to avoid Supabase deadlock
-          setTimeout(() => fetchRoleAndPermissions(session.user.id), 0);
+          // Defer role fetch to avoid auth callback deadlocks,
+          // but keep loading=true until role/permissions are resolved.
+          setTimeout(async () => {
+            await fetchRoleAndPermissions(session.user.id);
+            setLoading(false);
+          }, 0);
         } else {
           setRole("support");
           setAllowedPages([]);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchRoleAndPermissions(session.user.id);
+        await fetchRoleAndPermissions(session.user.id);
+      } else {
+        setRole("support");
+        setAllowedPages([]);
       }
       setLoading(false);
     });
