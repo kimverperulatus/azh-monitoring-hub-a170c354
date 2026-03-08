@@ -1,157 +1,223 @@
 # AZH Monitoring
 
-A Next.js dashboard for monitoring Carebox operations, including EKV records, letter processing, and activity logs. Built with Supabase for authentication and data storage.
+Internal dashboard for monitoring Carebox operations — EKV records, AI-powered scan letter processing, role-based access control, and activity logs.
+
+---
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
-- **Language:** TypeScript
-- **Auth & Database:** Supabase
-- **Styling:** Tailwind CSS
-- **UI Components:** Radix UI, Lucide React
-- **Charts:** Recharts
-- **CSV/Excel parsing:** PapaParse, xlsx
-- **Date formatting:** date-fns
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router, Server Components) |
+| Language | TypeScript |
+| Auth & Database | Supabase (PostgreSQL + Storage) |
+| AI / PDF Extraction | Anthropic Claude API (`pdf-parse`) |
+| Styling | Tailwind CSS |
+| UI Components | Radix UI, Lucide React |
+| Charts | Recharts |
+| Data Import | PapaParse, xlsx |
+| Date Formatting | date-fns |
+| Deployment | Docker + Traefik (Azure VM) |
+
+---
+
+## Features
+
+### Dashboard Overview
+- Monthly chart (EKV + Letters) with year selector
+- Role-based quick navigation buttons
+- Recent activity feed (last 10 actions)
+
+### EKV Module (`/dashboard/ekv`)
+- Paginated table with search, status filter, and date filter
+- Single record view with field editor
+- Prev/Next navigation between records
+- CSV/Excel import
+- Carebox status sync audit page
+- Activity logging on every save
+
+### Scan Letters Module (`/dashboard/letter`)
+- **All Scan Letters** — full table with filters (date, status, category, type, provider, search)
+- **Upload Scan Letters** — drag-and-drop multi-PDF upload with AI extraction
+- AI auto-extracts: patient name, insurance number, category, type, approval ID, address, dates, and more
+- PDF preview in record detail view
+- "Process to CRM" — downloads the renamed PDF and clears it from storage
+- Renamed file name auto-generated from record fields (copy to clipboard)
+- Uploader name and upload date tracked per record
+- Admin-only delete (also removes PDF from storage)
+- Activity logging on every AI scan
+
+### Role-Based Access Control
+| Role | Access |
+|------|--------|
+| `admin` | Full access — all pages, delete, user management, permissions |
+| `support` | EKV, All Letters, Logs |
+| `scanner` | Upload Letters only — own records, no Process to CRM |
+| `custom` | Admin configures per-page access individually |
+
+### Admin Tools
+- **Users** (`/dashboard/admin/users`) — create, edit role, delete users
+- **Permissions** (`/dashboard/admin/permissions`) — toggle page access per role (toggle matrix)
+
+### Logs (`/dashboard/logs`)
+- Full activity log with module, action, record ID, and timestamp
+- Total AI Scan count stat card
+
+---
 
 ## Project Structure
 
 ```
 azh-monitoring/
 ├── app/
-│   ├── layout.tsx              # Root layout
-│   ├── page.tsx                # Root redirect
-│   ├── login/
-│   │   └── page.tsx            # Login page (Supabase auth)
+│   ├── login/page.tsx                  # Split-panel login page
 │   └── dashboard/
-│       ├── layout.tsx          # Dashboard layout with Sidebar
-│       ├── page.tsx            # Overview — stats + activity feed
+│       ├── layout.tsx                  # Auth guard + Navbar
+│       ├── page.tsx                    # Overview
 │       ├── ekv/
-│       │   └── page.tsx        # EKV records page
+│       │   ├── page.tsx                # EKV records table
+│       │   ├── [id]/page.tsx           # EKV single record view
+│       │   └── audit/page.tsx          # Carebox status audit
 │       ├── letter/
-│       │   └── page.tsx        # Letter records page
-│       └── logs/
-│           └── page.tsx        # Activity logs page
+│       │   ├── page.tsx                # Redirects → /letter/all
+│       │   ├── all/page.tsx            # All Scan Letters table
+│       │   ├── upload/page.tsx         # Upload + My Uploads
+│       │   └── [id]/page.tsx           # Letter single record view
+│       ├── logs/page.tsx               # Activity logs
+│       └── admin/
+│           ├── users/page.tsx          # User management
+│           └── permissions/page.tsx    # Role permissions matrix
 ├── components/
 │   ├── layout/
-│   │   └── Sidebar.tsx         # Navigation sidebar with sign-out
+│   │   └── Navbar.tsx                  # Top nav with role-filtered links
+│   ├── ui/
+│   │   └── BackButton.tsx              # router.back() or fixed href
 │   ├── dashboard/
-│   │   ├── StatsCard.tsx       # Stat summary card
-│   │   └── ActivityFeed.tsx    # Recent activity list
+│   │   ├── StatsCard.tsx
+│   │   ├── ActivityFeed.tsx
+│   │   └── MonthlyChart.tsx
 │   ├── ekv/
-│   │   ├── EkvTable.tsx        # EKV records table with search/filter/pagination
-│   │   └── ImportModal.tsx     # CSV/Excel import modal
-│   └── records/
-│       ├── RecordsTable.tsx    # Generic records table
-│       └── RecordActions.tsx   # Per-row action buttons (approve, reject, etc.)
+│   │   ├── EkvTable.tsx                # EKV records table
+│   │   ├── EkvRecordEditor.tsx         # Inline field editor
+│   │   ├── NoteEditor.tsx
+│   │   └── ImportModal.tsx
+│   ├── letter/
+│   │   ├── LetterTable.tsx             # All Letters table
+│   │   ├── LetterRecordEditor.tsx      # Letter field editor + PDF preview
+│   │   ├── PdfUploadInline.tsx         # Multi-PDF upload with AI scan
+│   │   └── UploadDateFilter.tsx
+│   └── admin/
+│       ├── UserManager.tsx             # User CRUD client component
+│       └── PermissionMatrix.tsx        # Role × page toggle matrix
+├── app/api/
+│   ├── letter/
+│   │   ├── analyze-pdf/route.ts        # Claude AI PDF extraction
+│   │   ├── upload-storage/route.ts     # Supabase storage upload
+│   │   ├── delete-storage/route.ts     # Storage cleanup on process
+│   │   ├── rename-storage/route.ts     # Rename PDF on record edit
+│   │   └── delete/route.ts             # Delete records + storage (admin)
+│   ├── ekv/
+│   │   └── export/route.ts             # CSV export
+│   └── admin/
+│       ├── users/route.ts
+│       ├── users/[id]/route.ts
+│       └── permissions/route.ts
 ├── lib/
-│   └── supabase/
-│       ├── client.ts           # Supabase browser client
-│       ├── server.ts           # Supabase server client (RSC)
-│       └── middleware.ts       # Supabase session refresh middleware
+│   ├── supabase/
+│   │   ├── client.ts                   # Browser Supabase client
+│   │   ├── server.ts                   # Server Supabase client + admin client
+│   │   └── middleware.ts
+│   └── auth/
+│       └── role.ts                     # getUserRole, getUserPageAccess, requireAdmin
 ├── supabase/
-│   ├── schema.sql              # Database schema
-│   ├── migrate-ekv-columns.sql # EKV column migration
-│   └── migrate-status.sql      # Status field migration
-└── middleware.ts               # Next.js middleware (auth guard)
+│   ├── schema.sql
+│   ├── migrate-v2.sql                  # scanner/custom roles + role_permissions + uploaded_by
+│   └── migrate-letter-uploader.sql     # uploader_name + uploaded_at columns
+├── Dockerfile                          # Multi-stage Docker build
+├── docker-compose.yml                  # Traefik + App
+├── .dockerignore
+└── DEPLOYMENT.md                       # Full deployment guide
 ```
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- A [Supabase](https://supabase.com) project
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/kimverperulatus/azh-monitoring.git
-   cd azh-monitoring
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env.local` file in the root directory:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
-
-4. Apply the database schema in your Supabase project:
-   - Run `supabase/schema.sql` first
-   - Then run migration files as needed
-
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+---
 
 ## Database Tables
 
 | Table | Description |
 |-------|-------------|
-| `ekv_records` | EKV (Elektronische Krankenversicherung) records |
-| `letter_records` | Letter processing records |
-| `activity_logs` | Audit log of all actions taken in the system |
+| `ekv_records` | EKV (Elektronische Krankenversicherung) application records |
+| `letter_records` | AI-scanned letter records with all extracted fields |
+| `activity_logs` | Audit log of all user actions |
+| `profiles` | User profiles with role assignment |
+| `role_permissions` | Per-role page access configuration |
+| `app_settings` | Key-value settings (Zoho status map, API config) |
 
-### EKV Record Fields
+### Letter Record Fields (key)
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | uuid | Primary key |
-| `kv_angelegt` | timestamp | Date KV was created |
-| `kv_entschieden` | timestamp | Date KV was decided |
-| `kvnr_noventi` | text | KVNR from NOVENTI system |
-| `kvnr_le` | text | KVNR from LE system |
-| `le_ik` | text | LE institution key |
-| `le_kdnr` | text | LE customer number |
-| `versichertenvorname` | text | Insured person first name |
-| `versichertennachname` | text | Insured person last name |
-| `versicherten_nr` | text | Insured person number |
-| `kassen_ik` | text | Health insurance institution key |
-| `kassenname` | text | Health insurance name |
-| `status` | text | Record status (see below) |
-| `reasons` | text | Reason for decision |
+| Field | Description |
+|-------|-------------|
+| `category` | Carebox / Reusable Pads / Invoice / Other |
+| `type` | Approved / Reject / Terminations |
+| `scan_status` | `success` or `error` |
+| `pdf_url` | Supabase storage URL (cleared after Process to CRM) |
+| `process_status` | `Process Completed` or null |
+| `uploaded_by` | UUID of uploader |
+| `uploader_name` | Email of uploader (stored at upload time) |
+| `uploaded_at` | Timestamp of upload |
 
-### Status Values
+---
 
-| Status | Meaning |
-|--------|---------|
-| `Pending` | Awaiting decision |
-| `Approved` | Record approved |
-| `Rejected` | Record rejected |
-| `Error` | Processing error |
-| `Closed Lost` | Closed without resolution |
+## Local Development
 
-## Features
+### Prerequisites
+- Node.js 20+
+- A [Supabase](https://supabase.com) project
+- An [Anthropic](https://console.anthropic.com) API key
 
-### Dashboard Overview
-- Status breakdown cards for EKV and Letter modules
-- Recent activity feed showing the last 10 actions
+### Setup
 
-### EKV Module
-- Paginated table of EKV records (20 per page)
-- Search by name, Versicherten-Nr, KVNr, or Kasse
-- Filter by status
-- Per-row actions (approve, reject, etc.)
-- CSV/Excel import via modal
+```bash
+git clone https://github.com/kimverperulatus/azh-monitoring.git
+cd azh-monitoring
+npm install
+```
 
-### Letter Module
-- Records table for letter processing workflows
+Create `.env.local`:
 
-### Logs
-- Full activity log with timestamps
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+ANTHROPIC_API_KEY=sk-ant-...
+```
 
-### Authentication
-- Supabase email/password authentication
-- Protected routes via Next.js middleware
-- Session managed server-side with `@supabase/ssr`
+Run database migrations in Supabase SQL Editor (in order):
+1. `supabase/schema.sql`
+2. `supabase/migrate-v2.sql`
+3. `supabase/migrate-letter-uploader.sql`
+
+Start the dev server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+---
+
+## Production Deployment
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for the full step-by-step guide.
+
+**Quick summary:**
+1. Azure Ubuntu VM with ports 80, 443, 22 open
+2. Install Docker on the VM
+3. Clone the repo and create `.env`
+4. `docker compose up -d --build`
+5. Traefik handles SSL automatically via Let's Encrypt
+
+---
 
 ## Available Scripts
 
@@ -162,15 +228,8 @@ azh-monitoring/
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 
-## Deployment
-
-This app can be deployed to [Vercel](https://vercel.com) with zero configuration:
-
-1. Push to GitHub (already done)
-2. Import the repo in Vercel
-3. Add the environment variables (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
-4. Deploy
+---
 
 ## Known Issues
 
-- Password manager browser extensions (1Password, LastPass, Bitwarden, etc.) inject `fdprocessedid` attributes into form inputs and buttons, causing React hydration warnings. This is suppressed with `suppressHydrationWarning` on affected elements and is not a functional bug.
+- Browser password manager extensions (1Password, Bitwarden, etc.) inject `fdprocessedid` attributes on inputs/buttons causing React hydration warnings. Suppressed with `suppressHydrationWarning` — not a functional bug.
