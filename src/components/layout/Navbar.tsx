@@ -6,9 +6,11 @@ import { useState, useRef, useEffect } from "react";
 const allNavItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard, pageKey: "overview", adminOnly: false },
   { href: "/dashboard/ekv", label: "EKV", icon: FileText, pageKey: "ekv", adminOnly: false },
-  { href: "/dashboard/letter", label: "Letter", icon: Mail, pageKey: "letter_all", adminOnly: false },
+  { href: "/dashboard/letter/all", label: "Letters", icon: Mail, pageKey: "letter_all", adminOnly: false },
+  { href: "/dashboard/letter/upload", label: "Upload", icon: KeyRound, pageKey: "letter_upload", adminOnly: false },
   { href: "/dashboard/logs", label: "Logs", icon: ScrollText, pageKey: "logs", adminOnly: false },
   { href: "/dashboard/admin/users", label: "Users", icon: Users, pageKey: null, adminOnly: true },
+  { href: "/dashboard/admin/permissions", label: "Permissions", icon: KeyRound, pageKey: null, adminOnly: true },
 ];
 
 export default function Navbar() {
