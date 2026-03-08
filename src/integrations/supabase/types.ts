@@ -46,25 +46,61 @@ export type Database = {
           created_at: string
           error_message: string | null
           id: string
+          kassen_ik: string | null
+          kassenname: string | null
+          kv_angelegt: string | null
+          kv_entschieden: string | null
+          kvnr_le: string | null
+          kvnr_noventi: string | null
+          le_ik: string | null
+          le_kdnr: string | null
           payload: Json | null
+          reasons: string | null
           status: string
           updated_at: string
+          versicherten_nr: string | null
+          versichertennachname: string | null
+          versichertenvorname: string | null
         }
         Insert: {
           created_at?: string
           error_message?: string | null
           id?: string
+          kassen_ik?: string | null
+          kassenname?: string | null
+          kv_angelegt?: string | null
+          kv_entschieden?: string | null
+          kvnr_le?: string | null
+          kvnr_noventi?: string | null
+          le_ik?: string | null
+          le_kdnr?: string | null
           payload?: Json | null
+          reasons?: string | null
           status?: string
           updated_at?: string
+          versicherten_nr?: string | null
+          versichertennachname?: string | null
+          versichertenvorname?: string | null
         }
         Update: {
           created_at?: string
           error_message?: string | null
           id?: string
+          kassen_ik?: string | null
+          kassenname?: string | null
+          kv_angelegt?: string | null
+          kv_entschieden?: string | null
+          kvnr_le?: string | null
+          kvnr_noventi?: string | null
+          le_ik?: string | null
+          le_kdnr?: string | null
           payload?: Json | null
+          reasons?: string | null
           status?: string
           updated_at?: string
+          versicherten_nr?: string | null
+          versichertennachname?: string | null
+          versichertenvorname?: string | null
         }
         Relationships: []
       }
@@ -175,7 +211,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
