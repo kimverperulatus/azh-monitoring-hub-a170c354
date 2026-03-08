@@ -150,34 +150,6 @@ export default async function DashboardPage({
         </div>
       </section>
 
-      {/* EKV Stats */}
-      <section>
-        <div className="flex items-center gap-2 mb-2 md:mb-3">
-          <span className="w-1.5 h-4 rounded-full bg-brand-red-800 inline-block" />
-          <h2 className="text-xs font-semibold text-brand-navy-800 uppercase tracking-wide">EKV Module</h2>
-        </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
-          <StatsCard label="Total Records" value={ekvTotal} color="navy" icon="total" />
-          {ekvCounts.map(({ status, count }) => (
-            <StatsCard key={status} label={status} value={count} color={getColor(status)} />
-          ))}
-        </div>
-      </section>
-
-      {/* Letter Stats */}
-      <section>
-        <div className="flex items-center gap-2 mb-2 md:mb-3">
-          <span className="w-1.5 h-4 rounded-full bg-brand-gold-500 inline-block" />
-          <h2 className="text-xs font-semibold text-brand-navy-800 uppercase tracking-wide">Letter Module</h2>
-        </div>
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-3">
-          <StatsCard label="Total Records" value={letterTotal} color="navy" icon="total" />
-          {letterCounts.map(({ status, count }) => (
-            <StatsCard key={status} label={status} value={count} color={getColor(status)} />
-          ))}
-        </div>
-      </section>
-
       {/* Monthly Chart */}
       <section>
         <Suspense fallback={<div className="h-80 bg-white rounded-2xl border border-gray-100 animate-pulse" />}>
