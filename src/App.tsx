@@ -40,6 +40,7 @@ const App = () => (
               <Route path="logs" element={<LogsPage />} />
               <Route path="admin/users" element={<AdminUsersPage />} />
               <Route path="admin/permissions" element={<AdminPermissionsPage />} />
+              <Route path="admin/migrate" element={<MigratePage />} />
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFound />} />
