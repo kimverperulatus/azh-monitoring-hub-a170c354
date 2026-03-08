@@ -123,6 +123,13 @@ export default function EkvRecordEditor({ record }: { record: EkvRecord }) {
       payload[k] = v === "" ? null : v;
     }
     const { error: err } = await supabase.from("ekv_records").update(payload).eq("id", record.id);
+    if (!err) {
+      await supabase.from("activity_logs").insert({
+        module: "ekv",
+        action: "Record updated",
+        record_id: record.id,
+      });
+    }
     setSaving(false);
     if (err) {
       setError(err.message);

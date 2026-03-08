@@ -103,13 +103,24 @@ export default function PdfUploadModal() {
         ...(pdf_url ? { pdf_url } : {}),
       };
 
-      const { error: dbError } = await supabase.from("letter_records").insert(payload);
+      const { data: inserted, error: dbError } = await supabase
+        .from("letter_records")
+        .insert(payload)
+        .select("id")
+        .single();
 
       if (dbError) {
         updateStatus(i, "error", `Saved failed: ${dbError.message}`);
       } else if (analyzeError) {
         updateStatus(i, "error", analyzeError);
       } else {
+        if (inserted?.id && !analyzeError) {
+          await supabase.from("activity_logs").insert({
+            module: "letter",
+            action: "AI PDF analyzed",
+            record_id: String(inserted.id),
+          });
+        }
         updateStatus(i, "success");
       }
     }

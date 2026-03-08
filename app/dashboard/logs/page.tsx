@@ -4,17 +4,30 @@ import { formatDistanceToNow } from "date-fns";
 export default async function LogsPage() {
   const supabase = await createClient();
 
-  const { data: logs } = await supabase
-    .from("activity_logs")
-    .select("*")
-    .order("timestamp", { ascending: false })
-    .limit(100);
+  const [{ data: logs }, { count: aiScanCount }] = await Promise.all([
+    supabase
+      .from("activity_logs")
+      .select("*")
+      .order("timestamp", { ascending: false })
+      .limit(100),
+    supabase
+      .from("activity_logs")
+      .select("*", { count: "exact", head: true })
+      .eq("action", "AI PDF analyzed"),
+  ]);
 
   return (
     <div className="p-3 md:p-6 space-y-4">
       <div>
         <h1 className="text-xl md:text-2xl font-bold text-gray-900">Activity Logs</h1>
         <p className="text-sm text-gray-500">Last 100 events</p>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-col gap-0.5 min-w-[140px]">
+          <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Total AI Scans</span>
+          <span className="text-2xl font-bold text-brand-navy-800">{aiScanCount ?? 0}</span>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
