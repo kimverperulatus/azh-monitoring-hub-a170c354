@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import LetterRecordEditor from "@/components/letter/LetterRecordEditor";
 import BackButton from "@/components/ui/BackButton";
+import { getUserRole } from "@/lib/auth/role";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +24,8 @@ const TYPE_STYLES: Record<string, string> = {
 export default async function LetterRecordPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const role = user ? await getUserRole(user.id) : null;
 
   const [{ data: record }, { data: prevRecord }, { data: nextRecord }] = await Promise.all([
     supabase.from("letter_records").select("*").eq("id", id).single(),
@@ -87,7 +90,7 @@ export default async function LetterRecordPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <LetterRecordEditor record={record} />
+      <LetterRecordEditor record={record} role={role} />
 
       <section className="bg-white rounded-xl border border-gray-200 p-3 md:p-4 space-y-3">
         <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Timestamps</h2>

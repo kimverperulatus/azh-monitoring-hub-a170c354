@@ -104,7 +104,7 @@ const TYPE_STYLES: Record<string, string> = {
   "Terminations": "bg-gray-100 text-gray-600",
 };
 
-export default function LetterRecordEditor({ record }: { record: LetterRecord }) {
+export default function LetterRecordEditor({ record, role }: { record: LetterRecord; role?: string | null }) {
   const router = useRouter();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -247,7 +247,7 @@ export default function LetterRecordEditor({ record }: { record: LetterRecord })
     return (
       <>
         <div className="flex justify-end gap-2">
-          {record.pdf_url && (
+          {record.pdf_url && role !== "scanner" && (
             <button
               onClick={handleProcessToCrm}
               disabled={processing}
