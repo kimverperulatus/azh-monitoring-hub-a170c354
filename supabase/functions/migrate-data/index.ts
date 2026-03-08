@@ -22,7 +22,8 @@ serve(async (req) => {
     const newDb = createClient(NEW_URL, NEW_KEY);
 
     const { tables } = await req.json();
-    const tablesToMigrate = tables || ["profiles", "ekv_records", "letter_records", "activity_logs", "role_permissions"];
+    // Skip profiles by default — old user IDs don't exist in new auth.users
+    const tablesToMigrate = tables || ["ekv_records", "letter_records", "activity_logs", "role_permissions"];
 
     const results: Record<string, { migrated: number; error?: string }> = {};
 

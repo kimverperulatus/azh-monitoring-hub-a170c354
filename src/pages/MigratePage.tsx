@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import { Database, Loader2, CheckCircle, AlertCircle, ArrowDownToLine } from "lucide-react";
 
-const ALL_TABLES = ["profiles", "ekv_records", "letter_records", "activity_logs", "role_permissions"];
+const ALL_TABLES = ["ekv_records", "letter_records", "activity_logs", "role_permissions"];
 
 export default function MigratePage() {
   const { role } = useAuth();
