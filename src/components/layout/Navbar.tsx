@@ -22,7 +22,8 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navItems = allNavItems.filter((item) => {
-    if (item.adminOnly) return role === "admin";
+    if (role === "admin") return true;
+    if (item.adminOnly) return false;
     return allowedPages.includes(item.pageKey ?? "");
   });
 
