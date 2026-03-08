@@ -14,7 +14,162 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action: string
+          id: string
+          module: string
+          record_id: string | null
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          id?: string
+          module: string
+          record_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          id?: string
+          module?: string
+          record_id?: string | null
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      ekv_records: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          payload: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      letter_records: {
+        Row: {
+          category: string | null
+          created_at: string
+          date_of_letter: string | null
+          error_message: string | null
+          id: string
+          payload: Json | null
+          pdf_url: string | null
+          process_status: string | null
+          recipient: string | null
+          scan_status: string | null
+          status: string
+          type: string | null
+          updated_at: string
+          uploaded_at: string | null
+          uploaded_by: string | null
+          uploader_name: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          date_of_letter?: string | null
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          pdf_url?: string | null
+          process_status?: string | null
+          recipient?: string | null
+          scan_status?: string | null
+          status?: string
+          type?: string | null
+          updated_at?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+          uploader_name?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          date_of_letter?: string | null
+          error_message?: string | null
+          id?: string
+          payload?: Json | null
+          pdf_url?: string | null
+          process_status?: string | null
+          recipient?: string | null
+          scan_status?: string | null
+          status?: string
+          type?: string | null
+          updated_at?: string
+          uploaded_at?: string | null
+          uploaded_by?: string | null
+          uploader_name?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          allowed: boolean
+          id: string
+          page_key: string
+          role: string
+        }
+        Insert: {
+          allowed?: boolean
+          id?: string
+          page_key: string
+          role: string
+        }
+        Update: {
+          allowed?: boolean
+          id?: string
+          page_key?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
