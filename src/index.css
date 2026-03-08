@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 4.9%;
+
+    --primary: 222 47% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 222 84% 4.9%;
+    --radius: 0.5rem;
+
+    /* Brand colors */
+    --brand-navy-50: 214 100% 97%;
+    --brand-navy-100: 214 95% 93%;
+    --brand-navy-200: 213 97% 87%;
+    --brand-navy-300: 212 96% 78%;
+    --brand-navy-400: 213 94% 68%;
+    --brand-navy-500: 217 91% 60%;
+    --brand-navy-600: 221 83% 53%;
+    --brand-navy-700: 224 76% 48%;
+    --brand-navy-800: 226 71% 40%;
+    --brand-navy-900: 224 64% 33%;
+    --brand-navy-950: 226 57% 21%;
+
+    --brand-red-50: 0 86% 97%;
+    --brand-red-100: 0 93% 94%;
+    --brand-red-200: 0 96% 89%;
+    --brand-red-300: 0 94% 82%;
+    --brand-red-400: 0 91% 71%;
+    --brand-red-500: 0 84% 60%;
+    --brand-red-600: 0 72% 51%;
+    --brand-red-700: 0 74% 42%;
+    --brand-red-800: 0 70% 35%;
+    --brand-red-900: 0 63% 31%;
+    --brand-red-950: 0 75% 15%;
+
+    --brand-gold-50: 48 100% 96%;
+    --brand-gold-100: 48 96% 89%;
+    --brand-gold-200: 48 97% 77%;
+    --brand-gold-300: 46 97% 65%;
+    --brand-gold-400: 43 96% 56%;
+    --brand-gold-500: 38 92% 50%;
+    --brand-gold-600: 32 95% 44%;
+    --brand-gold-700: 26 90% 37%;
+    --brand-gold-800: 23 83% 31%;
+    --brand-gold-900: 22 78% 26%;
+    --brand-gold-950: 21 92% 14%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5% 26%;
+    --sidebar-primary: 240 6% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 5% 96%;
+    --sidebar-accent-foreground: 240 6% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    --background: 222 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11.2%;
+    --secondary: 217 33% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17.5%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 17.5%;
+    --input: 217 33% 17.5%;
+    --ring: 213 27% 84%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
