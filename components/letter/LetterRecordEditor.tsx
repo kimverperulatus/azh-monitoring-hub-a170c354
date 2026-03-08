@@ -199,6 +199,9 @@ export default function LetterRecordEditor({ record, role }: { record: LetterRec
   }
 
   async function handleSave() {
+    if (!form.category) { setError("Category is required."); return; }
+    if (!form.type) { setError("Type is required."); return; }
+    if (!form.date_of_letter) { setError("Date of Letter is required."); return; }
     setSaving(true);
     setError("");
     const supabase = createClient();
