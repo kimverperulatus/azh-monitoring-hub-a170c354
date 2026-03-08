@@ -55,6 +55,7 @@ export type Database = {
           kvnr_noventi: string | null
           le_ik: string | null
           le_kdnr: string | null
+          notes: string | null
           payload: Json | null
           reasons: string | null
           status: string
@@ -76,6 +77,7 @@ export type Database = {
           kvnr_noventi?: string | null
           le_ik?: string | null
           le_kdnr?: string | null
+          notes?: string | null
           payload?: Json | null
           reasons?: string | null
           status?: string
@@ -97,6 +99,7 @@ export type Database = {
           kvnr_noventi?: string | null
           le_ik?: string | null
           le_kdnr?: string | null
+          notes?: string | null
           payload?: Json | null
           reasons?: string | null
           status?: string
