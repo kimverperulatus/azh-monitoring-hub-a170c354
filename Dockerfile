@@ -2,12 +2,32 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
+# Install system packages needed to compile native Node addons
+# (pdf-parse, xlsx, and other packages with native bindings)
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    cairo-dev \
+    pango-dev \
+    jpeg-dev \
+    giflib-dev \
+    librsvg-dev
+
 COPY package.json package-lock.json* ./
 RUN npm ci
 
 # ── Stage 2: builder ───────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Same system packages needed during build
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -18,8 +38,6 @@ ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-# Disable Next.js telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN npm run build
@@ -27,6 +45,18 @@ RUN npm run build
 # ── Stage 3: runner ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 WORKDIR /app
+
+# Runtime system libraries (no build tools needed here)
+RUN apk add --no-cache \
+    libc6-compat \
+    cairo \
+    pango \
+    jpeg \
+    giflib \
+    librsvg \
+    # For PDF processing at runtime
+    fontconfig \
+    ttf-dejavu
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
