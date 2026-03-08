@@ -8,9 +8,7 @@ export default {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
       colors: {
@@ -57,6 +55,45 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "brand-navy": {
+          50: "hsl(var(--brand-navy-50))",
+          100: "hsl(var(--brand-navy-100))",
+          200: "hsl(var(--brand-navy-200))",
+          300: "hsl(var(--brand-navy-300))",
+          400: "hsl(var(--brand-navy-400))",
+          500: "hsl(var(--brand-navy-500))",
+          600: "hsl(var(--brand-navy-600))",
+          700: "hsl(var(--brand-navy-700))",
+          800: "hsl(var(--brand-navy-800))",
+          900: "hsl(var(--brand-navy-900))",
+          950: "hsl(var(--brand-navy-950))",
+        },
+        "brand-red": {
+          50: "hsl(var(--brand-red-50))",
+          100: "hsl(var(--brand-red-100))",
+          200: "hsl(var(--brand-red-200))",
+          300: "hsl(var(--brand-red-300))",
+          400: "hsl(var(--brand-red-400))",
+          500: "hsl(var(--brand-red-500))",
+          600: "hsl(var(--brand-red-600))",
+          700: "hsl(var(--brand-red-700))",
+          800: "hsl(var(--brand-red-800))",
+          900: "hsl(var(--brand-red-900))",
+          950: "hsl(var(--brand-red-950))",
+        },
+        "brand-gold": {
+          50: "hsl(var(--brand-gold-50))",
+          100: "hsl(var(--brand-gold-100))",
+          200: "hsl(var(--brand-gold-200))",
+          300: "hsl(var(--brand-gold-300))",
+          400: "hsl(var(--brand-gold-400))",
+          500: "hsl(var(--brand-gold-500))",
+          600: "hsl(var(--brand-gold-600))",
+          700: "hsl(var(--brand-gold-700))",
+          800: "hsl(var(--brand-gold-800))",
+          900: "hsl(var(--brand-gold-900))",
+          950: "hsl(var(--brand-gold-950))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -65,20 +102,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {
