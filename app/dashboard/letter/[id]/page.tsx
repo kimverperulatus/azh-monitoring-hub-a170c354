@@ -45,7 +45,7 @@ export default async function LetterRecordPage({ params }: { params: Promise<{ i
   return (
     <div className="p-3 md:p-6 space-y-4 w-full">
       <div className="flex items-center justify-between gap-2">
-        <BackButton label="Back to Letter Records" />
+        <BackButton label="Back to Letter Records" href={isScanner ? "/dashboard/letter/upload" : undefined} />
         <div className="flex items-center gap-1.5">
           {prevRecord ? (
             <Link
