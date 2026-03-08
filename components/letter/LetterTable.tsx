@@ -21,6 +21,8 @@ type LetterRecord = {
   file_name: string | null;
   scan_status: string | null;
   ai_summary: string | null;
+  uploader_name: string | null;
+  uploaded_at: string | null;
 };
 
 function formatDate(val: string | null) {
@@ -297,6 +299,8 @@ export default function LetterTable({
               <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">File Name</th>
               <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Scan</th>
               <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">AI Summary</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Uploaded By</th>
+              <th className="text-left px-3 py-2.5 font-semibold text-gray-500 whitespace-nowrap uppercase tracking-wide text-[10px]">Upload Date</th>
               <th className="px-3 py-2.5" />
             </tr>
           </thead>
@@ -371,6 +375,10 @@ export default function LetterTable({
                       <span className="line-clamp-2 leading-relaxed" title={record.ai_summary}>{record.ai_summary}</span>
                     ) : <span className="text-gray-300">—</span>}
                   </td>
+                  <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap text-[11px]">{record.uploader_name ?? <span className="text-gray-300">—</span>}</td>
+                  <td className="px-3 py-2.5 text-gray-600 whitespace-nowrap text-[11px]">
+                    {record.uploaded_at ? format(new Date(record.uploaded_at), "dd.MM.yyyy HH:mm") : <span className="text-gray-300">—</span>}
+                  </td>
                   <td className="px-3 py-2.5">
                     <Link
                       href={`/dashboard/letter/${record.id}`}
@@ -385,7 +393,7 @@ export default function LetterTable({
             })}
             {!records.length && (
               <tr>
-                <td colSpan={isAdmin ? 11 : 10} className="px-4 py-12 text-center text-gray-400 text-sm">
+                <td colSpan={isAdmin ? 13 : 12} className="px-4 py-12 text-center text-gray-400 text-sm">
                   No records found
                 </td>
               </tr>

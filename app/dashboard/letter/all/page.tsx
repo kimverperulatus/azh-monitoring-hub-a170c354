@@ -22,7 +22,7 @@ export default async function AllScanLettersPage({
   let query = supabase
     .from("letter_records")
     .select(
-      "id, created_at, category, type, health_insurance_provider, date_of_letter, insurance_number, first_name, last_name, approval_id, valid_until, file_name, scan_status, ai_summary",
+      "id, created_at, category, type, health_insurance_provider, date_of_letter, insurance_number, first_name, last_name, approval_id, valid_until, file_name, scan_status, ai_summary, uploader_name, uploaded_at",
       { count: "exact" }
     )
     .order("created_at", { ascending: false });
