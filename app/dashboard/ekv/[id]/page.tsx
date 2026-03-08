@@ -2,9 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import NoteEditor from "@/components/ekv/NoteEditor";
 import EkvRecordEditor from "@/components/ekv/EkvRecordEditor";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -50,13 +51,7 @@ export default async function EkvRecordPage({ params }: { params: Promise<{ id: 
     <div className="p-3 md:p-6 space-y-4 w-full">
       {/* Back + header */}
       <div className="flex items-center justify-between gap-2">
-        <Link
-          href="/dashboard/ekv"
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Back to EKV Records</span>
-        </Link>
+        <BackButton label="Back to EKV Records" />
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-400 font-mono hidden md:inline">{record.id}</span>
           <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[record.status] ?? "bg-brand-navy-50 text-brand-navy-700"}`}>

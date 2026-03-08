@@ -1,7 +1,8 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { format } from "date-fns";
-import { ArrowLeft, Download, AlertTriangle, Eye } from "lucide-react";
+import { Download, AlertTriangle, Eye } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -103,13 +104,7 @@ export default async function EkvAuditPage({
     <div className="p-3 md:p-6 space-y-4 md:space-y-5">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link
-          href="/dashboard/ekv"
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to EKV Records
-        </Link>
+        <BackButton label="Back to EKV Records" />
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2">

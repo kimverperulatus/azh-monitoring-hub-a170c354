@@ -1,9 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import LetterRecordEditor from "@/components/letter/LetterRecordEditor";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -34,13 +35,7 @@ export default async function LetterRecordPage({ params }: { params: Promise<{ i
   return (
     <div className="p-3 md:p-6 space-y-4 w-full">
       <div className="flex items-center justify-between gap-2">
-        <Link
-          href="/dashboard/letter"
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Back to Letter Records</span>
-        </Link>
+        <BackButton label="Back to Letter Records" />
         <div className="flex items-center gap-1.5">
           {prevRecord ? (
             <Link
