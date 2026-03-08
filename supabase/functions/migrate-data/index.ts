@@ -6,6 +6,48 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Define allowed columns per table to strip unknown columns from old data
+const ALLOWED_COLUMNS: Record<string, string[]> = {
+  ekv_records: [
+    "id", "payload", "created_at", "updated_at", "kv_angelegt", "kv_entschieden",
+    "audit_date", "versichertennachname", "versichertenvorname", "versicherten_nr",
+    "kassen_ik", "status", "kassenname", "error_message", "reasons", "notes",
+    "kvnr_noventi", "kvnr_le", "le_ik", "le_kdnr",
+  ],
+  letter_records: [
+    "id", "payload", "created_at", "updated_at", "type", "scan_status",
+    "process_status", "uploader_name", "status", "recipient", "ai_summary",
+    "error_message", "date_of_letter", "uploaded_at", "uploaded_by", "pdf_url",
+    "category",
+  ],
+  activity_logs: [
+    "id", "action", "module", "timestamp", "user_id", "record_id",
+  ],
+  role_permissions: [
+    "id", "allowed", "page_key", "role", "enabled",
+  ],
+};
+
+// Define the unique conflict column(s) per table
+const CONFLICT_COLUMNS: Record<string, string> = {
+  ekv_records: "id",
+  letter_records: "id",
+  activity_logs: "id",
+  role_permissions: "role,page_key",
+};
+
+function stripUnknownColumns(rows: any[], allowedCols: string[]): any[] {
+  return rows.map(row => {
+    const cleaned: Record<string, any> = {};
+    for (const col of allowedCols) {
+      if (col in row) {
+        cleaned[col] = row[col];
+      }
+    }
+    return cleaned;
+  });
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -22,14 +64,12 @@ serve(async (req) => {
     const newDb = createClient(NEW_URL, NEW_KEY);
 
     const { tables } = await req.json();
-    // Skip profiles by default — old user IDs don't exist in new auth.users
     const tablesToMigrate = tables || ["ekv_records", "letter_records", "activity_logs", "role_permissions"];
 
     const results: Record<string, { migrated: number; error?: string }> = {};
 
     for (const table of tablesToMigrate) {
       try {
-        // Fetch all from old DB (paginate in chunks of 500)
         let allRows: any[] = [];
         let offset = 0;
         const limit = 500;
@@ -53,8 +93,19 @@ serve(async (req) => {
           continue;
         }
 
-        // For profiles table, we need to handle conflicts (user might already exist)
-        // Use upsert to avoid duplicate key errors
+        // Strip columns that don't exist in the new schema
+        const allowedCols = ALLOWED_COLUMNS[table];
+        if (allowedCols) {
+          allRows = stripUnknownColumns(allRows, allowedCols);
+        }
+
+        // Null out foreign key references to old auth.users IDs
+        if (table === "letter_records") {
+          allRows = allRows.map(row => ({ ...row, uploaded_by: null }));
+        }
+
+        const conflictCol = CONFLICT_COLUMNS[table] || "id";
+
         let totalMigrated = 0;
         const chunkSize = 100;
 
@@ -62,7 +113,7 @@ serve(async (req) => {
           const chunk = allRows.slice(i, i + chunkSize);
           const { error: insertError } = await newDb
             .from(table)
-            .upsert(chunk, { onConflict: "id" });
+            .upsert(chunk, { onConflict: conflictCol });
 
           if (insertError) {
             console.error(`Error inserting into ${table}:`, insertError);
