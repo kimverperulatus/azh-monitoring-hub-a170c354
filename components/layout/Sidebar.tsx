@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, KeyRound } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, KeyRound, List, Upload } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import { useState } from "react";
@@ -10,7 +10,6 @@ import { useState } from "react";
 const navItems = [
   { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
   { href: "/dashboard/ekv", label: "EKV", icon: FileText },
-  { href: "/dashboard/letter", label: "Scan Letter", icon: Mail },
   { href: "/dashboard/logs", label: "Logs", icon: ScrollText },
 ];
 
@@ -90,6 +89,40 @@ export default function Sidebar({ user }: { user: User }) {
             </Link>
           );
         })}
+
+        {/* Scan Letter section with sub-items */}
+        <div>
+          <div className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium ${
+            pathname.startsWith("/dashboard/letter") ? "text-blue-700" : "text-gray-600"
+          }`}>
+            <Mail className="w-4 h-4" />
+            Scan Letter
+          </div>
+          <div className="ml-4 pl-3 border-l border-gray-200 space-y-0.5 mt-0.5">
+            <Link
+              href="/dashboard/letter/all"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname === "/dashboard/letter/all"
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <List className="w-3.5 h-3.5" />
+              All Scan Letters
+            </Link>
+            <Link
+              href="/dashboard/letter/upload"
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                pathname === "/dashboard/letter/upload"
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+              }`}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Upload Scan Letters
+            </Link>
+          </div>
+        </div>
       </nav>
 
       <div className="px-3 py-4 border-t border-gray-200">
