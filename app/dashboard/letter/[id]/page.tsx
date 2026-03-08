@@ -27,10 +27,17 @@ export default async function LetterRecordPage({ params }: { params: Promise<{ i
   const { data: { user } } = await supabase.auth.getUser();
   const role = user ? await getUserRole(user.id) : null;
 
+  const isScanner = role === "scanner";
+  const userId = user?.id ?? "";
+
   const [{ data: record }, { data: prevRecord }, { data: nextRecord }] = await Promise.all([
     supabase.from("letter_records").select("*").eq("id", id).single(),
-    supabase.from("letter_records").select("id").lt("id", id).order("id", { ascending: false }).limit(1).maybeSingle(),
-    supabase.from("letter_records").select("id").gt("id", id).order("id", { ascending: true }).limit(1).maybeSingle(),
+    isScanner
+      ? supabase.from("letter_records").select("id").lt("id", id).eq("uploaded_by", userId).order("id", { ascending: false }).limit(1).maybeSingle()
+      : supabase.from("letter_records").select("id").lt("id", id).order("id", { ascending: false }).limit(1).maybeSingle(),
+    isScanner
+      ? supabase.from("letter_records").select("id").gt("id", id).eq("uploaded_by", userId).order("id", { ascending: true }).limit(1).maybeSingle()
+      : supabase.from("letter_records").select("id").gt("id", id).order("id", { ascending: true }).limit(1).maybeSingle(),
   ]);
 
   if (!record) notFound();
