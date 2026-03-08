@@ -31,6 +31,8 @@ type LetterRecord = {
   pdf_url: string | null;
   process_status: string | null;
   carebox_status: string | null;
+  uploader_name: string | null;
+  uploaded_at: string | null;
 };
 
 const CATEGORY_OPTIONS = ["Carebox", "Reusable Pads", "Invoice", "Other"];
@@ -363,6 +365,8 @@ export default function LetterRecordEditor({ record, role }: { record: LetterRec
 
             <div className="bg-white rounded-lg border border-gray-200 p-3">
               <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Scan Info</p>
+              <Row label="Uploaded By" value={record.uploader_name} />
+              <Row label="Upload Date" value={record.uploaded_at ? new Date(record.uploaded_at).toLocaleString() : null} />
               <Row label="File Name" value={record.file_name} />
               <div className="flex gap-2 py-1 border-b border-gray-50">
                 <span className="text-[11px] text-gray-400 w-28 shrink-0 pt-px">Renamed Name</span>

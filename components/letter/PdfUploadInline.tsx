@@ -102,6 +102,8 @@ export default function PdfUploadInline() {
         ...(fallbackSummary ? { ai_summary: fallbackSummary } : {}),
         ...(pdf_url ? { pdf_url } : {}),
         uploaded_by: user?.id ?? null,
+        uploader_name: user?.email ?? null,
+        uploaded_at: new Date().toISOString(),
       };
 
       const { data: inserted, error: dbError } = await supabase
