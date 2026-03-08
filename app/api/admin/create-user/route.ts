@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Email and password are required." }, { status: 400 });
   }
 
-  const validRoles = ["admin", "support"];
+  const validRoles = ["admin", "support", "scanner", "custom"];
   const assignedRole = validRoles.includes(role) ? role : "support";
 
   const admin = createAdminClient();

@@ -1,7 +1,10 @@
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
-export type UserRole = "admin" | "support";
+export type UserRole = "admin" | "support" | "scanner" | "custom";
+
+export const ALL_PAGE_KEYS = ["overview", "ekv", "letter_all", "letter_upload", "logs"] as const;
+export type PageKey = (typeof ALL_PAGE_KEYS)[number];
 
 export async function getUserRole(userId: string): Promise<UserRole> {
   const admin = createAdminClient();
@@ -13,11 +16,18 @@ export async function getUserRole(userId: string): Promise<UserRole> {
   return (data?.role as UserRole) ?? "support";
 }
 
-/**
- * Call at the top of admin API route handlers.
- * Returns null if the user is an authenticated admin.
- * Returns a 401/403 NextResponse if not authenticated or not admin.
- */
+export async function getUserPageAccess(userId: string): Promise<string[]> {
+  const role = await getUserRole(userId);
+  if (role === "admin") return [...ALL_PAGE_KEYS];
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("role_permissions")
+    .select("page_key")
+    .eq("role", role)
+    .eq("enabled", true);
+  return data?.map((r) => r.page_key) ?? ["overview"];
+}
+
 export async function requireAdmin(): Promise<NextResponse | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

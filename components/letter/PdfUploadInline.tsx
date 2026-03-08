@@ -37,6 +37,7 @@ export default function PdfUploadInline() {
     setDone(false);
 
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     for (let i = 0; i < files.length; i++) {
       const { file } = files[i];
@@ -100,6 +101,7 @@ export default function PdfUploadInline() {
         ...(extracted ?? {}),
         ...(fallbackSummary ? { ai_summary: fallbackSummary } : {}),
         ...(pdf_url ? { pdf_url } : {}),
+        uploaded_by: user?.id ?? null,
       };
 
       const { data: inserted, error: dbError } = await supabase

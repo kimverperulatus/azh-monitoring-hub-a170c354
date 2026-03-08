@@ -2,22 +2,26 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, FileText, Mail, ScrollText, LogOut, ChevronDown, KeyRound, UserPlus, Settings, Menu, X, Users, Shield } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
 import type { UserRole } from "@/lib/auth/role";
 import { useState, useRef, useEffect } from "react";
 
 const allNavItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, adminOnly: false },
-  { href: "/dashboard/ekv", label: "EKV", icon: FileText, adminOnly: false },
-  { href: "/dashboard/letter", label: "Letter", icon: Mail, adminOnly: false },
-  { href: "/dashboard/logs", label: "Logs", icon: ScrollText, adminOnly: true },
-  { href: "/dashboard/admin/settings", label: "Settings", icon: Settings, adminOnly: true },
+  { href: "/dashboard",                label: "Overview",  icon: LayoutDashboard, pageKey: "overview",      adminOnly: false },
+  { href: "/dashboard/ekv",            label: "EKV",       icon: FileText,         pageKey: "ekv",           adminOnly: false },
+  { href: "/dashboard/letter",         label: "Letter",    icon: Mail,             pageKey: "letter_all",    adminOnly: false },
+  { href: "/dashboard/logs",           label: "Logs",      icon: ScrollText,       pageKey: "logs",          adminOnly: false },
+  { href: "/dashboard/admin/users",    label: "Users",     icon: Users,            pageKey: null,            adminOnly: true  },
+  { href: "/dashboard/admin/settings", label: "Settings",  icon: Settings,         pageKey: null,            adminOnly: true  },
 ];
 
-export default function Navbar({ user, role }: { user: User; role: UserRole }) {
-  const navItems = allNavItems.filter((item) => !item.adminOnly || role === "admin");
+export default function Navbar({ user, role, allowedPages }: { user: User; role: UserRole; allowedPages: string[] }) {
+  const navItems = allNavItems.filter((item) => {
+    if (item.adminOnly) return role === "admin";
+    return allowedPages.includes(item.pageKey ?? "");
+  });
   const pathname = usePathname();
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -31,7 +35,7 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserPassword, setNewUserPassword] = useState("");
-  const [newUserRole, setNewUserRole] = useState<"admin" | "support">("support");
+  const [newUserRole, setNewUserRole] = useState<string>("support");
   const [cuError, setCuError] = useState("");
   const [cuSuccess, setCuSuccess] = useState("");
   const [cuLoading, setCuLoading] = useState(false);
@@ -193,6 +197,26 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
                 Create User
               </button>
             )}
+            {role === "admin" && (
+              <Link
+                href="/dashboard/admin/users"
+                onClick={() => setDropdownOpen(false)}
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-100 group"
+              >
+                <Users className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                Users
+              </Link>
+            )}
+            {role === "admin" && (
+              <Link
+                href="/dashboard/admin/permissions"
+                onClick={() => setDropdownOpen(false)}
+                className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-100 group"
+              >
+                <Shield className="w-4 h-4 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                Permissions
+              </Link>
+            )}
             <button
               onClick={() => { setDropdownOpen(false); setShowPasswordModal(true); }}
               className="flex items-center gap-2.5 w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-100 group"
@@ -259,6 +283,16 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
               <UserPlus className="w-4 h-4" />
               Create User
             </button>
+          )}
+          {role === "admin" && (
+            <Link
+              href="/dashboard/admin/permissions"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-brand-navy-200 hover:bg-brand-navy-700 transition-colors"
+            >
+              <Shield className="w-4 h-4" />
+              Permissions
+            </Link>
           )}
           <button
             onClick={() => { setMobileMenuOpen(false); setShowPasswordModal(true); }}
@@ -365,11 +399,13 @@ export default function Navbar({ user, role }: { user: User; role: UserRole }) {
               <label className="block text-xs font-medium text-gray-600 mb-1.5">Role</label>
               <select
                 value={newUserRole}
-                onChange={(e) => setNewUserRole(e.target.value as "admin" | "support")}
+                onChange={(e) => setNewUserRole(e.target.value)}
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow bg-white"
                 suppressHydrationWarning
               >
                 <option value="support">Support</option>
+                <option value="scanner">Scanner</option>
+                <option value="custom">Custom</option>
                 <option value="admin">Admin</option>
               </select>
             </div>
