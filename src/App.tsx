@@ -12,6 +12,7 @@ import EkvDetailPage from "@/pages/EkvDetailPage";
 import LetterPage from "@/pages/LetterPage";
 import LetterDetailPage from "@/pages/LetterDetailPage";
 import LetterUploadPage from "@/pages/LetterUploadPage";
+import MigratePage from "@/pages/MigratePage";
 import LogsPage from "@/pages/LogsPage";
 import AdminUsersPage from "@/pages/AdminUsersPage";
 import AdminPermissionsPage from "@/pages/AdminPermissionsPage";
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="logs" element={<LogsPage />} />
               <Route path="admin/users" element={<AdminUsersPage />} />
               <Route path="admin/permissions" element={<AdminPermissionsPage />} />
+              <Route path="admin/migrate" element={<MigratePage />} />
             </Route>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="*" element={<NotFound />} />
