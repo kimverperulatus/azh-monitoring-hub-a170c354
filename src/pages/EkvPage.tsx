@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Filter } from "lucide-react";
+import { Search, Upload } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CsvImportDialog from "@/components/CsvImportDialog";
 
 export default function EkvPage() {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [importOpen, setImportOpen] = useState(false);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    async function fetch() {
-      setLoading(true);
-      let query = supabase.from("ekv_records").select("*").order("created_at", { ascending: false });
-      if (statusFilter !== "all") query = query.eq("status", statusFilter);
-      const { data } = await query;
-      setRecords(data ?? []);
-      setLoading(false);
-    }
-    fetch();
-  }, [statusFilter]);
+  const fetchRecords = async () => {
+    setLoading(true);
+    let query = supabase.from("ekv_records").select("*").order("created_at", { ascending: false });
+    if (statusFilter !== "all") query = query.eq("status", statusFilter);
+    const { data } = await query;
+    setRecords(data ?? []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchRecords(); }, [statusFilter]);
 
   const filtered = records.filter((r) => {
     if (!search) return true;
@@ -28,12 +31,20 @@ export default function EkvPage() {
 
   return (
     <div className="p-3 md:p-6 max-w-7xl mx-auto space-y-4">
-      <div>
-        <h1 className="text-xl font-bold text-foreground tracking-tight">EKV Records</h1>
-        <p className="text-sm text-muted-foreground mt-0.5">Manage EKV application records</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-foreground tracking-tight">EKV Records</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage EKV application records</p>
+        </div>
+        <button
+          onClick={() => setImportOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-brand-navy-800 text-primary-foreground text-sm font-medium rounded-xl hover:bg-brand-navy-700 transition-colors shadow-sm"
+        >
+          <Upload className="w-4 h-4" />
+          Import CSV
+        </button>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -57,7 +68,6 @@ export default function EkvPage() {
         </select>
       </div>
 
-      {/* Table */}
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -76,7 +86,7 @@ export default function EkvPage() {
                 <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">No records found</td></tr>
               ) : (
                 filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-muted/30 transition-colors">
+                  <tr key={r.id} onClick={() => navigate(`/dashboard/ekv/${r.id}`)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{r.id.slice(0, 8)}...</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2 py-0.5 rounded-md text-xs font-medium ${
@@ -96,6 +106,8 @@ export default function EkvPage() {
           </table>
         </div>
       </div>
+
+      <CsvImportDialog open={importOpen} onClose={() => setImportOpen(false)} onImported={() => { setImportOpen(false); fetchRecords(); }} />
     </div>
   );
 }

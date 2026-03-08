@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function LetterPage() {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetch() {
@@ -74,7 +76,7 @@ export default function LetterPage() {
                 <tr><td colSpan={4} className="px-4 py-8 text-center text-muted-foreground">No records found</td></tr>
               ) : (
                 filtered.map((r) => (
-                  <tr key={r.id} className="hover:bg-muted/30 transition-colors">
+                  <tr key={r.id} onClick={() => navigate(`/dashboard/letter/${r.id}`)} className="hover:bg-muted/30 transition-colors cursor-pointer">
                     <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{r.id.slice(0, 8)}...</td>
                     <td className="px-4 py-3 text-foreground">{r.recipient ?? "—"}</td>
                     <td className="px-4 py-3">
